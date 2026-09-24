@@ -14,5 +14,4 @@ exec .venv/bin/python -m vllm.entrypoints.openai.api_server \
   --max-model-len 32768 --max-num-seqs 2 --max-num-batched-tokens 4096 --gpu-memory-utilization 0.88 \
   --limit-mm-per-prompt '{"image":0,"audio":0}' \
   --tool-call-parser gemma4 --enable-auto-tool-choice --reasoning-parser gemma4 \
-  --enforce-eager \
   > vllm_serve.log 2>&1
