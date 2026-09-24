@@ -188,5 +188,12 @@ def eval(
     console.print(json.dumps({k: v for k, v in s.items() if k != "errors"}, indent=2))
 
 
+@app.command()
+def analyze(results_dir: Path, show: int = 12):
+    """Failure taxonomy (loop / edit_mismatch / broke_tests / budget / no_patch) for a results directory."""
+    from .analyze import main as _main
+    _main(str(results_dir), show)
+
+
 if __name__ == "__main__":
     app()
