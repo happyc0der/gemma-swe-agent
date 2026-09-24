@@ -118,11 +118,17 @@ def build_generate_config(cfg: dict | None) -> types.GenerateContentConfig | Non
         raise SubmissionError("max_output_tokens must be in 1..32768")
     if "thinking_config" in c and c["thinking_config"] is not None:
         tc = dict(c["thinking_config"])
-        if "thinking_level" in tc and isinstance(tc["thinking_level"], str):
+        if isinstance(tc.get("thinking_level"), str):
             tc["thinking_level"] = tc["thinking_level"].upper()
         if "thinking_budget" in tc and not (1 <= int(tc["thinking_budget"]) <= 32768):
             raise SubmissionError("thinking_budget must be in 1..32768")
-        c["thinking_config"] = types.ThinkingConfig(**tc)
+        if tc.get("thinking_level") == "NONE":
+            # README: thinking_level "NONE" disables thinking; genai's enum has no NONE, so drop the config entirely.
+            c.pop("thinking_config")
+        else:
+            c["thinking_config"] = types.ThinkingConfig(**tc)
+    elif "thinking_config" in c:
+        c.pop("thinking_config")
     return types.GenerateContentConfig(**c)
 
 
