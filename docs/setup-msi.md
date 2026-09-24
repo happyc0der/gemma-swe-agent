@@ -37,3 +37,12 @@ Accept the Gemma license at https://huggingface.co/google/gemma-4-31B-it-qat-w4a
 2. Copy the dataset from the Mac (`rsync` over Tailscale) or `kaggle competitions download` inside WSL.
 3. `swelite build-image`, then the full 129-task gold/null sweep.
 4. Serve `gemma-4-12b-it` (vLLM W4A16 in WSL2 with `--tool-call-parser gemma4 --reasoning-parser gemma4`, or Ollama `gemma4:12b` as a fallback) and run the dev split.
+
+## State as of 2026-09-24 (done by Claude over SSH)
+- SSH: `ssh msi` works (OpenSSH, PowerShell shell; user `KESHAV`). Long jobs must go through Task Scheduler (`schtasks`), because processes started from an SSH session are killed at logoff.
+- WSL2 Ubuntu 22.04 with GPU passthrough; Docker Desktop with WSL integration; in WSL use `DOCKER_CONFIG=~/.docker-ssh` (set in `.bashrc`) to bypass the Windows credential helper.
+- Repo at `~/Projects/gemma-swe-agent` in WSL, harness venv at `harness/.venv`, `swebench-sandbox:latest` built natively (x86_64, no emulation).
+- Dataset zip at `C:\Users\keshav\gemma-4-developer-agent.zip`, unpacked into `data/competition` in WSL.
+- Proxy model: Ollama on Windows, `gemma4:12b-32k` (num_ctx 32768), second server bound to `0.0.0.0:11435` via task `swe_ollama_serve` (script `C:\Users\keshav\ollama_serve.ps1`). Reachable from WSL at the host gateway IP (`ip route | awk '/default/ {print $3}'`) and from the Mac at `100.90.106.39:11435`.
+- vLLM venv at `serve/.venv` (install slow: the laptop's PyPI throughput is ~250 KB/s).
+- Scheduled tasks: `swe_unzip`, `swe_vllm_install`, `swe_ollama_pull`, `swe_ollama_serve`, `swe_sweeps`.
