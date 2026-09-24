@@ -1,7 +1,7 @@
 # %% [markdown]
 # # swelite eval of the real 31B W4A16 model on Kaggle (T4 x2, 32 GB)
 # Notebook-as-script. Cells are separated by `# %%`. Accelerator: GPU T4 x2. Internet: ON.
-# Secrets: HF_TOKEN (Gemma license accepted on Hugging Face).
+# No secrets needed: the Gemma 4 W4A16 checkpoints are ungated on Hugging Face (verified 2026-09-24).
 #
 # Path A (preferred): vLLM serving `google/gemma-4-31B-it-qat-w4a16-ct` with TP=2.
 #   T4 is SM 7.5; compressed-tensors W4A16 kernels may refuse. If so, use Path B.
@@ -21,8 +21,6 @@ assert pathlib.Path(DATA, "tasks.jsonl").exists(), "attach the competition datas
 
 # %%
 # Path A: vLLM
-from kaggle_secrets import UserSecretsClient
-os.environ["HF_TOKEN"] = UserSecretsClient().get_secret("HF_TOKEN")
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "vllm"], check=True)
 MODEL = "google/gemma-4-31B-it-qat-w4a16-ct"
 SUB = "/kaggle/working/gemma-swe-agent/submission"

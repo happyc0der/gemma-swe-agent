@@ -29,8 +29,8 @@ Verify from the Mac: `ssh <user>@msi 'nvidia-smi'`.
   ```
 - Prevent sleep: Settings > Power > Screen and sleep > Never when plugged in.
 
-## 3. Hugging Face (Keshav, once)
-Accept the Gemma license at https://huggingface.co/google/gemma-4-31B-it-qat-w4a16-ct and run `huggingface-cli login` on the Mac and inside WSL. Also add `HF_TOKEN` as a Kaggle notebook secret.
+## 3. Hugging Face
+Not needed: the `google/gemma-4-*-it-qat-w4a16-ct` checkpoints (and the unsloth mirrors) are ungated (`gated: false` via the HF API, verified 2026-09-24). `serve/hf_download.sh` fetches them with plain HTTPS.
 
 ## 4. What Claude does next over SSH
 1. Clone `happyc0der/gemma-swe-agent` into WSL, `uv venv`, install `harness/`.
