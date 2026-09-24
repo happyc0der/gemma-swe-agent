@@ -168,10 +168,12 @@ async def run_agent_sandbox(
     limits: HarnessLimits,
     image: str = "swebench-sandbox:latest",
     log_path: Path | None = None,
+    backend: str = "docker",
 ) -> TaskRunResult:
     result = TaskRunResult(instance_id=task.instance_id)
     t_setup = time.monotonic()
-    sandbox = DockerSandbox(image=image)
+    from .verify import make_sandbox
+    sandbox = make_sandbox(backend, image)
     log_fh = open(log_path, "w", encoding="utf-8") if log_path else None
 
     def log(msg: str) -> None:

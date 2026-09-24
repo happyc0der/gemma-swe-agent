@@ -86,6 +86,7 @@ def verify_gold(
     concurrency: int = 2, shard_index: int = 0, num_shards: int = 1, limit: int = None,
     null: bool = typer.Option(False, "--null", help="Apply no agent patch (expect failures) instead of the gold patch"),
     image: str = "swebench-sandbox:latest",
+    sandbox: str = typer.Option("docker", help="docker | subprocess"),
 ):
     """Harness self-check: gold patch must pass (or, with --null, the bare test_patch must fail)."""
     data = DataDir(data_dir)
@@ -97,7 +98,7 @@ def verify_gold(
     async def one(t):
         async with sem:
             t0 = time.monotonic()
-            vr = await asyncio.to_thread(verify_task, t, data, "" if null else t.patch, image)
+            vr = await asyncio.to_thread(verify_task, t, data, "" if null else t.patch, image, 1800, sandbox)
             (results_dir / "test_outputs" / f"{t.instance_id}.log").write_text(vr.output)
             row = {"instance_id": t.instance_id, "repo": t.repo, "resolved": vr.resolved, "exit_code": vr.exit_code, "verify_error": vr.error, "elapsed_seconds": round(time.monotonic() - t0, 1)}
             _write_jsonl(results_dir / "task_results.jsonl", row)
@@ -125,6 +126,7 @@ def eval(
     command_timeout: int = typer.Option(None),
     image: str = "swebench-sandbox:latest",
     skip_verify: bool = False,
+    sandbox: str = typer.Option("docker", help="docker | subprocess"),
 ):
     """Run a submission against tasks (Phase 1) and verify patches (Phase 2)."""
     data = DataDir(data_dir)
@@ -153,7 +155,7 @@ def eval(
     async def one(t):
         async with sem:
             t0 = time.monotonic()
-            rr = await run_agent_sandbox(t, data, submission_dir, registry, budget, limits, image=image, log_path=results_dir / "logs" / f"{t.instance_id}.log")
+            rr = await run_agent_sandbox(t, data, submission_dir, registry, budget, limits, image=image, log_path=results_dir / "logs" / f"{t.instance_id}.log", backend=sandbox)
             (results_dir / "patches" / f"{t.instance_id}.patch").write_text(rr.agent_patch)
             trace = {k: v for k, v in asdict(rr).items() if k != "agent_patch"}
             (results_dir / "traces" / f"trace_{t.instance_id}.json").write_text(json.dumps(trace, default=str))
@@ -163,7 +165,7 @@ def eval(
             if skip_verify:
                 row["resolved"] = None
             elif rr.agent_patch.strip():
-                vr = await asyncio.to_thread(verify_task, t, data, rr.agent_patch, image)
+                vr = await asyncio.to_thread(verify_task, t, data, rr.agent_patch, image, 1800, sandbox)
                 (results_dir / "test_outputs" / f"{t.instance_id}.log").write_text(vr.output)
                 row.update({"resolved": vr.resolved, "exit_code": vr.exit_code, "verify_error": vr.error})
             else:

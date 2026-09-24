@@ -5,6 +5,7 @@ import shlex
 from dataclasses import dataclass
 
 from .sandbox import WORKSPACE, DockerSandbox
+from .subprocess_sandbox import SubprocessSandbox
 from .tasks import DataDir, Task, test_files_from_patch
 
 PYTEST_CMD = (
@@ -47,9 +48,15 @@ def apply_patch_in_container(sb: DockerSandbox, patch: str, remote: str = "/tmp/
     return False, 0, last
 
 
-def verify_task(task: Task, data: DataDir, agent_patch: str, image: str = "swebench-sandbox:latest", timeout: int = 1800) -> VerifyResult:
+def make_sandbox(backend: str, image: str, name_prefix: str = "swelite"):
+    if backend == "subprocess":
+        return SubprocessSandbox(name_prefix=name_prefix)
+    return DockerSandbox(image=image, name_prefix=name_prefix)
+
+
+def verify_task(task: Task, data: DataDir, agent_patch: str, image: str = "swebench-sandbox:latest", timeout: int = 1800, backend: str = "docker") -> VerifyResult:
     targets = test_files_from_patch(task.test_patch)
-    with DockerSandbox(image=image, name_prefix="swelite-verify") as sb:
+    with make_sandbox(backend, image, "swelite-verify") as sb:
         try:
             sb.bootstrap(task, data, baseline_message="eval_baseline")
         except Exception as e:
