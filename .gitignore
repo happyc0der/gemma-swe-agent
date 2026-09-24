@@ -1,0 +1,12 @@
+data/
+*.tgz
+*.npz
+*.whl
+*.safetensors
+__pycache__/
+*.pyc
+.venv/
+.env
+results/
+*.zip
+.pytest_cache/
