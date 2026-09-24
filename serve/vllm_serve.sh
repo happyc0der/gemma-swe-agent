@@ -9,4 +9,5 @@ exec .venv/bin/python -m vllm.entrypoints.openai.api_server \
   --max-model-len 32768 --gpu-memory-utilization 0.90 \
   --tool-call-parser gemma4 --enable-auto-tool-choice --reasoning-parser gemma4 \
   --enable-lora --max-loras 8 --max-lora-rank 128 \
+  --enforce-eager \
   > vllm_serve.log 2>&1
