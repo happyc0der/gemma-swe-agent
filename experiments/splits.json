@@ -134,7 +134,9 @@
   "rich_4077"
  ],
  "env_unstable": [
+  "fastapi_14077",
   "fastapi_14356",
+  "fastapi_14851",
   "fastapi_15745",
   "fastapi_15763",
   "fastapi_15785",
