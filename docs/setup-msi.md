@@ -46,3 +46,10 @@ Not needed: the `google/gemma-4-*-it-qat-w4a16-ct` checkpoints (and the unsloth 
 - Proxy model: Ollama on Windows, `gemma4:12b-32k` (num_ctx 32768), second server bound to `0.0.0.0:11435` via task `swe_ollama_serve` (script `C:\Users\keshav\ollama_serve.ps1`). Reachable from WSL at the host gateway IP (`ip route | awk '/default/ {print $3}'`) and from the Mac at `100.90.106.39:11435`.
 - vLLM venv at `serve/.venv` (install slow: the laptop's PyPI throughput is ~250 KB/s).
 - Scheduled tasks: `swe_unzip`, `swe_vllm_install`, `swe_ollama_pull`, `swe_ollama_serve`, `swe_sweeps`.
+
+## vLLM on the MSI (working config as of 2026-09-24 evening)
+`serve/vllm_serve.sh`, task `swe_vllm_serve`. Gemma 4 12B W4A16 at ~34 tok/s (compiled mode), KV cache 5.1 GiB (50k tokens, 1.5x concurrency at 32k). Things that bit, in order:
+1. torch.compile and FlashInfer's sampler both JIT with `nvcc`, which WSL lacks and cannot apt-install without sudo: `uv pip install nvidia-cuda-nvcc` into the venv, set `CUDA_HOME`/`PATH` to `.venv/lib/python3.12/site-packages/nvidia/cu13`, and `VLLM_USE_FLASHINFER_SAMPLER=0` (the sampler JIT still failed).
+2. Memory: Windows holds ~1.1-1.6 GiB of the 16 GiB, so `--gpu-memory-utilization 0.88`; drop `--enable-lora` (its buffers pushed KV cache negative), `--max-num-seqs 2`, `--max-num-batched-tokens 4096`, `--limit-mm-per-prompt '{"image":0,"audio":0}'`.
+3. Port 8000 lives inside WSL's NAT: reachable at 127.0.0.1 from WSL (where the harness runs) but not from the Mac over Tailscale (Ollama on Windows is reachable because it binds on the host).
+4. `schtasks /run` is a no-op while a previous instance is still "Running": `schtasks /end` first, then `/run`.
