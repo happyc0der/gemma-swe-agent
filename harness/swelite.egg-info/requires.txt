@@ -1,0 +1,7 @@
+google-adk>=2.9
+litellm
+pyyaml
+networkx
+numpy
+typer
+rich

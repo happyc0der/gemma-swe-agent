@@ -1,0 +1,24 @@
+[project]
+name = "swelite"
+version = "0.1.0"
+description = "Faithful local re-implementation of the swegemma evaluation harness for the Gemma 4 Developer Agent competition"
+requires-python = ">=3.11"
+dependencies = [
+  "google-adk>=2.9",
+  "litellm",
+  "pyyaml",
+  "networkx",
+  "numpy",
+  "typer",
+  "rich",
+]
+
+[project.scripts]
+swelite = "swelite.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["swelite*"]
