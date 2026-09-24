@@ -18,4 +18,10 @@ The official `swegemma` / `adk-submission` / `adk-eval-core` packages are unrele
 | Test-only dependencies | Organizers' private image ("zero private wheels" in the public Dockerfile) | Local image adds a layer of PyPI test deps (dirty-equals, inline-snapshot, pytest-httpbin, attrs, ...) at build time; `swebench-sandbox:public` is the pure image | Local env may be more permissive than the hidden one |
 | Snapshot ownership | unknown | `chown -R root:root` + `safe.directory *` (needed: tarballs carry a foreign uid) | None |
 
-Validation status: first full sweep (arm64 image, no extras) gave gold 47/129 (fastapi 1/67, requests 5/13, rich 40/48) and null 0/129. Failure classes: pydantic v1 on Python 3.13 (arm64 fallback), missing test deps (dirty_equals, inline_snapshot, attrs, pytest-httpbin), and 6 rich syntax-highlighting assertions that look pygments-version dependent. Re-sweep on the amd64 image with extras: see `harness/results/gold-all/summary.json`.
+Validation status (2026-09-24, amd64 image with local extras): **gold 109/129, null 0/129**. Per repo gold: fastapi 63/67, rich 41/48, requests 4/13, httpx 1/1. The 20 residual gold failures are environment residue, not harness logic:
+- requests (9): `TestTimeout::test_connect_timeout` family (connect timeouts behave differently with `network_mode=none`) and one TLS test (`trustme` cert lacks an Authority Key Identifier under the current OpenSSL). Only these fail; the rest of each file passes.
+- rich (7): ANSI rendering assertions that depend on the pygments version (2.21 in the wheel cache) and one attrs repr test.
+- fastapi (4): starlette-version-dependent router fallbacks and one header-model validation message.
+These tasks are excluded from the local dev/holdout scoring denominators via `experiments/splits.json` `env_unstable` (they still run; results just aren't trusted).
+
+Earlier sweep on the arm64 image without extras: gold 47/129 (pydantic v1 fallback broke fastapi).

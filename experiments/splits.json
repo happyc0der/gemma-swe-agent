@@ -132,5 +132,27 @@
   "rich_4006",
   "rich_4076",
   "rich_4077"
+ ],
+ "env_unstable": [
+  "fastapi_14356",
+  "fastapi_15745",
+  "fastapi_15763",
+  "fastapi_15785",
+  "requests_6589",
+  "requests_6592",
+  "requests_6629",
+  "requests_6757",
+  "requests_7328",
+  "requests_7433",
+  "requests_7502",
+  "requests_7505",
+  "rich_3064",
+  "rich_3130",
+  "rich_3296",
+  "rich_3469",
+  "rich_3472",
+  "rich_3782",
+  "rich_4070",
+  "rich_4079"
  ]
 }
