@@ -120,6 +120,7 @@ def eval(
     results_dir: Path = typer.Option(..., "--results-dir"),
     api_base: str = "http://127.0.0.1:8000/v1",
     served_model: str = typer.Option(None, help="Model name the local server exposes (e.g. a 12B proxy). Defaults to the alias in agent.yaml."),
+    llm_kwarg: list[str] = typer.Option(None, "--llm-kwarg", help="key=value forwarded to litellm.completion (proxy-only, e.g. reasoning_effort=none)"),
     task_ids: list[str] = typer.Option(None, "--task-id"),
     concurrency: int = 1, shard_index: int = 0, num_shards: int = 1, limit: int = None,
     max_tool_calls: int = typer.Option(None), max_time_minutes: float = typer.Option(None), max_turns: int = typer.Option(None),
@@ -142,11 +143,15 @@ def eval(
         turns=(max_turns or ec.get("max_turns") or 500),
     )
     limits = HarnessLimits(command_timeout_seconds=int(command_timeout or ec.get("timeout_seconds") or 300))
-    registry = ModelRegistry(api_base=api_base, served_model=served_model)
+    extra = {}
+    for kv in llm_kwarg or []:
+        k, _, v = kv.partition("=")
+        extra[k] = {"true": True, "false": False}.get(v.lower(), v)
+    registry = ModelRegistry(api_base=api_base, served_model=served_model, extra_kwargs=extra)
     tasks = _select(data, task_ids, shard_index, num_shards, limit)
     for sub in ("patches", "test_outputs", "traces", "logs"):
         (results_dir / sub).mkdir(parents=True, exist_ok=True)
-    (results_dir / "config.json").write_text(json.dumps({"budget": asdict(budget), "limits": asdict(limits), "submission_dir": str(submission_dir), "api_base": api_base, "served_model": served_model, "n_tasks": len(tasks)}, indent=2))
+    (results_dir / "config.json").write_text(json.dumps({"budget": asdict(budget), "limits": asdict(limits), "submission_dir": str(submission_dir), "api_base": api_base, "served_model": served_model, "llm_kwargs": extra, "n_tasks": len(tasks)}, indent=2))
     console.print(f"{len(tasks)} tasks, budget={budget}, limits={limits}")
     sem = asyncio.Semaphore(concurrency)
 

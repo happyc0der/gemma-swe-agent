@@ -135,18 +135,19 @@ def build_generate_config(cfg: dict | None) -> types.GenerateContentConfig | Non
 class ModelRegistry:
     """Maps model aliases (and adapters) to LiteLlm instances pointing at the local OpenAI-compatible server."""
 
-    def __init__(self, api_base: str = "http://127.0.0.1:8000/v1", served_model: str | None = None, api_key: str = "EMPTY", num_retries: int = 5):
+    def __init__(self, api_base: str = "http://127.0.0.1:8000/v1", served_model: str | None = None, api_key: str = "EMPTY", num_retries: int = 5, extra_kwargs: dict | None = None):
         self.api_base = api_base
         self.served_model = served_model
         self.api_key = api_key
         self.num_retries = num_retries
+        self.extra_kwargs = dict(extra_kwargs or {})  # forwarded to litellm.completion (proxy-only knobs, e.g. reasoning_effort)
 
     def get(self, alias: str, adapter: str | None) -> LiteLlm:
         alias = normalize_model_name(alias)
         if alias not in MODEL_ALIASES:
             raise SubmissionError(f"unknown model alias {alias!r}")
         served = adapter or self.served_model or alias
-        return LiteLlm(model=f"openai/{served}", api_base=self.api_base, api_key=self.api_key, num_retries=self.num_retries)
+        return LiteLlm(model=f"openai/{served}", api_base=self.api_base, api_key=self.api_key, num_retries=self.num_retries, **self.extra_kwargs)
 
 
 class Compiler:
