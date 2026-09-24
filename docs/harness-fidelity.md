@@ -24,4 +24,6 @@ Validation status (2026-09-24, amd64 image with local extras): **gold 109/129, n
 - fastapi (4): starlette-version-dependent router fallbacks and one header-model validation message.
 These tasks are excluded from the local dev/holdout scoring denominators via `experiments/splits.json` `env_unstable` (they still run; results just aren't trusted).
 
+Cross-check 2026-09-24: the same sweep natively on the MSI (WSL2, x86_64 Docker, concurrency 8) gives identical results (gold 109/129, null 2/129, same task lists) at ~15 s per gold task and ~29 s per null task, so the Mac's amd64 emulation is faithful and the residuals are real environment differences.
+
 Earlier sweep on the arm64 image without extras: gold 47/129 (pydantic v1 fallback broke fastapi).
