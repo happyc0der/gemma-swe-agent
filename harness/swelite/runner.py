@@ -186,7 +186,8 @@ async def run_agent_sandbox(
         sandbox.bootstrap(task, data)
         graph = CodeGraph(data.graph(task), data.embeddings(task))
         ctx = SwegemmaContext(sandbox=sandbox, graph=graph, budget=budget, limits=limits)
-        compiler = Compiler(submission_dir, ctx.create_tools(), registry)
+        from .skills import SandboxEnvironment
+        compiler = Compiler(submission_dir, ctx.create_tools(), registry, skill_env=SandboxEnvironment(ctx), script_timeout=limits.command_timeout_seconds)
         root_agent = compiler.compile()
         plugin = TurnBudgetPlugin(ctx)
         app = App(

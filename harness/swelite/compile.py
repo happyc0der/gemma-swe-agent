@@ -144,10 +144,12 @@ class ModelRegistry:
 
 
 class Compiler:
-    def __init__(self, sub_dir: Path, tools: dict[str, Callable], registry: ModelRegistry):
+    def __init__(self, sub_dir: Path, tools: dict[str, Callable], registry: ModelRegistry, skill_env: Any = None, script_timeout: int = 300):
         self.root = Path(sub_dir)
         self.tools = tools
         self.registry = registry
+        self.skill_env = skill_env
+        self.script_timeout = script_timeout
         self.adapters = discover_adapters(self.root)
         self.agent_count = 0
         self.models_seen: set[str] = set()
@@ -229,8 +231,21 @@ class Compiler:
         if gcc is not None:
             kw["generate_content_config"] = gcc
         if cfg.get("skills"):
-            # TODO: ADK skills (SKILL.md + run_skill_script/load_skill_resource) are not modelled yet.
-            raise SubmissionError("skills are not supported by swelite yet")
+            dirs = []
+            for rel in cfg["skills"]:
+                d = _safe_join(self.root, base_dir, rel)
+                if not (d / "SKILL.md").exists():
+                    raise SubmissionError(f"agent {name}: skill {rel!r} has no SKILL.md")
+                if sum(f.stat().st_size for f in d.rglob("*") if f.is_file()) > 50 * 1024 * 1024:
+                    raise SubmissionError(f"agent {name}: skill {rel!r} exceeds 50 MiB")
+                dirs.append(d)
+            if self.skill_env is None:
+                from .skills import load_skill_from_dir
+                for d in dirs:
+                    load_skill_from_dir(d)  # validation only (no sandbox in validate mode)
+            else:
+                from .skills import build_skill_toolset
+                kw["tools"] = list(tools) + [build_skill_toolset(dirs, self.skill_env, self.script_timeout)]
         return LlmAgent(**kw)
 
     def _ref(self, ref: Any, base_dir: Path, depth: int) -> Any:
