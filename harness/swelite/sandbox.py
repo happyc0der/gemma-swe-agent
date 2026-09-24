@@ -1,6 +1,7 @@
 """Docker sandbox lifecycle mirroring swegemma's ContainerManager (README section 4)."""
 from __future__ import annotations
 
+import platform
 import shlex
 import subprocess
 import uuid
@@ -10,6 +11,8 @@ from pathlib import Path
 from .tasks import DataDir, Task
 
 WORKSPACE = "/workspace"
+# The wheel cache is manylinux x86_64, so on Apple Silicon hosts the sandbox must run under amd64 emulation.
+DEFAULT_PLATFORM = "linux/amd64" if platform.machine() in ("arm64", "aarch64") else None
 
 
 @dataclass
@@ -30,8 +33,10 @@ class DockerSandbox:
         cpus: float = 2.0,
         network: str = "none",
         name_prefix: str = "swelite",
+        docker_platform: str | None = DEFAULT_PLATFORM,
     ):
         self.image = image
+        self.docker_platform = docker_platform
         self.memory = memory
         self.cpus = cpus
         self.network = network
@@ -42,6 +47,7 @@ class DockerSandbox:
     def start(self) -> None:
         cmd = [
             "docker", "run", "-d", "--name", self.name,
+            *(["--platform", self.docker_platform] if self.docker_platform else []),
             "--network", self.network,
             "--memory", self.memory, "--memory-swap", self.memory,
             f"--cpus={self.cpus}",
@@ -147,8 +153,29 @@ class DockerSandbox:
         return r.stdout
 
 
-def build_image(data: DataDir, tag: str = "swebench-sandbox:latest", public: bool = True) -> None:
-    """Build the sandbox image from the dataset's Dockerfile with wheels/ in the context."""
+LOCAL_EXTRA_DOCKERFILE = """
+# swelite-local layer: test-only dependencies the public wheel cache lacks (the organizers' private image has them).
+FROM swebench-sandbox:public
+RUN pip install --no-cache-dir {pkgs}
+"""
+
+LOCAL_EXTRA_PKGS = [
+    # fastapi tests
+    "dirty-equals", "inline-snapshot", "sqlmodel", "flask", "anyio[trio]", "PyJWT", "pyyaml", "passlib[bcrypt]",
+    "python-multipart", "email-validator", "jinja2", "orjson", "ujson", "pydantic-settings", "pydantic-extra-types", "httpx",
+    # rich tests
+    "attrs",
+    # requests tests
+    "pytest-httpbin", "httpbin", "trustme", "PySocks", "chardet",
+]
+
+
+def build_image(data: DataDir, tag: str = "swebench-sandbox:latest", public: bool = True, docker_platform: str | None = DEFAULT_PLATFORM, local_extras: bool = True) -> None:
+    """Build the sandbox image from the dataset's Dockerfile with wheels/ in the context.
+
+    With local_extras, adds a layer installing test-only deps from PyPI (needs internet at build time) so the
+    public tasks' test suites can run locally; the resulting image is tagged `tag`, the pure one `swebench-sandbox:public`.
+    """
     import shutil
     import tempfile
 
@@ -159,6 +186,13 @@ def build_image(data: DataDir, tag: str = "swebench-sandbox:latest", public: boo
         shutil.copytree(data.wheels_dir, ctx / "wheels")
         dockerfile = data.docker_dir / ("Dockerfile.public" if public else "Dockerfile.sandbox")
         shutil.copy(dockerfile, ctx / "Dockerfile")
-        subprocess.run(["docker", "build", "-t", tag, str(ctx)], check=True)
+        plat = ["--platform", docker_platform] if docker_platform else []
+        base_tag = "swebench-sandbox:public" if local_extras else tag
+        import os
+        env = {**os.environ, "DOCKER_BUILDKIT": "1"}  # needs the buildx plugin (brew install docker-buildx)
+        subprocess.run(["docker", "build", *plat, "--pull", "-t", base_tag, str(ctx)], check=True, env=env)
+        if local_extras:
+            (ctx / "Dockerfile.local").write_text(LOCAL_EXTRA_DOCKERFILE.format(pkgs=" ".join(shlex.quote(p) for p in LOCAL_EXTRA_PKGS)))
+            subprocess.run(["docker", "build", *plat, "-t", tag, "-f", str(ctx / "Dockerfile.local"), str(ctx)], check=True, env=env)
     finally:
         shutil.rmtree(ctx, ignore_errors=True)
