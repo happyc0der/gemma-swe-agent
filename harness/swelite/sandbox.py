@@ -109,7 +109,8 @@ class DockerSandbox:
             "if [ \"$n\" = 1 ] && [ -d \"/tmp/snap/$(ls -A /tmp/snap)\" ] && [ ! -d /tmp/snap/.git ]; then "
             "  src=\"/tmp/snap/$(ls -A /tmp/snap)\"; else src=/tmp/snap; fi; "
             f"cp -a \"$src\"/. {WORKSPACE}/; rm -rf /tmp/snap /tmp/snapshot.tgz; "
-            "find /workspace -type l -xtype l -delete 2>/dev/null || true",
+            "find /workspace -type l -xtype l -delete 2>/dev/null || true; "
+            "chown -R root:root /workspace; git config --global --add safe.directory '*'",
             timeout=300,
         )
         if r.exit_code != 0:
@@ -118,6 +119,12 @@ class DockerSandbox:
         r = self.exec(f"cd {WORKSPACE} && python3 /sandbox/setup.py {shlex.quote(task.repo_short)}", timeout=600)
         if r.exit_code != 0:
             raise RuntimeError(f"setup.py failed: {r.stderr[-2000:]}")
+        # The official harness streams a cached site-packages built from /wheels. Approximate it by letting pip
+        # resolve the repo's own dependency pins (setup.py / pyproject) offline against /wheels, best effort.
+        self.exec(
+            f"cd {WORKSPACE} && pip install -q --no-index --find-links=/wheels --no-build-isolation -e {WORKSPACE} >/dev/null 2>&1 || true",
+            timeout=600,
+        )
         r = self.exec(
             f"cd {WORKSPACE} && git config user.email agent@eval && git config user.name Agent && "
             f"git add -A && git commit -m {shlex.quote(baseline_message)} --allow-empty -q",
