@@ -7,7 +7,7 @@ MODEL_DIR=${MODEL_DIR:-$HOME/models/gemma-4-12B-it-qat-w4a16-ct}
 exec .venv/bin/python -m vllm.entrypoints.openai.api_server \
   --model "$MODEL_DIR" --served-model-name gemma-4-12b-it-qat-w4a16-ct \
   --host 0.0.0.0 --port 8000 \
-  --max-model-len 32768 --max-num-seqs 2 --gpu-memory-utilization 0.95 \
+  --max-model-len 32768 --max-num-seqs 2 --max-num-batched-tokens 4096 --gpu-memory-utilization 0.92 \
   --limit-mm-per-prompt '{"image":0,"audio":0}' \
   --tool-call-parser gemma4 --enable-auto-tool-choice --reasoning-parser gemma4 \
   --enforce-eager \
