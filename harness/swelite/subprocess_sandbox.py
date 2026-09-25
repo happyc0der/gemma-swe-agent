@@ -22,7 +22,11 @@ from .tasks import DataDir, Task
 class SubprocessSandbox:
     def __init__(self, python: str | None = None, base_dir: Path | None = None, name_prefix: str = "swelite"):
         self.python = python or sys.executable
-        self.root = Path(tempfile.mkdtemp(prefix=f"{name_prefix}_sandbox_", dir=str(base_dir) if base_dir else None))
+        # Roots must NOT live under /tmp: exec() rewrites "/tmp" in commands to the sandbox's private tmp, which
+        # would also rewrite the root path itself (seen on Linux where tempfile defaults to /tmp).
+        base = Path(base_dir) if base_dir else Path(os.environ.get("SWELITE_SANDBOX_BASE", Path.home() / ".swelite_sandboxes"))
+        base.mkdir(parents=True, exist_ok=True)
+        self.root = Path(tempfile.mkdtemp(prefix=f"{name_prefix}_sandbox_", dir=str(base)))
         self.workspace = self.root / "workspace"
         self.tmp = self.root / "tmp"
         self.wheels = self.root / "wheels"
