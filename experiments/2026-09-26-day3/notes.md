@@ -8,3 +8,7 @@ Decision: ship this config for day 3 (armed for 2026-09-26 00:05 UTC). If day 3 
 
 ## Preview with thinking ON (reasoning_effort=high, include_thoughts false), same 5.5 min / 30 calls
 **7/33** (the thinking-off preview of this config gave 5/33; the best 10-min runs gave 7/33). With thoughts excluded from history the overflow penalty seen in the 10-min thinking run mostly disappears. This is the closest local approximation of what day 3 does if the organizers' stack enables thinking; it is the strongest local result at the short budget, so the staged config stands.
+
+## Scratch-file leaks (found 2026-09-25 08:00 UTC)
+Across the proxy runs, 2-9 of the 10-17 non-empty patches per run contain scratch files (`tmp/repro.py`, `fix.py`, `stdout.txt`, a stray test file), and in the day-3 thinking-on run 9/15 did, 3 of them containing nothing else. Cause: `write_file("/tmp/x")` resolves to `/workspace/tmp/x` (README semantics, same in the official harness) and the pre-submit cleanup is skipped. Four of the seven "broke_tests" patches in that run are this. One more edited the wrong sibling module (`_compat/v1.py` vs `v2.py`).
+Prompt v5 (queued after the dev run): forbid write_file for scratch, mandatory `git status --short` cleanup before submit, a "live file" check, and no edits under tests/. If v5 >= v4 on the holdout before 23:30 UTC, day 3 ships v5.
