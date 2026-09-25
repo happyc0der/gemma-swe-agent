@@ -26,7 +26,7 @@ from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
 # 4. serve (OpenAI-compatible, tool calls via --jinja). 16k per slot: two 32k slots overflowed the T4s and the server aborted silently.
 SERVER_CMD = ["stdbuf", "-oL", "-eL", "/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", str(16384 * CFG["concurrency"]), "-np", str(CFG["concurrency"]), "--jinja",
-    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8"]
+    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8", "--no-mmap"]  # mmap page cache is charged to Kaggle's 30 GB cgroup and got the server SIGKILLed every few minutes
 def start_server(tag):
     srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT)
     for i in range(80):
@@ -37,6 +37,7 @@ def start_server(tag):
     return None
 server = start_server("0")
 if server is None: sys.exit(1)
+sh("free -m | head -2; cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current 2>/dev/null; ps -o rss=,cmd= -C llama-server | cut -c1-80")
 import threading
 def watchdog():
     n = 0
@@ -44,7 +45,7 @@ def watchdog():
         time.sleep(20)
         global server
         if server.poll() is not None:
-            n += 1; log(f"WATCHDOG: llama-server exited rc={server.returncode}; tail:", open(f"/kaggle/working/llama-{n-1}.log").read()[-800:]); log("dmesg:", subprocess.run("dmesg 2>/dev/null | tail -3", shell=True, capture_output=True, text=True).stdout[-400:])
+            n += 1; log(f"WATCHDOG: llama-server exited rc={server.returncode}; tail:", open(f"/kaggle/working/llama-{n-1}.log").read()[-400:]); log("mem:", subprocess.run("free -m | head -2; cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current 2>/dev/null || cat /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/memory/memory.usage_in_bytes 2>/dev/null", shell=True, capture_output=True, text=True).stdout[-300:])
             server = start_server(str(n))
             if server is None: log("WATCHDOG: restart failed"); return
 threading.Thread(target=watchdog, daemon=True).start()
