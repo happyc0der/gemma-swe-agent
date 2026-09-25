@@ -20,9 +20,8 @@ from huggingface_hub import snapshot_download
 t = time.time(); path = snapshot_download(MODEL, local_dir="/tmp/model"); log("downloaded to", path, f"in {time.time()-t:.0f}s"); sh("du -sh /tmp/model; df -h /tmp | tail -1")
 
 ATTEMPTS = [
-    ("eager-16k", ["--enforce-eager", "--max-model-len", "16384", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
-    ("flex-eager-16k", ["--attention-backend", "FLEX_ATTENTION", "--enforce-eager", "--max-model-len", "16384", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
-    ("eager-8k", ["--enforce-eager", "--max-model-len", "8192", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
+    ("eager-16k-mnbt1024", ["--enforce-eager", "--max-model-len", "16384", "--max-num-seqs", "1", "--max-num-batched-tokens", "1024", "--gpu-memory-utilization", "0.97"]),
+    ("eager-12k-mnbt1024", ["--enforce-eager", "--max-model-len", "12288", "--max-num-seqs", "1", "--max-num-batched-tokens", "1024", "--gpu-memory-utilization", "0.97"]),
 ]
 up = False; server = None
 for name, extra in ATTEMPTS:
