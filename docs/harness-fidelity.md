@@ -28,3 +28,7 @@ These tasks are excluded from the local dev/holdout scoring denominators via `ex
 Cross-check 2026-09-24: the same sweep natively on the MSI (WSL2, x86_64 Docker, concurrency 8) gives identical results (gold 109/129, null 2/129, same task lists) at ~15 s per gold task and ~29 s per null task, so the Mac's amd64 emulation is faithful and the residuals are real environment differences.
 
 Earlier sweep on the arm64 image without extras: gold 47/129 (pydantic v1 fallback broke fastapi).
+
+## Running the real 31B on Kaggle's free T4x2 (2026-09-25)
+- vLLM 0.30 installs on Kaggle (Python 3.12, CUDA 13, both T4s visible) and the 17 GB W4A16 checkpoint downloads in ~17 min to `/tmp` (the 20 GB `/kaggle/working` is too small).
+- Default engine init fails on Turing: `out of resource: shared memory, Required: 98304, Hardware limit: 65536` (a Triton kernel; T4 = compute capability 7.5). Probe v3 sweeps `--attention-backend FLASHINFER` / `XFORMERS` / eager; a parallel probe builds llama.cpp (CUDA arch 75) and serves the official `gemma-4-31B-it-qat-q4_0-gguf` across both GPUs with `--jinja` tool calling as a fallback (different quantization from the competition's W4A16, same model).
