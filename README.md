@@ -11,9 +11,11 @@ See `docs/competition.md` for the competition digest, `docs/HARNESS_README.md` f
 | 09-24 | Kaggle (31B, 4x L4, ~60 hidden tasks) | organizers' sample prompt, 8 min / 40 calls | **0.00** |
 | 09-24 | harness self-check (Mac amd64 + MSI native) | gold patches / no patch, 129 public tasks | 109/129 pass, 0 (2) pass unfixed |
 | 09-25 | MSI proxy (12B W4A16, vLLM), 33 holdout | prompt v3, temp 0.2, 10 min / 50 calls | 6/33 |
-| 09-25 | Kaggle | prompt v3, temp 0.2, thinking 2048, 10 min / 50 calls | **0.00** |
 | 09-25 | MSI proxy | prompt v3, temp 0.7 | 6/33 (loops fixed, overflow up) |
 | 09-25 | MSI proxy | prompt v4 (context-budget rules), temp 0.7, 2048 cap | **7/33** |
+| 09-25 | MSI proxy | day-3 config: v4, 5.5 min / 30 calls | 5/33 (24 explicit submits, overflow 12 -> 2) |
+| 09-25 | MSI proxy | v4 with thinking on (thoughts kept in history) | 7/33 (loops gone, overflow up); union of all runs 10/33 |
+| 09-25 | Kaggle | prompt v3, temp 0.2, thinking 2048, 10 min / 50 calls | **0.00** |
 
 Key findings: ADK never compacts context inside a task, so trajectories die at the 32k window after ~20 full-size tool outputs; low temperature causes verbatim retry loops; the Ollama proxy ignores `max_tokens` and has no thinking budget, so vLLM is the only faithful local proxy.
 
