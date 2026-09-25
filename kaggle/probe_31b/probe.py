@@ -19,20 +19,32 @@ os.environ["HF_HOME"] = "/tmp/hf"  # /kaggle/working is only 20 GB; the root ove
 from huggingface_hub import snapshot_download
 t = time.time(); path = snapshot_download(MODEL, local_dir="/tmp/model"); log("downloaded to", path, f"in {time.time()-t:.0f}s"); sh("du -sh /tmp/model; df -h /tmp | tail -1")
 
-log("start vLLM TP=2")
-server = subprocess.Popen([sys.executable, "-m", "vllm.entrypoints.openai.api_server", "--model", "/tmp/model",
-    "--served-model-name", "gemma-4-31b-it-qat-w4a16-ct", "--tensor-parallel-size", "2", "--gpu-memory-utilization", "0.90",
-    "--max-model-len", "32768", "--max-num-seqs", "2", "--dtype", "half", "--limit-mm-per-prompt", '{"image":0,"audio":0}',
-    "--tool-call-parser", "gemma4", "--enable-auto-tool-choice", "--reasoning-parser", "gemma4", "--port", "8000"],
-    stdout=open("/kaggle/working/vllm.log", "w"), stderr=subprocess.STDOUT, env={**os.environ, "VLLM_USE_FLASHINFER_SAMPLER": "0"})
-up = False
-for i in range(120):
-    time.sleep(15)
-    try:
-        urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); up = True; log(f"vLLM up after {(i+1)*15}s"); break
-    except Exception:
-        if server.poll() is not None:
-            log("vLLM died; log tail:"); log(open("/kaggle/working/vllm.log").read()[-6000:]); break
+ATTEMPTS = [
+    ("flashinfer", ["--attention-backend", "FLASHINFER"]),
+    ("flashinfer-eager", ["--attention-backend", "FLASHINFER", "--enforce-eager"]),
+    ("xformers", ["--attention-backend", "XFORMERS"]),
+    ("default-eager", ["--enforce-eager"]),
+]
+up = False; server = None
+for name, extra in ATTEMPTS:
+    log("start vLLM TP=2 attempt:", name)
+    server = subprocess.Popen([sys.executable, "-m", "vllm.entrypoints.openai.api_server", "--model", "/tmp/model",
+        "--served-model-name", "gemma-4-31b-it-qat-w4a16-ct", "--tensor-parallel-size", "2", "--gpu-memory-utilization", "0.90",
+        "--max-model-len", "32768", "--max-num-seqs", "2", "--dtype", "half", "--limit-mm-per-prompt", '{"image":0,"audio":0}',
+        "--tool-call-parser", "gemma4", "--enable-auto-tool-choice", "--reasoning-parser", "gemma4", "--port", "8000", *extra],
+        stdout=open(f"/kaggle/working/vllm-{name}.log", "w"), stderr=subprocess.STDOUT, env={**os.environ, "VLLM_USE_FLASHINFER_SAMPLER": "0"})
+    for i in range(80):
+        time.sleep(15)
+        try:
+            urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); up = True; log(f"vLLM up ({name}) after {(i+1)*15}s"); break
+        except Exception:
+            if server.poll() is not None:
+                tail = open(f"/kaggle/working/vllm-{name}.log").read()
+                import re as _re
+                err = [l for l in tail.splitlines() if _re.search(r"Error|error:|not supported|out of resource", l)][-3:]
+                log(f"vLLM died ({name}):", " | ".join(x[-160:] for x in err)); break
+    if up: break
+    subprocess.run("pkill -f vllm.entrypoints; sleep 5", shell=True)
 if not up:
     log("PROBE_RESULT: vllm_failed"); sys.exit(0)
 
