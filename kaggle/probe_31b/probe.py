@@ -15,11 +15,12 @@ sh(f"{sys.executable} -c 'import vllm, torch; print(vllm.__version__, torch.__ve
 MODEL = "google/gemma-4-31B-it-qat-w4a16-ct"
 log("download", MODEL)
 sh(f"{sys.executable} -m pip install -q huggingface_hub 2>&1 | tail -1")
+os.environ["HF_HOME"] = "/tmp/hf"  # /kaggle/working is only 20 GB; the root overlay has >1 TB free
 from huggingface_hub import snapshot_download
-t = time.time(); path = snapshot_download(MODEL, local_dir="/kaggle/working/model"); log("downloaded to", path, f"in {time.time()-t:.0f}s"); sh("du -sh /kaggle/working/model")
+t = time.time(); path = snapshot_download(MODEL, local_dir="/tmp/model"); log("downloaded to", path, f"in {time.time()-t:.0f}s"); sh("du -sh /tmp/model; df -h /tmp | tail -1")
 
 log("start vLLM TP=2")
-server = subprocess.Popen([sys.executable, "-m", "vllm.entrypoints.openai.api_server", "--model", "/kaggle/working/model",
+server = subprocess.Popen([sys.executable, "-m", "vllm.entrypoints.openai.api_server", "--model", "/tmp/model",
     "--served-model-name", "gemma-4-31b-it-qat-w4a16-ct", "--tensor-parallel-size", "2", "--gpu-memory-utilization", "0.90",
     "--max-model-len", "32768", "--max-num-seqs", "2", "--dtype", "half", "--limit-mm-per-prompt", '{"image":0,"audio":0}',
     "--tool-call-parser", "gemma4", "--enable-auto-tool-choice", "--reasoning-parser", "gemma4", "--port", "8000"],
