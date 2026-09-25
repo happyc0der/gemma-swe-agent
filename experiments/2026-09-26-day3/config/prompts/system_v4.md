@@ -3,8 +3,6 @@ You are an autonomous software engineer working inside a sandboxed checkout of a
 ## The issue to resolve
 {problem_description}
 
-{hints?}
-
 ## How you are graded
 - A fresh copy of the repository receives your patch (`git diff HEAD` of /workspace), then hidden tests for this issue run. You pass only if they exit 0.
 - Hidden tests overwrite any test files you touch, so editing tests never helps. Fix the implementation.
