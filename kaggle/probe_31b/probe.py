@@ -20,17 +20,16 @@ from huggingface_hub import snapshot_download
 t = time.time(); path = snapshot_download(MODEL, local_dir="/tmp/model"); log("downloaded to", path, f"in {time.time()-t:.0f}s"); sh("du -sh /tmp/model; df -h /tmp | tail -1")
 
 ATTEMPTS = [
-    ("flashinfer", ["--attention-backend", "FLASHINFER"]),
-    ("flashinfer-eager", ["--attention-backend", "FLASHINFER", "--enforce-eager"]),
-    ("xformers", ["--attention-backend", "XFORMERS"]),
-    ("default-eager", ["--enforce-eager"]),
+    ("eager-16k", ["--enforce-eager", "--max-model-len", "16384", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
+    ("flex-eager-16k", ["--attention-backend", "FLEX_ATTENTION", "--enforce-eager", "--max-model-len", "16384", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
+    ("eager-8k", ["--enforce-eager", "--max-model-len", "8192", "--max-num-seqs", "1", "--gpu-memory-utilization", "0.95"]),
 ]
 up = False; server = None
 for name, extra in ATTEMPTS:
     log("start vLLM TP=2 attempt:", name)
     server = subprocess.Popen([sys.executable, "-m", "vllm.entrypoints.openai.api_server", "--model", "/tmp/model",
-        "--served-model-name", "gemma-4-31b-it-qat-w4a16-ct", "--tensor-parallel-size", "2", "--gpu-memory-utilization", "0.90",
-        "--max-model-len", "32768", "--max-num-seqs", "2", "--dtype", "half", "--limit-mm-per-prompt", '{"image":0,"audio":0}',
+        "--served-model-name", "gemma-4-31b-it-qat-w4a16-ct", "--tensor-parallel-size", "2",
+        "--dtype", "half", "--limit-mm-per-prompt", '{"image":0,"audio":0}',
         "--tool-call-parser", "gemma4", "--enable-auto-tool-choice", "--reasoning-parser", "gemma4", "--port", "8000", *extra],
         stdout=open(f"/kaggle/working/vllm-{name}.log", "w"), stderr=subprocess.STDOUT, env={**os.environ, "VLLM_USE_FLASHINFER_SAMPLER": "0"})
     for i in range(80):
