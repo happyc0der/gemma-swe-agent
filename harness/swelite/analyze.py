@@ -24,8 +24,12 @@ def classify(row: dict, trace: dict | None) -> tuple[str, dict]:
     if row.get("resolved"):
         return "resolved", stats
     err = (row.get("agent_error") or "") + " " + (row.get("verify_error") or "")
+    stats["overflow"] = int("ContextWindow" in err)
     if "Failed to apply" in err:
         return "apply_failed", stats
+    if "ContextWindow" in err:
+        # the trajectory hit the 32k window; note whether it was looping when it died
+        return ("context_overflow_loop" if max_run >= 3 else "context_overflow"), stats
     if row.get("patch_size", 0) > 0:
         return "broke_tests", stats
     # empty patch: why?
