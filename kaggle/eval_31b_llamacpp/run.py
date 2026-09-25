@@ -7,7 +7,10 @@ def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
 def sh(cmd, timeout=None):
     log("$", cmd[:200]); r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout); log(r.stdout[-1500:], r.stderr[-1500:]); return r
-DATA = "/kaggle/input/gemma-4-developer-agent"; assert pathlib.Path(DATA, "tasks.jsonl").exists(), "attach the competition dataset"
+sh("find /kaggle/input -maxdepth 3 -name tasks.jsonl 2>/dev/null; ls /kaggle/input; ls /kaggle/input/* | head -20")
+found = subprocess.run("find /kaggle/input -maxdepth 4 -name tasks.jsonl 2>/dev/null | head -1", shell=True, capture_output=True, text=True).stdout.strip()
+assert found, "competition data not found under /kaggle/input"
+DATA = str(pathlib.Path(found).parent); log("DATA =", DATA)
 sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h /tmp | tail -1")
 # 1. harness
 sh("cd /kaggle/working && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1")
