@@ -1,0 +1,18 @@
+{
+  "budget": {
+    "time_minutes": 10.0,
+    "tool_calls": 50,
+    "turns": 100
+  },
+  "limits": {
+    "command_timeout_seconds": 300,
+    "max_stdout_chars": 5000,
+    "max_file_lines": 150,
+    "max_file_chars": 10000
+  },
+  "submission_dir": "../experiments/variants/../../submission",
+  "api_base": "http://127.0.0.1:8000/v1",
+  "served_model": "gemma-4-12b-it-qat-w4a16-ct",
+  "llm_kwargs": {},
+  "n_tasks": 33
+}
