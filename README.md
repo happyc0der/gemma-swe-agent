@@ -15,9 +15,11 @@ See `docs/competition.md` for the competition digest, `docs/HARNESS_README.md` f
 | 09-25 | MSI proxy | prompt v4 (context-budget rules), temp 0.7, 2048 cap | **7/33** |
 | 09-25 | MSI proxy | day-3 config: v4, 5.5 min / 30 calls | 5/33 (24 explicit submits, overflow 12 -> 2) |
 | 09-25 | MSI proxy | v4 with thinking on (thoughts kept in history) | 7/33 (loops gone, overflow up); union of all runs 10/33 |
+| 09-25 | MSI proxy | day-3 config with thinking on | 7/33 holdout, 15/74 dev |
+| 09-25 | **Kaggle T4x2, real 31B** (llama.cpp Q4_0) | day-3 config | 1/33 while the server was OOM-killed 11 times; pipeline proven end to end on the competition model |
 | 09-25 | Kaggle | prompt v3, temp 0.2, thinking 2048, 10 min / 50 calls | **0.00** |
 
-Key findings: ADK never compacts context inside a task, so trajectories die at the 32k window after ~20 full-size tool outputs; low temperature causes verbatim retry loops; the Ollama proxy ignores `max_tokens` and has no thinking budget, so vLLM is the only faithful local proxy.
+Key findings: the competition's 31B runs on Kaggle's free T4 pair only through llama.cpp (vLLM's INT4 kernels need Ampere); ADK never compacts context inside a task, so trajectories die at the 32k window after ~20 full-size tool outputs; low temperature causes verbatim retry loops; the Ollama proxy ignores `max_tokens` and has no thinking budget, so vLLM is the only faithful local proxy.
 
 ## Layout
 - `submission/` - exactly what gets zipped and uploaded (YAML agent config, prompts, skills, adapters).
