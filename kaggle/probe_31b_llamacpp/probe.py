@@ -6,8 +6,11 @@ def log(*a):
 def sh(cmd, timeout=None):
     log("$", cmd); r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout); log(r.stdout[-2500:], r.stderr[-2500:]); return r
 sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; nvcc --version | tail -1; cmake --version | head -1")
-log("build llama.cpp (CUDA)")
-sh("cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF > /dev/null && cmake --build build --config Release -j 4 --target llama-server 2>&1 | tail -3", timeout=3600)
+log("locate CUDA driver library and make a dev symlink for CMake")
+sh("find / -name 'libcuda.so*' -not -path '*/proc/*' 2>/dev/null | head; ls /usr/local/cuda/lib64/stubs 2>/dev/null | head -3")
+sh("mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so; ls -la /tmp/cudalib")
+log("build llama.cpp (CUDA, arch 75)")
+sh("cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudalib;/usr/local/cuda/lib64/stubs' -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc 2>&1 | grep -iE 'error|warning: unused' | head -5; cmake --build build --config Release -j 4 --target llama-server 2>&1 | tail -3", timeout=3600)
 sh("ls -la /tmp/llama.cpp/build/bin/llama-server")
 os.environ["HF_HOME"] = "/tmp/hf"
 sh(f"{sys.executable} -m pip install -q huggingface_hub 2>&1 | tail -1")
