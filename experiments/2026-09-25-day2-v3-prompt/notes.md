@@ -7,3 +7,10 @@ Proxy evidence (Gemma 4 12B, Ollama, thinking off, Mac): v2 prompt ran tight loo
 ## Pre-submission change (2026-09-24 21:30 EDT)
 max_output_tokens 8192 -> 4096. On the vLLM proxy a task hit `ContextWindowExceededError` (24.6k prompt + 8192 requested > 32768) and died; the competition's vLLM has the same 32k window. 4096 leaves room for prompts up to ~28k.
 Observation: in swelite, ADK's LiteLlm does not translate `thinking_config` into a vLLM request, so proxy runs are effectively thinking-off; whether the organizers' adk-submission layer injects Gemma 4's thinking trigger is unknown. The config keeps thinking medium/2048 in case it does.
+
+## Result
+Public score **0.00** (COMPLETE, ~11 h after submission). Locally the identical config resolved 6/33 holdout tasks on the 12B proxy, so a zero on ~60 hidden tasks points at something systematic:
+1. Global 12 h cap: the organizers' sample uses 1 min/task, suggesting sequential execution; at 10 min/task, 120 tasks need up to 20 h. A global timeout may zero the submission (day 1 used 8 min/task and also scored 0).
+2. Per-call speed on 4x L4 with the 31B and thinking on is likely 3-5x slower than the proxy, so 10 min covers far fewer turns.
+3. Hidden repos are unseen and possibly harder, but 0/60 vs 18% locally is too large a gap for that alone.
+Action for day 3: fit a sequential 12 h (5.5 min/task, 30 calls, 60 turns), prompt v4 (compact context, ~20-call plan), thinking low/512, output cap 2048. Ask Keshav to check the Kaggle submission page for a log or error message.
