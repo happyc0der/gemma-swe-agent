@@ -71,6 +71,9 @@ fastapi 67, rich 48, requests 13, httpx 1. Median reference patch: 31 lines, 1 f
 ## Sample submission (the organizers' starter)
 Root `LlmAgent` with all 9 tools + a `code_analyzer` AgentTool (read-only, graph tools), two dummy rank-4 LoRAs (q_proj/o_proj, layer 0 only), sampling temp 0.2 / thinking high with 4096 budget / 16384 max tokens, and an `eval_config.yaml` of 1 minute, 10 tool calls, 50 turns per task (which is why the day-1 leaderboard is mostly zeros; top is 0.08).
 
+## Structural constraint: no in-task compaction (verified in google-adk 2.9.2)
+`EventsCompactionConfig` runs only **after a completed invocation** (`Runner._run_post_invocation_compaction`), and its token trigger requires the latest prompt to already be >= `token_threshold` (32768), which vLLM rejects before it can happen (`max_model_len` 32768). Within one agent turn (the whole task until a nudge) the context only grows. With `read_file`/`run_command` outputs capped at 5000 chars (~1.3k tokens) plus the ~3.5k-token initial prompt, a trajectory overflows after roughly 20 full-size tool outputs and the task dies with `ContextWindowExceededError` (the fallback diff is still graded). Consequences: keep tool outputs small, plan for <= 20-25 tool calls, submit early; `max_tool_calls` above ~30 is mostly moot.
+
 ## Known unknowns
 - `swegemma`, `adk-submission`, `adk-eval-core` are not published (forum question open). We re-implement (`harness/`).
 - Organizers' concurrency inside the 12 h cap.
