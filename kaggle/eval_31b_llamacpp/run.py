@@ -24,14 +24,30 @@ sh("cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && c
 os.environ["HF_HOME"] = "/tmp/hf"; sh(f"{sys.executable} -m pip install -q huggingface_hub 2>&1 | tail -1")
 from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
-# 4. serve (OpenAI-compatible, tool calls via --jinja, 2 parallel slots, 32k context each)
-server = subprocess.Popen(["/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", str(32768 * CFG["concurrency"]), "-np", str(CFG["concurrency"]), "--jinja",
-    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto"], stdout=open("/kaggle/working/llama.log", "w"), stderr=subprocess.STDOUT)
-for i in range(80):
-    time.sleep(15)
-    try: urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); log(f"llama-server up after {(i+1)*15}s"); break
-    except Exception:
-        if server.poll() is not None: log("llama-server died:", open("/kaggle/working/llama.log").read()[-2000:]); sys.exit(1)
+# 4. serve (OpenAI-compatible, tool calls via --jinja). 16k per slot: two 32k slots overflowed the T4s and the server aborted silently.
+SERVER_CMD = ["stdbuf", "-oL", "-eL", "/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", str(16384 * CFG["concurrency"]), "-np", str(CFG["concurrency"]), "--jinja",
+    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8"]
+def start_server(tag):
+    srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT)
+    for i in range(80):
+        time.sleep(15)
+        try: urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); log(f"llama-server up ({tag}) after {(i+1)*15}s"); return srv
+        except Exception:
+            if srv.poll() is not None: log(f"llama-server died at startup ({tag}) rc={srv.returncode}:", open(f"/kaggle/working/llama-{tag}.log").read()[-1500:]); return None
+    return None
+server = start_server("0")
+if server is None: sys.exit(1)
+import threading
+def watchdog():
+    n = 0
+    while True:
+        time.sleep(20)
+        global server
+        if server.poll() is not None:
+            n += 1; log(f"WATCHDOG: llama-server exited rc={server.returncode}; tail:", open(f"/kaggle/working/llama-{n-1}.log").read()[-800:]); log("dmesg:", subprocess.run("dmesg 2>/dev/null | tail -3", shell=True, capture_output=True, text=True).stdout[-400:])
+            server = start_server(str(n))
+            if server is None: log("WATCHDOG: restart failed"); return
+threading.Thread(target=watchdog, daemon=True).start()
 # 5. evaluate
 splits = json.load(open("/kaggle/working/gemma-swe-agent/experiments/splits.json"))
 ids = [i for i in splits[CFG["split"]] if i not in splits["env_unstable"]][: CFG["limit"]]
@@ -44,4 +60,4 @@ t = time.time(); r = subprocess.run(cmd, capture_output=True, text=True); log(r.
 try: log("SUMMARY", open(f"/kaggle/working/results/{CFG['results']}/summary.json").read())
 except Exception as e: log("no summary", e)
 sh(f"cd /kaggle/working/results && tar -czf /kaggle/working/{CFG['results']}.tgz {CFG['results']} --exclude='*/test_outputs/*' && ls -la /kaggle/working/*.tgz")
-server.terminate(); log("RUN_DONE")
+sh("free -g | head -2; nvidia-smi --query-gpu=memory.used --format=csv,noheader"); server.terminate(); log("RUN_DONE")
