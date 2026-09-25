@@ -26,7 +26,7 @@ from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
 # 4. serve (OpenAI-compatible, tool calls via --jinja). 16k per slot: two 32k slots overflowed the T4s and the server aborted silently.
 SERVER_CMD = ["stdbuf", "-oL", "-eL", "/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", str(16384 * CFG["concurrency"]), "-np", str(CFG["concurrency"]), "--jinja",
-    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8", "--no-mmap"]  # mmap page cache is charged to Kaggle's 30 GB cgroup and got the server SIGKILLed every few minutes
+    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8", "--mmap", "off"]  # mmap page cache is charged to Kaggle's 30 GB cgroup and got the server SIGKILLed every few minutes
 def start_server(tag):
     srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT)
     for i in range(80):
