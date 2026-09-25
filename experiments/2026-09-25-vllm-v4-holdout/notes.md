@@ -1,0 +1,5 @@
+# MSI vLLM proxy: prompt v4 (context-budget rules), temp 0.7, 2048 output cap, thinking low/1024 (not applied), 33 holdout tasks, 10 min / 50 calls
+
+Result: **7/33 (21.2%)**, best of the three runs (v3@0.2: 6, v3@0.7: 6). Resolved: fastapi_13537, fastapi_14301, fastapi_14303, fastapi_14458, requests_6644, requests_7309, rich_3894. No task was solved that neither earlier run solved; the union over all three runs is 8/33, so ~8 tasks are within the 12B's reach and the rest need more capability than prompting.
+Taxonomy: loop 9, context_overflow 7 + overflow_loop 5 (was 15+4 at v3@0.7), broke_tests 4, edit_mismatch 1. Mean time 207 s (was 267/307), non-empty patches 15 (was 14/10), median calls 43, repeats 8.6.
+Reading: the context-budget rules cut overflow by a third and sped tasks up, but the model still exhausts the 50-call budget with narrow-but-many commands, and identical-call loops came back partially. Day 3 ships this prompt with the shorter budget (5.5 min / 30 calls) for the 12 h global-cap hypothesis; the day-3-config local test runs next to measure what the shorter budget costs.
