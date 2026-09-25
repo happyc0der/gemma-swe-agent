@@ -35,7 +35,10 @@ class SubprocessSandbox:
     def start(self) -> None:
         for d in (self.workspace, self.tmp, self.wheels, self.sandbox_dir):
             d.mkdir(parents=True, exist_ok=True)
-        subprocess.run([self.python, "-m", "venv", str(self.venv)], check=True, capture_output=True)
+        r = subprocess.run([self.python, "-m", "venv", str(self.venv)], capture_output=True, text=True)
+        if r.returncode != 0:  # e.g. Debian images without the venv module: fall back to virtualenv (pip-installable)
+            subprocess.run([self.python, "-m", "pip", "install", "-q", "virtualenv"], capture_output=True, text=True)
+            subprocess.run([self.python, "-m", "virtualenv", "-q", str(self.venv)], check=True, capture_output=True, text=True)
         self._pip("install", "-q", "--upgrade", "pip", "setuptools", "wheel")
         self.started = True
 

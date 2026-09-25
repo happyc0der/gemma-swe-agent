@@ -14,7 +14,8 @@ DATA = str(pathlib.Path(found).parent); log("DATA =", DATA)
 sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h /tmp | tail -1")
 # 1. harness
 sh("cd /kaggle/working && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1")
-sh(f"{sys.executable} -m pip install -q -e /kaggle/working/gemma-swe-agent/harness 2>&1 | grep -viE 'warning|incompatible' | tail -2")
+sh(f"{sys.executable} -m pip install -q -e /kaggle/working/gemma-swe-agent/harness virtualenv 2>&1 | grep -viE 'warning|incompatible' | tail -2")
+sh(f"{sys.executable} -m venv /tmp/venvtest 2>&1 | tail -1; {sys.executable} -m virtualenv -q /tmp/venvtest2 && ls /tmp/venvtest2/bin | head -3")
 sh(f"{sys.executable} -c 'import google.adk, swelite; print(\"adk\", google.adk.__version__)'")
 # 2. llama.cpp
 sh("mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so")
