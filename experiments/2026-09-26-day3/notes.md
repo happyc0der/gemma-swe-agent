@@ -24,3 +24,6 @@ Same config minus the one warning sentence gave 7/33 the day before; the thinkin
 
 ## Variance: second run of the shipped day-3 config, thinking on: 5/33 (first run 4/33)
 Task-level agreement between the two runs is listed in the analysis; the day-3 config is estimated at 4-5/33 on the holdout with roughly +/-2 run-to-run noise. Prompt changes must clear that band before they count.
+
+## Result
+Public score **0.00** (COMPLETE ~04:40 UTC; the API's score field is blank but the leaderboard file lists the team at 0.00 with 3 entries). Three zeros at 8, 10 and 5.5 min/task: per-task budget is not the cause. Leaderboard top is 0.13 (about 8 of ~60 public tasks). Next: find the organizers' inference notebook or any zero-score discussion on Kaggle; the failure is systematic and invisible from the CLI.
