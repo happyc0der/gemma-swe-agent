@@ -1,0 +1,23 @@
+TRIAL A_baseline | PIN=0 KV=auto OFFLOAD=11.5 EAGER=1 MAX_LEN=32768 | offloaded=11.53GiB GPU KV cache size: 7,824 tokens | BENCH: 128 tokens in 334.3s = 0.38 tok/s
+TRIAL B_pin_uva_eager | PIN=1 KV=auto OFFLOAD=10.5 EAGER=1 MAX_LEN=32768 | offloaded=10.55GiB GPU KV cache size: 7,056 tokens | BENCH: 128 tokens in 179.9s = 0.71 tok/s
+TRIAL C_pin_uva_graphs | PIN=1 KV=auto OFFLOAD=10.5 EAGER=0 MAX_LEN=32768 | offloaded=10.55GiB  | FAILED: (APIServer pid=282072) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL D_pin_fp8kv | PIN=1 KV=fp8 OFFLOAD=8 EAGER=0 MAX_LEN=32768 | offloaded=8.02GiB  | FAILED: (APIServer pid=282299) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIALS_DONE
+TRIAL C2_pin_uva_graphs | PIN=1 KV=auto OFFLOAD=10.5 EAGER=0 MAX_LEN=32768 | offloaded=10.55GiB  | FAILED: (APIServer pid=282698) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL D2_pin_fp8kv_graphs | PIN=1 KV=fp8 OFFLOAD=8 EAGER=0 MAX_LEN=32768 | offloaded=8.02GiB  | FAILED: (APIServer pid=283057) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL E_pin_fp8kv_eager | PIN=1 KV=fp8 OFFLOAD=8 EAGER=1 MAX_LEN=32768 | offloaded=8.02GiB GPU KV cache size: 8,608 tokens | FAILED: (APIServer pid=283300) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIALS_DONE
+(round 2 stopped after D2; fp8 = e4m3 unsupported on sm86 Triton)
+TRIAL F_pin_e5m2_graphs | PIN=1 KV=fp8_e5m2 OFFLOAD=8 EAGER=0 MAX_LEN=32768 | offloaded=?GiB  | FAILED: (APIServer pid=283572) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL G_pin_e5m2_eager | PIN=1 KV=fp8_e5m2 OFFLOAD=8 EAGER=1 MAX_LEN=32768 | offloaded=?GiB  | FAILED: (APIServer pid=283779) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL H_pin_bf16kv_graphs | PIN=1 KV=auto OFFLOAD=11.3 EAGER=0 MAX_LEN=32768 | offloaded=11.32GiB GPU KV cache size: 7,872 tokens | BENCH: 128 tokens in 172.5s = 0.74 tok/s
+TRIALS_DONE
+TRIAL P1_prefetch_eager | BACKEND=prefetch G=3/2 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=1 MAX_LEN=32768 | offloaded=?GiB  | FAILED: (APIServer pid=284450) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIAL P2_prefetch_graphs | BACKEND=prefetch G=3/2 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=0 MAX_LEN=32768 | offloaded=?GiB  | FAILED: (APIServer pid=284663) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIALS_DONE
+TRIAL P1b_prefetch_eager | BACKEND=prefetch G=3/2 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=1 MAX_LEN=32768 | offloaded=?GiB GPU KV cache size: 6,880 tokens | BENCH: 128 tokens in 117.4s = 1.09 tok/s
+TRIAL P2b_prefetch_graphs | BACKEND=prefetch G=3/2 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=0 MAX_LEN=32768 | offloaded=?GiB GPU KV cache size: 6,688 tokens | BENCH: 128 tokens in 115.7s = 1.11 tok/s
+TRIALS_DONE
+TRIAL P3_prefetch_g5n3_graphs | BACKEND=prefetch MAX_LEN=32768 G=5/3 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=0 MAX_LEN=32768 | offloaded=?GiB GPU KV cache size: 5,440 tokens | BENCH: 128 tokens in 102.1s = 1.25 tok/s
+TRIAL P4_prefetch_g2n1_16k_graphs | BACKEND=prefetch MAX_LEN=16384 G=2/1 PF=2 PIN=1 KV=auto OFFLOAD_GB= EAGER=0 MAX_LEN=16384 | offloaded=?GiB  | FAILED: (APIServer pid=286144) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+TRIALS_DONE
