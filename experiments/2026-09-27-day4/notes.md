@@ -9,9 +9,13 @@ Running our day-3 submission through it (MSI, 12B proxy, `~/off_eval.sh`) showed
 failure that our own harness never reproduced:
 
 - **Every `read_file` call with a line range fails** with
-  `'>' not supported between instances of 'int' and 'str'`. The pinned vLLM's Gemma 4 tool-call
-  parser (`vllm/tool_parsers/gemma4_tool_parser.py`) keeps quoted values as strings, and the model
-  quotes numbers; neither ADK 1.36.1 nor swegemma coerces. In the first two official-harness
+  `'>' not supported between instances of 'int' and 'str'`. Cause (verified with a probe on the MSI
+  against one vLLM server, `/tmp/adk_probe.py`): google-adk 1.36.1 serializes `int | None`
+  parameters as `{"any_of": [{"type": "INTEGER"}, {"type": "NULL"}], "nullable": true}` in the
+  OpenAI tools payload; the Gemma 4 template renders that, the model emits the numbers as quoted
+  strings, vLLM keeps them as strings, and neither ADK nor swegemma coerces. ADK 2.9.2 (our proxy
+  harness) sends `anyOf`/`integer` and the same model then emits integers, which is why swelite
+  never showed the failure. In the first two official-harness
   tasks 20 of 24 read_file calls errored. Our prompt v4/v4.1 told the model to read in 80-line
   ranges, so the agent burned its calls on errors. Same mechanism hits `allow_multiple`
   (a string "false" is truthy), `k`, `max_neighbors` and the list argument of `get_code_subgraph`.
