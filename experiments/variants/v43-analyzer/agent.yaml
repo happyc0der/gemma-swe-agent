@@ -5,7 +5,6 @@ instruction: !include prompts/system.md
 generate_content_config: !include configs/sampling.yaml
 tools:
   - run_command
-  - read_file
   - edit_file
   - write_file
   - get_status
