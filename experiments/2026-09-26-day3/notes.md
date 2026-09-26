@@ -21,3 +21,6 @@ The 31B via llama.cpp with two slots ran 6-8 tok/s per slot: two tasks made 6 to
 
 ## v4.1 (the shipped day-3 prompt) measured after the fact, thinking on, 5.5 min / 30 calls: 4/33
 Same config minus the one warning sentence gave 7/33 the day before; the thinking-off variant gave 5/33. Read as run-to-run noise of about +/-3 on this 33-task holdout rather than an effect of the sentence. Leak counts compared in the analysis above.
+
+## Variance: second run of the shipped day-3 config, thinking on: 5/33 (first run 4/33)
+Task-level agreement between the two runs is listed in the analysis; the day-3 config is estimated at 4-5/33 on the holdout with roughly +/-2 run-to-run noise. Prompt changes must clear that band before they count.
