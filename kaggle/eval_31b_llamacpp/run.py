@@ -1,7 +1,7 @@
 # Kaggle T4x2: evaluate a submission config with the REAL 31B (official QAT Q4_0 GGUF via llama.cpp) using swelite's subprocess sandbox.
 # Inputs: competition data attached at /kaggle/input/gemma-4-developer-agent. Outputs: /kaggle/working/results/<name>/ and run.log.
 import subprocess, sys, os, time, json, urllib.request, pathlib
-CFG = {"submission": "submission", "results": "k31b-v42", "max_min": 5.5, "max_calls": 30, "split": "holdout", "limit": 33, "concurrency": 1, "extra": []}
+CFG = {"submission": "submission", "results": "k31b-v43-4m5", "max_min": 4.5, "max_calls": 30, "split": "holdout", "limit": 33, "concurrency": 1, "extra": []}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
