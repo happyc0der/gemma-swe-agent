@@ -1,3 +1,9 @@
+# RETRACTED 2026-09-26 14:10 UTC: do not post.
+
+The scorer replica (vLLM 0.19.1 + real 31B + ADK 1.36.1) passes integers correctly; the failure below only happens on my 12B proxy with vLLM 0.30. See experiments/2026-09-27-day4/notes.md.
+
+---
+
 # Draft forum post (not published; needs Keshav's OK)
 
 **Title:** read_file line ranges always fail under the released harness: ADK 1.36.1 sends `any_of` / `INTEGER` tool schemas

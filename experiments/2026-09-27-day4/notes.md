@@ -1,4 +1,4 @@
-# Day 4 (2026-09-27 00:05 UTC): prompt v4.2, thinking off, 5.5 min / 30 calls / 60 turns, timeout 180 s
+# Day 4 (2026-09-27 00:05 UTC): prompt v4.3, thinking off, 5.5 min / 30 calls / 60 turns, timeout 180 s
 
 ## What changed since day 3 and why
 
@@ -60,3 +60,25 @@ Per-task results for every run: `off-*-holdout.task_results.jsonl` in this folde
 
 Even with the prompt telling it not to, the 12B kept calling read_file with ranges (64 % of those calls
 failed), which is why v4.3 removes the tool altogether. Per-task results: `off-v42-holdout.task_results.jsonl`.
+
+
+## CORRECTION (14:10 UTC 2026-09-26): the read_file failure does NOT happen on the scorer's stack
+
+I built a scorer replica on the MSI: the wheelhouse's exact vLLM 0.19.1 / transformers 5.13.1 /
+compressed-tensors 0.15.0.1 serving the real `gemma-4-31B-it-qat-w4a16-ct` (CPU offload 11.5 GB, eager,
+no LoRA buffers, one patched offload guard; ~0.5 tok/s), driven by google-adk 1.36.1 from the wheelhouse
+(`v019_probe.py`, log `v019_31b_probe.log`). The server returned `"start_line": 300` as a JSON integer
+and the tool function received the integer 300 (the log prints `repr()` values, so `'300'` there is the
+int). A mocked-response test (`trace_args.py`) confirms neither ADK 1.36.1 nor 2.9.2 turns integers into
+strings.
+
+So the string line numbers came from my proxy (12B on vLLM 0.30 with ADK 1.36.1), not from the scorer.
+My earlier claim that an ADK 1.36.1 `any_of` schema bug caused the three 0.00 scores is withdrawn; the
+schema serialization difference is real, but on the scorer's model and vLLM it does not break read_file.
+The forum post draft is retracted. The 0.00 cause is still unknown; leading hypotheses are the 12 h
+sequential cap (days 1-2 budgeted 8 and 10 min per task) and the scorer-side bundle issue the organizer
+mentioned on 09-26.
+
+Consequences: v4.3 (no read_file tool) is not a fix, only a harmless variant (5/33 on the proxy, same as
+v4.1). Next: make the proxy faithful by serving the 12B on vLLM 0.19.1, confirm read_file works there,
+and rerun v4.1 vs v4.3 before the 00:05 UTC submission.

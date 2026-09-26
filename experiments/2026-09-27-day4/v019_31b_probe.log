@@ -1,0 +1,32 @@
+##### thinking OFF (include_thoughts:false path)
+  server: {"tool_calls": [["read_file", "{\"end_line\": 320, \"filepath\": \"fastapi/params.py\", \"start_line\": 300}"], ["run_command", "{\"command\": \"grep \\\"class Header\\\" fastapi/params.py\"}"], ["submit_patch", "{}"]], "content": "", "reasoning": "", "finish": "tool_calls"}
+  tool args received: [('read_file', '300', '320'), ('run_command', 'grep "class Header" fastapi/params.py'), ('submit_patch',)]
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+thinking ON, reasoning_effort=low (day-2/3 style thinking_level) RUN ERROR: Timeout litellm.Timeout: APITimeoutError - Request timed out. Error_str: Request timed out. - timeout value=600.0, time taken=1200.6 seconds LiteLLM Retried: 1 times
+##### thinking ON, reasoning_effort=low (day-2/3 style thinking_level)
+  server: {"tool_calls": [], "content": "", "reasoning": "", "finish": "stop"}
+  server: {"tool_calls": [["read_file", "{\"end_line\": 320, \"filepath\": \"fastapi/params.py\", \"start_line\": 300}"]], "content": "", "reasoning": "The user wants me to perform three specific actions:\n1. Read lines 300 to 320 of", "finish": "tool_calls"}
+  server: {"tool_calls": [["run_command", "{\"command\": \"grep \\\"class Header\\\" fastapi/params.py\"}"]], "content": "", "reasoning": "The `read_file` call returned content that doesn't seem to match the expected fi", "finish": "tool_calls"}
+  tool args received: [('read_file', '300', '320'), ('run_command', 'grep "class Header" fastapi/params.py')]
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+thinking ON, no reasoning_effort (organizer sample now) RUN ERROR: Timeout litellm.Timeout: APITimeoutError - Request timed out. Error_str: Request timed out. - timeout value=600.0, time taken=1200.44 seconds LiteLLM Retried: 1 times
+##### thinking ON, no reasoning_effort (organizer sample now)
+  server: {"tool_calls": [["read_file", "{\"end_line\": 320, \"filepath\": \"fastapi/params.py\", \"start_line\": 300}"]], "content": "", "reasoning": "The user wants me to perform three specific actions:\n1. Read lines 300 to 320 of", "finish": "tool_calls"}
+  server: {"tool_calls": [["run_command", "{\"command\": \"ls -l fastapi/params.py\"}"]], "content": "", "reasoning": "The `read_file` call returned content that doesn't seem to match the requested l", "finish": "tool_calls"}
+  server: {"tool_calls": [["run_command", "{\"command\": \"grep -n \\\"class Header\\\" fastapi/params.py\"}"]], "content": "", "reasoning": "The user wants me to:\n1. Read lines 300 to 320 of `fastapi/params.py`.\n2. Grep f", "finish": "tool_calls"}
+  tool args received: [('read_file', '300', '320'), ('run_command', 'ls -l fastapi/params.py'), ('run_command', 'grep -n "class Header" fastapi/params.py')]
+PROBE_DONE rc=0
