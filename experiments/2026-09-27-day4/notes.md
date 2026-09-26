@@ -87,3 +87,9 @@ and rerun v4.1 vs v4.3 before the 00:05 UTC submission.
   0.19.1 works but runs at ~0.5 tok/s with offload, too slow for holdout runs. Back on the 0.30 proxy, I am
   running v4.3 through swelite (ADK 2.9.2, where read_file works) to compare with the existing swelite v4.1
   numbers before choosing the day-4 config.
+- 15:10 UTC: v4.3 through swelite (ADK 2.9.2, 12B on vLLM 0.30, where read_file works): **4/33**, versus
+  v4.1 at 4/33 and the day-3 config at 5/33 on the same harness. No difference beyond the +/-3 noise band.
+  **Decision: keep v4.3 for day 4.** It ties everywhere it was measured, has no dependency on read_file's
+  argument handling, and differs from the still-pending day-3 submission (v4.1), so the two scores will say
+  something. The other day-4 changes (timeout 180, 4096 cap, no thinking_level) are justified by the
+  released source independently of the read_file question.
