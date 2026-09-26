@@ -1,0 +1,7 @@
+# Per-task budgets. The scorer runs ~120 hidden tasks sequentially under a 12 h cap and reads only these
+# four fields. timeout_seconds also bounds the hidden-test pytest run in verification, so keep it >= 180.
+evaluation:
+  timeout_seconds: 180
+  max_tool_calls: 30
+  max_time_minutes: 5.5
+  max_turns: 60
