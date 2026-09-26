@@ -46,6 +46,16 @@ failure that our own harness never reproduced:
 | run | resolved | patches | read_file calls / errors | edit errors | submit calls | ended by |
 |---|---|---|---|---|---|---|
 | v4.2 (`off-v42-holdout`, 06:51 UTC) | **4/33** (requests_7309, rich_4075, rich_3052, rich_3061) | 11 | 283 / 180 | 25 | 18 in 9 logs | 14 call-budget, 5 context overflow, 3 time, 1 sandbox (my pruning), 10 clean |
+| v4.1 (`off-v41-holdout`, 07:50 UTC) | **5/33** (requests_7309, rich_4075, rich_3942, rich_3052, rich_3061) | 5 | 497 / 381 | 5 | 18 in 9 logs | 21 call-budget, 2 overflow, 1 time, 9 clean |
+| v4.3 (`off-v43-holdout`, 08:45 UTC) | **5/33** (requests_7427, requests_7309, rich_3942, rich_3480, rich_3061) | 12 | 0 / 0 (tool removed; 917 run_command) | 23 | 34 | 9 call-budget, 3 overflow, 4 time, **17 clean** |
+| organizers' sample prompt, no adapters, thinking off (`off-sample-noadapter-holdout`, 08:51 UTC) | **2/33** (requests_7309, rich_3052) | 5 | 214 / 240 (incl. errors on other tools) | 36 | 12 | 24 call-budget, 2 time, 6 clean |
+
+Reading: on the 12B proxy the four configs are within the +/-3 noise band (2-5/33), so the read_file
+failure is not what separates 5/33 from 0.00 on the scorer; the 31B + vLLM 0.19.1 path still has an
+unexplained difference (see the day-3 score once it lands, and the planned vLLM 0.19.1 + real-31B run on the
+MSI). v4.3 stays the day-4 choice because it wastes no calls on rejected arguments (0 read errors, 17 clean
+endings and 34 submit calls vs 9/18 for v4.1) and its union of solved tasks differs (requests_7427, rich_3480).
+Per-task results for every run: `off-*-holdout.task_results.jsonl` in this folder.
 
 Even with the prompt telling it not to, the 12B kept calling read_file with ranges (64 % of those calls
 failed), which is why v4.3 removes the tool altogether. Per-task results: `off-v42-holdout.task_results.jsonl`.
