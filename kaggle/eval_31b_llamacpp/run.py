@@ -1,7 +1,7 @@
 # Kaggle T4x2: evaluate a submission config with the REAL 31B (official QAT Q4_0 GGUF via llama.cpp) using swelite's subprocess sandbox.
 # Inputs: competition data attached at /kaggle/input/gemma-4-developer-agent. Outputs: /kaggle/working/results/<name>/ and run.log.
 import subprocess, sys, os, time, json, urllib.request, pathlib
-CFG = {"submission": "submission", "results": "k31b-day3cfg", "max_min": 5.5, "max_calls": 30, "split": "holdout", "limit": 33, "concurrency": 2, "extra": []}
+CFG = {"submission": "submission", "results": "k31b-day3cfg", "max_min": 5.5, "max_calls": 30, "split": "holdout", "limit": 33, "concurrency": 1, "extra": []}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
@@ -26,9 +26,10 @@ from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
 # 4. serve (OpenAI-compatible, tool calls via --jinja). 16k per slot: two 32k slots overflowed the T4s and the server aborted silently.
 SERVER_CMD = ["stdbuf", "-oL", "-eL", "/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", str(16384 * CFG["concurrency"]), "-np", str(CFG["concurrency"]), "--jinja",
-    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8", "--mmap", "off"]  # mmap page cache is charged to Kaggle's 30 GB cgroup and got the server SIGKILLed every few minutes
+    "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8"]  # mmap page cache is charged to Kaggle's 30 GB cgroup and got the server SIGKILLed every few minutes
+sh("/tmp/llama.cpp/build/bin/llama-server --help 2>&1 | grep -iE 'mmap|mlock' | head -6")
 def start_server(tag):
-    srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT)
+    srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT, env={**os.environ, "LLAMA_ARG_MMAP": "0", "LLAMA_ARG_NO_MMAP": "1"})
     for i in range(80):
         time.sleep(15)
         try: urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); log(f"llama-server up ({tag}) after {(i+1)*15}s"); return srv
