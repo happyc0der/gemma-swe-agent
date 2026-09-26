@@ -20,3 +20,4 @@ ok submission compiles
 [Sat Sep 26 00:05:05 UTC 2026] submit rc=0:   0%|          | 0.00/15.5k [00:00<?, ?B/s]100%|██████████| 15.5k/15.5k [00:00<00:00, 134kB/s]100%|██████████| 15.5k/15.5k [00:00<00:00, 34.5kB/s]
 0 submissions remaining today.
 Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+[Sat Sep 26 01:23:09 UTC 2026] scheduled for Sun Sep 27 00:05:00 UTC 2026 : day4: config chosen from the v4.1 MSI run and the real-31B Kaggle run (see experiments/2026-09-27-day4)

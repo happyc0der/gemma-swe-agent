@@ -18,3 +18,6 @@ First attempt died at 08:08 EDT with every other process on the MSI (no error; T
 
 ## Throughput lens (2026-09-25 evening, from the first real-31B tasks on Kaggle T4x2)
 The 31B via llama.cpp with two slots ran 6-8 tok/s per slot: two tasks made 6 tool calls each in ~250 s. On the 12B proxy at ~34 tok/s, the tasks v4 solved needed 6-34 calls and 72-407 s. If the competition's 4x L4 vLLM stream is only ~1.5x slower than the proxy, 5.5 min is enough for the easy half of those; if their concurrency makes it 4x slower, a 5.5-min task yields ~6 calls and nearly nothing resolves. Both prior budgets (8, 10 min) scored 0.00, so day 3 tests the short budget; day 4 should test the opposite (20+ min, few tasks may hit the global cap) unless the real-31B holdout run says otherwise.
+
+## v4.1 (the shipped day-3 prompt) measured after the fact, thinking on, 5.5 min / 30 calls: 4/33
+Same config minus the one warning sentence gave 7/33 the day before; the thinking-off variant gave 5/33. Read as run-to-run noise of about +/-3 on this 33-task holdout rather than an effect of the sentence. Leak counts compared in the analysis above.
