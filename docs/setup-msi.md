@@ -56,3 +56,18 @@ Not needed: the `google/gemma-4-*-it-qat-w4a16-ct` checkpoints (and the unsloth 
 5. **Trap:** Task Scheduler stops running tasks when the laptop switches to battery (default `StopIfGoingOnBatteries`) and won't start them on battery; on 2026-09-25 08:08 EDT every job (vLLM, a batch, its sandboxes) died at the same instant with no error. After creating a task, run in PowerShell: `Set-ScheduledTask -TaskName <name> -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -StartWhenAvailable)`. Applied to all `swe_*` tasks.
 6. **Trap:** `/sc once /st 23:59` also fires at 23:59 local even if you `/run` it immediately. On 2026-09-24 every one-shot job re-ran at once at 23:59 EDT (sweeps, batches, queued runs), each `rm -rf`-ing its results dir and flooding vLLM. Create one-shot tasks with a start date in the past so the trigger never fires: `/sc once /st 00:00 /sd 01/01/2020`, then `/run`. Copy results to the Mac as soon as a run finishes.
 7. **Trap:** tasks that run `wsl.exe` or `powershell` in the interactive session flash a console window at every launch (Keshav saw the screen flashing). Launch them through `C:\Users\keshav\hidden.vbs` (a WScript `Run cmd, 0` wrapper): `/tr "wscript.exe //B C:\Users\keshav\hidden.vbs wsl.exe -d Ubuntu -- bash /home/keshav/<script>.sh"`. All `swe_*` tasks were re-registered this way on 2026-09-25.
+
+## Official harness on the MSI (added 2026-09-26)
+
+- `~/wheelhouse/` holds the pure-Python wheels from the Kaggle wheelhouse dataset; `~/offvenv` is a
+  uv venv (`uv venv --python 3.12`, then `uv pip install --find-links ~/wheelhouse google-adk==1.36.1
+  google-genai==2.11.0 adk-submission==0.2.11 adk-eval-core==0.1.0 swegemma==0.2.7`). WSL's system
+  python has no `venv` module, so use uv.
+- `~/off_eval.sh` (env: `RUN`, `SUB`, `MINUTES`, `CALLS`, `TURNS`, `TIMEOUT`) runs
+  `swegemma eval --sandbox docker` on the 33 usable holdout tasks against the local vLLM 12B proxy via
+  a generated `models.yaml` that aliases `gemma-4-31b-it-qat-w4a16-ct` to the served 12B. Results in
+  `harness/results/<RUN>/` (task_results.jsonl, summary.json, logs/, traces/, patches/) plus
+  `<RUN>.console`.
+- `~/off_queue.sh` lists runs back to back; scheduled task `swe_off_eval` launches it hidden. Trap 8:
+  `schtasks /end` does not kill the WSL process tree, so `pkill -f "swegemma eval"` (and kill the
+  `off_queue.sh` bash) before re-running the task, or two queues run at once.
