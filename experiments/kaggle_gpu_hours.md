@@ -29,7 +29,7 @@ The account also runs other projects' kernels (biohub-*, electric-car), which dr
 | gemma4-31b-holdout-eval v8 | T4x2 | 09-26 01:22 | 05:10 | 3.8 | day-3 config: 3/33 |
 | gemma4-31b-holdout-eval v9 | T4x2 | 09-26 05:24 | 09:26 | 4.0 | v4.2: 2/33 |
 | gemma4-official-l4-eval v1 | T4x2 (L4 unavailable) | 09-26 16:23 | 16:26 | 0.05 | L4x4 not granted; exited at GPU check |
-| gemma4-31b-holdout-eval v10 | T4x2 | 09-26 16:29 (queued) | | | day-4 config (v4.3, 4.5 min): calibrate T4 proxy against the day-4 LB score |
+| gemma4-31b-holdout-eval v10 | T4x2 | 09-26 19:01 (queued from 16:29) | | | day-4 config (v4.3, 4.5 min): calibrate T4 proxy against the day-4 LB score |
 | **total so far** | | | | **~19.9** | |
 
 Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each further holdout run is ~4 h.
