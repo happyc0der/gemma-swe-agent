@@ -93,3 +93,14 @@ and rerun v4.1 vs v4.3 before the 00:05 UTC submission.
   argument handling, and differs from the still-pending day-3 submission (v4.1), so the two scores will say
   something. The other day-4 changes (timeout 180, 4096 cap, no thinking_level) are justified by the
   released source independently of the read_file question.
+
+## 16:35 UTC: per-task time cut from 5.5 to 4.5 min (12 h cap)
+- Kaggle's 4x L4 notebook shape (the scorer's hardware) is not available to this account: `--accelerator NvidiaL4`
+  returns HTTP 400 and `nvidiaL4` silently falls back to T4x2 (kernel `dankaxon/gemma4-official-l4-eval` v1 log).
+- The organizers' own Getting Started run on 4x L4 used the full 5-minute budget on both sample tasks
+  (305.8 s and 309.6 s, 14-15 tool calls). Our T4 runs of the real 31B look the same: 349 s mean agent time at a
+  5.5 min cap, plus 25 s setup and ~8 s verification = 382 s per task.
+- So at 5.5 min, 120 sequential tasks take up to ~12.1 h, over the hard 12 h limit that currently errors the whole
+  submission. Days 1-2 (8 and 10 min) would have taken ~16-20 h. This is now the leading hypothesis for the zeros
+  and for day 3 still showing no score ~16.5 h after submission.
+- Day 4 therefore uses 4.5 min (worst case ~10.4 h including model load). Everything else unchanged (v4.3).

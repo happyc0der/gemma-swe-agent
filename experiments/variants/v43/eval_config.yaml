@@ -1,7 +1,10 @@
-# Per-task budgets. The scorer runs ~120 hidden tasks sequentially under a 12 h cap and reads only these
-# four fields. timeout_seconds also bounds the hidden-test pytest run in verification, so keep it >= 180.
+# Per-task budgets. The scorer runs ~120 hidden tasks SEQUENTIALLY under a hard 12 h cap that currently fails the
+# whole submission when exceeded (organizer, discussion 743063), and reads only these four fields.
+# Measured: on 4x L4 (organizers' notebook) and on our T4 runs almost every task uses its full time budget, plus
+# ~25 s sandbox setup and ~8 s verification. Worst case at 4.5 min: 120 x ~5.05 min + model load = ~10.4 h.
+# timeout_seconds also bounds the hidden-test pytest run in verification, so keep it >= 180.
 evaluation:
   timeout_seconds: 180
   max_tool_calls: 30
-  max_time_minutes: 5.5
+  max_time_minutes: 4.5
   max_turns: 60
