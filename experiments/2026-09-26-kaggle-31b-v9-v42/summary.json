@@ -1,0 +1,154 @@
+{
+  "total": 33,
+  "resolved": 2,
+  "resolution_rate": 0.06060606060606061,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 2
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "errors": [
+    {
+      "id": "fastapi_15589",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14962",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14964",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_15023",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7427",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7309",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7205",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_4075",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_12942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14099",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14485",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14482",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14458",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14448",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14360",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_5624",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14301",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14246",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_13713",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3938",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3894",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14791",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14583",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14303",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13537",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_6644",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3777",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3535",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3480",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3052",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3278",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3061",
+      "error": "session time budget exhausted mid-turn"
+    }
+  ],
+  "mean_elapsed_seconds": 382.3060606060606
+}

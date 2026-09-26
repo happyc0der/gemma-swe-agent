@@ -1,0 +1,333 @@
+05:24:39 $ find /kaggle/input -maxdepth 3 -name tasks.jsonl 2>/dev/null; ls /kaggle/input; ls /kaggle/input/* | head -20
+05:24:40 /kaggle/input/competitions/gemma-4-developer-agent/tasks.jsonl
+competitions
+gemma-4-developer-agent
+ 
+05:24:40 DATA = /kaggle/input/competitions/gemma-4-developer-agent
+05:24:40 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h /tmp | tail -1
+05:24:40 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+overlay         8.0T  6.9T  1.1T  87% /
+ 
+05:24:40 $ cd /kaggle/working && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1
+05:24:41 6a1b46c Kaggle 31B kernel v9: v4.2 config, 32k context
+ 
+05:24:41 $ /usr/bin/python3 -m pip install -q -e /kaggle/working/gemma-swe-agent/harness virtualenv 2>&1 | grep -viE 'warning|incompatible' | tail -2
+05:25:05 ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.39.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+ 
+05:25:05 $ /usr/bin/python3 -m venv /tmp/venvtest 2>&1 | tail -1; /usr/bin/python3 -m virtualenv -q /tmp/venvtest2 && ls /tmp/venvtest2/bin | head -3
+05:25:05 Error: Command '['/tmp/venvtest/bin/python3', '-m', 'ensurepip', '--upgrade', '--default-pip']' returned non-zero exit status 1.
+activate
+activate.csh
+activate.fish
+ 
+05:25:05 $ /usr/bin/python3 -c 'import google.adk, swelite; print("adk", google.adk.__version__)'
+05:25:06 adk 2.10.0
+ 
+05:25:06 $ mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so
+05:25:25  
+05:25:25 $ cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudal
+05:51:07 [100%] Built target llama-server
+ 
+05:51:07 $ /usr/bin/python3 -m pip install -q huggingface_hub 2>&1 | tail -1
+05:51:10  
+05:52:39 gguf in 88s
+05:52:39 $ /tmp/llama.cpp/build/bin/llama-server --help 2>&1 | grep -iE 'mmap|mlock' | head -6
+05:52:45                                         - auto: mmap, unless a device does not support it
+                                        - mmap: memory-map model (if mmap disabled, slower load but may reduce
+                                        pageouts if not using mlock)
+                                        - mlock: force system to keep model in RAM rather than swapping or
+                                        - mmap+mlock: mmap + force system to keep model in RAM rather than
+                                        keeping them resident (requires mmap)
+ 
+05:54:15 llama-server up (0) after 90s
+05:54:15 $ free -m | head -2; cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current 2>/dev/null; ps -o rss=,cmd= -C llama-server | cut -c1-80
+05:54:15                total        used        free      shared  buff/cache   available
+Mem:           32100        3990         743         182       27365       27468
+32212254720
+30080843776
+1859056 /tmp/llama.cpp/build/bin/llama-server -m /tmp/gguf/gemma-4-31B_q4_0-it.g
+ 
+05:54:15 eval: swelite eval --data-dir /kaggle/input/competitions/gemma-4-developer-agent --submission-dir /kaggle/working/gemma-swe-agent/submission --results-dir /kaggle/working/results/k31b-v42 --sandbox subprocess --concurrency 1 --api-base http://127.0.0.1:8000/v1 ... 33 tasks
+09:04:35 WATCHDOG: llama-server exited rc=-9; tail:        eval time =   49743.45 ms /   595 tokens (   83.74 ms per token,    11.94 tokens per second)
+190.02.925.150 I slot print_timing: id  0 | task 101720 |       total time =   51374.91 ms /   713 tokens
+190.02.925.151 I slot print_timing: id  0 | task 101720 |    graphs reused =      99787
+190.02.925.731 I slot      release: id  0 | task 101720 | stop processing: n_tokens = 8008, truncated = 0
+
+09:04:35 mem:                total        used        free      shared  buff/cache   available
+Mem:           32100       18962       12834           2         303       12725
+32212254720
+19443625984
+
+09:06:05 llama-server up (1) after 90s
+09:24:37 imits=HarnessLimits(command_timeout_seconds=180, max_stdout_chars=5000, 
+max_file_lines=150, max_file_chars=10000)
+failed fastapi_15589 calls=14 turns=15 submitted=False patch=0B err=session time
+budget exhausted mid-turn (388.7s)
+failed fastapi_14962 calls=17 turns=18 submitted=False patch=0B err=session time
+budget exhausted mid-turn (386.0s)
+failed fastapi_14964 calls=22 turns=23 submitted=False patch=776B err=session 
+time budget exhausted mid-turn (407.4s)
+failed fastapi_15023 calls=22 turns=23 submitted=False patch=1573B err=session 
+time budget exhausted mid-turn (409.2s)
+failed requests_7427 calls=6 turns=7 submitted=False patch=2229B err=session 
+time budget exhausted mid-turn (400.6s)
+RESOLVED requests_7309 calls=12 turns=13 submitted=False patch=2459B err=session
+time budget exhausted mid-turn (400.9s)
+failed requests_7205 calls=9 turns=10 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (379.6s)
+failed rich_4075 calls=20 turns=22 submitted=False patch=463B err=time budget 
+exhausted (378.6s)
+failed fastapi_12942 calls=15 turns=17 submitted=False patch=0B err=time budget 
+exhausted (369.8s)
+failed fastapi_14099 calls=21 turns=23 submitted=False patch=0B err=time budget 
+exhausted (366.3s)
+failed fastapi_14485 calls=19 turns=21 submitted=False patch=0B err=time budget 
+exhausted (363.8s)
+failed fastapi_14482 calls=20 turns=22 submitted=False patch=0B err=time budget 
+exhausted (369.6s)
+failed fastapi_14458 calls=11 turns=13 submitted=False patch=0B err=time budget 
+exhausted (366.4s)
+failed fastapi_14448 calls=8 turns=10 submitted=False patch=2427B err=time 
+budget exhausted (405.8s)
+failed fastapi_14360 calls=9 turns=11 submitted=False patch=0B err=time budget 
+exhausted (376.2s)
+failed fastapi_5624 calls=5 turns=6 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (386.2s)
+failed fastapi_14301 calls=17 turns=19 submitted=False patch=0B err=time budget 
+exhausted (378.1s)
+failed fastapi_14246 calls=21 turns=22 submitted=False patch=1351B err=session 
+time budget exhausted mid-turn (412.3s)
+failed fastapi_13713 calls=17 turns=19 submitted=False patch=883B err=time 
+budget exhausted (386.5s)
+failed rich_3942 calls=14 turns=16 submitted=False patch=0B err=time budget 
+exhausted (367.4s)
+failed rich_3938 calls=20 turns=22 submitted=False patch=0B err=time budget 
+exhausted (352.2s)
+failed rich_3894 calls=21 turns=22 submitted=False patch=1523B err=session time 
+budget exhausted mid-turn (403.9s)
+failed fastapi_14791 calls=10 turns=12 submitted=False patch=0B err=time budget 
+exhausted (371.0s)
+failed fastapi_14583 calls=14 turns=16 submitted=False patch=0B err=time budget 
+exhausted (356.6s)
+failed fastapi_14303 calls=15 turns=17 submitted=False patch=0B err=time budget 
+exhausted (359.4s)
+failed fastapi_13537 calls=14 turns=16 submitted=False patch=2095B err=session 
+time budget exhausted mid-turn (414.1s)
+RESOLVED requests_6644 calls=14 turns=16 submitted=False patch=1342B err=time 
+budget exhausted (372.8s)
+failed rich_3777 calls=21 turns=22 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (381.7s)
+failed rich_3535 calls=10 turns=11 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (383.5s)
+failed rich_3480 calls=8 turns=9 submitted=False patch=0B err=time budget 
+exhausted (355.2s)
+failed rich_3052 calls=8 turns=10 submitted=False patch=989B err=time budget 
+exhausted (402.4s)
+failed rich_3278 calls=6 turns=7 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (382.2s)
+failed rich_3061 calls=20 turns=21 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (381.7s)
+{
+  "total": 33,
+  "resolved": 2,
+  "resolution_rate": 0.06060606060606061,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 2
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "mean_elapsed_seconds": 382.3060606060606
+}
+ /kaggle/working/gemma-swe-agent/harness/swelite/skills.py:20: UserWarning: [EXPERIMENTAL] BaseEnvironment: This feature is experimental and may change or be removed in future versions without notice. It may introduce breaking changes at any time.
+  super().__init__()
+/kaggle/working/gemma-swe-agent/harness/swelite/runner.py:197: UserWarning: [EXPERIMENTAL] EventsCompactionConfig: This feature is experimental and may change or be removed in future versions without notice. It may introduce breaking changes at any time.
+  events_compaction_config=EventsCompactionConfig(compaction_interval=15, overlap_size=2, token_threshold=32768, event_retention_size=5),
+/usr/local/lib/python3.12/dist-packages/google/adk/features/_feature_decorator.py:71: UserWarning: [EXPERIMENTAL] feature FeatureName.AGENT_CONFIG is enabled.
+  check_feature_enabled()
+/usr/local/lib/python3.12/dist-packages/google/adk/models/llm_request.py:306: UserWarning: [EXPERIMENTAL] feature FeatureName.JSON_SCHEMA_FOR_FUNC_DECL is enabled.
+  declaration = tool._get_declaration()
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x7cd5d9cf8fb0>
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x7cd5d94fd250>
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x7cd5cfef0200>
+
+09:24:37 eval took 210 min
+09:24:37 SUMMARY {
+  "total": 33,
+  "resolved": 2,
+  "resolution_rate": 0.06060606060606061,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 2
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "errors": [
+    {
+      "id": "fastapi_15589",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14962",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14964",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_15023",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7427",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7309",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_7205",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_4075",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_12942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14099",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14485",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14482",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14458",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14448",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14360",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_5624",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14301",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14246",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_13713",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3938",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3894",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14791",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14583",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14303",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13537",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "requests_6644",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3777",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3535",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3480",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3052",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3278",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3061",
+      "error": "session time budget exhausted mid-turn"
+    }
+  ],
+  "mean_elapsed_seconds": 382.3060606060606
+}
+09:24:37 $ cd /kaggle/working/results && tar -czf /kaggle/working/k31b-v42.tgz k31b-v42 --exclude='*/test_outputs/*' && ls -la /kaggle/working/*.tgz
+09:24:37  tar: The following options were used after any non-optional arguments in archive create or update mode.  These options are positional and affect only arguments that follow them.  Please, rearrange them properly.
+tar: --exclude ‘*/test_outputs/*’ has no effect
+tar: Exiting with failure status due to previous errors
+
+09:24:37 $ free -g | head -2; nvidia-smi --query-gpu=memory.used --format=csv,noheader
+09:24:37                total        used        free      shared  buff/cache   available
+Mem:              31          28           1           0           2           2
+10499 MiB
+11039 MiB
+ 
+09:24:37 RUN_DONE
