@@ -1,0 +1,146 @@
+{
+  "total": 33,
+  "resolved": 3,
+  "resolution_rate": 0.09090909090909091,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 3
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "errors": [
+    {
+      "id": "fastapi_15589",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16423 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14962",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14964",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_15023",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (18136 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "requests_7427",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_4075",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16434 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_12942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14099",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14485",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14482",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16627 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14458",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14448",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14360",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_5624",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14301",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14246",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13713",
+      "error": "max nudges reached"
+    },
+    {
+      "id": "rich_3942",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16705 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3938",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3894",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14791",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14583",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16420 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14303",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13537",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "requests_6644",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3777",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3535",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3480",
+      "error": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Loading model LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3052",
+      "error": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Loading model LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3278",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3061",
+      "error": "time budget exhausted"
+    }
+  ],
+  "mean_elapsed_seconds": 348.55757575757576
+}

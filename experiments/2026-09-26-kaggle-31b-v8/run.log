@@ -1,0 +1,354 @@
+01:22:56 $ find /kaggle/input -maxdepth 3 -name tasks.jsonl 2>/dev/null; ls /kaggle/input; ls /kaggle/input/* | head -20
+01:22:56 /kaggle/input/competitions/gemma-4-developer-agent/tasks.jsonl
+competitions
+gemma-4-developer-agent
+ 
+01:22:57 DATA = /kaggle/input/competitions/gemma-4-developer-agent
+01:22:57 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h /tmp | tail -1
+01:22:57 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+overlay         8.0T  6.9T  1.1T  87% /
+ 
+01:22:57 $ cd /kaggle/working && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1
+01:22:58 288e234 eval kernel v8: mmap via LLAMA_ARG_MMAP env (server binary rejects the flags), concurrency 1, log the server's mmap help
+ 
+01:22:58 $ /usr/bin/python3 -m pip install -q -e /kaggle/working/gemma-swe-agent/harness virtualenv 2>&1 | grep -viE 'warning|incompatible' | tail -2
+01:23:23 ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.39.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+ 
+01:23:23 $ /usr/bin/python3 -m venv /tmp/venvtest 2>&1 | tail -1; /usr/bin/python3 -m virtualenv -q /tmp/venvtest2 && ls /tmp/venvtest2/bin | head -3
+01:23:24 Error: Command '['/tmp/venvtest/bin/python3', '-m', 'ensurepip', '--upgrade', '--default-pip']' returned non-zero exit status 1.
+activate
+activate.csh
+activate.fish
+ 
+01:23:24 $ /usr/bin/python3 -c 'import google.adk, swelite; print("adk", google.adk.__version__)'
+01:23:24 adk 2.10.0
+ 
+01:23:24 $ mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so
+01:23:37  
+01:23:37 $ cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudal
+01:49:00 [100%] Built target llama-server
+ 
+01:49:00 $ /usr/bin/python3 -m pip install -q huggingface_hub 2>&1 | tail -1
+01:49:03  
+01:50:44 gguf in 101s
+01:50:44 $ /tmp/llama.cpp/build/bin/llama-server --help 2>&1 | grep -iE 'mmap|mlock' | head -6
+01:50:46                                         - auto: mmap, unless a device does not support it
+                                        - mmap: memory-map model (if mmap disabled, slower load but may reduce
+                                        pageouts if not using mlock)
+                                        - mlock: force system to keep model in RAM rather than swapping or
+                                        - mmap+mlock: mmap + force system to keep model in RAM rather than
+                                        keeping them resident (requires mmap)
+ 
+01:52:16 llama-server up (0) after 90s
+01:52:16 $ free -m | head -2; cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current 2>/dev/null; ps -o rss=,cmd= -C llama-server | cut -c1-80
+01:52:16                total        used        free      shared  buff/cache   available
+Mem:           32100        3665         499         118       27934       27861
+32212254720
+30310121472
+1793100 /tmp/llama.cpp/build/bin/llama-server -m /tmp/gguf/gemma-4-31B_q4_0-it.g
+ 
+01:52:16 eval: swelite eval --data-dir /kaggle/input/competitions/gemma-4-developer-agent --submission-dir /kaggle/working/gemma-swe-agent/submission --results-dir /kaggle/working/results/k31b-day3cfg --sandbox subprocess --concurrency 1 --api-base http://127.0.0.1:8000/v1 ... 33 tasks
+04:50:04 WATCHDOG: llama-server exited rc=-9; tail:  |        eval time =   28996.94 ms /   335 tokens (   86.82 ms per token,    11.52 tokens per second)
+176.57.157.705 I slot print_timing: id  0 | task 90216 |       total time =   30889.15 ms /   477 tokens
+176.57.157.706 I slot print_timing: id  0 | task 90216 |    graphs reused =      88182
+176.57.158.337 I slot      release: id  0 | task 90216 | stop processing: n_tokens = 9303, truncated = 0
+
+04:50:04 mem:                total        used        free      shared  buff/cache   available
+Mem:           32100        3728       28022           1         348       27937
+32212254720
+3512221696
+
+04:51:34 llama-server up (1) after 90s
+05:04:04 ssues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+failed fastapi_14583 calls=10 turns=11 submitted=False patch=0B 
+err=BadRequestError: litellm.BadRequestError: OpenAIException - request (16420 
+tokens) exceeds the avail (189.2s)
+failed fastapi_14303 calls=13 turns=15 submitted=False patch=745B err=time 
+budget exhausted (394.0s)
+failed fastapi_13537 calls=18 turns=20 submitted=False patch=1094B err=time 
+budget exhausted (378.7s)
+RESOLVED requests_6644 calls=14 turns=16 submitted=False patch=499B err=time 
+budget exhausted (376.2s)
+failed rich_3777 calls=20 turns=22 submitted=False patch=0B err=time budget 
+exhausted (369.0s)
+failed rich_3535 calls=11 turns=12 submitted=False patch=1227B err=session time 
+budget exhausted mid-turn (401.6s)
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+failed rich_3480 calls=9 turns=10 submitted=False patch=0B 
+err=ServiceUnavailableError: litellm.ServiceUnavailableError: 
+ServiceUnavailableError: OpenAIException - (347.1s)
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+failed rich_3052 calls=0 turns=1 submitted=False patch=0B 
+err=ServiceUnavailableError: litellm.ServiceUnavailableError: 
+ServiceUnavailableError: OpenAIException - (45.6s)
+failed rich_3278 calls=6 turns=7 submitted=False patch=0B err=session time 
+budget exhausted mid-turn (383.6s)
+failed rich_3061 calls=18 turns=20 submitted=False patch=1274B err=time budget 
+exhausted (403.8s)
+{
+  "total": 33,
+  "resolved": 3,
+  "resolution_rate": 0.09090909090909091,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 3
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "mean_elapsed_seconds": 348.55757575757576
+}
+ local/lib/python3.12/dist-packages/google/adk/flows/llm_flows/base_llm_flow.py", line 679, in _run_and_handle_error
+    async for response in agen:
+  File "/usr/local/lib/python3.12/dist-packages/google/adk/flows/llm_flows/core/_finalizer.py", line 331, in run_and_handle_error
+    raise model_error
+  File "/usr/local/lib/python3.12/dist-packages/google/adk/flows/llm_flows/core/_finalizer.py", line 308, in run_and_handle_error
+    async for llm_response in agen:
+  File "/usr/local/lib/python3.12/dist-packages/google/adk/models/lite_llm.py", line 3883, in generate_content_async
+    response = await self.llm_client.acompletion(**completion_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/google/adk/models/lite_llm.py", line 923, in acompletion
+    return await acompletion(
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/litellm/utils.py", line 2072, in wrapper_async
+    raise e
+  File "/usr/local/lib/python3.12/dist-packages/litellm/utils.py", line 1892, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/litellm/main.py", line 639, in acompletion
+    raise exception_type(
+          ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/lib/python3.12/dist-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 606, in exception_type
+    raise ServiceUnavailableError(
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Loading model LiteLLM Retried: 5 times
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x78a1c0d69ee0>
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x78a1bdf6baa0>
+
+05:04:04 eval took 192 min
+05:04:04 SUMMARY {
+  "total": 33,
+  "resolved": 3,
+  "resolution_rate": 0.09090909090909091,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 0
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 3
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 0
+    }
+  },
+  "errors": [
+    {
+      "id": "fastapi_15589",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16423 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14962",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14964",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_15023",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (18136 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "requests_7427",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_4075",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16434 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_12942",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14099",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14485",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14482",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16627 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14458",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14448",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14360",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_5624",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "fastapi_14301",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14246",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13713",
+      "error": "max nudges reached"
+    },
+    {
+      "id": "rich_3942",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16705 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3938",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3894",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14791",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_14583",
+      "error": "BadRequestError: litellm.BadRequestError: OpenAIException - request (16420 tokens) exceeds the available context size (16384 tokens), try increasing it LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "fastapi_14303",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "fastapi_13537",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "requests_6644",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3777",
+      "error": "time budget exhausted"
+    },
+    {
+      "id": "rich_3535",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3480",
+      "error": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Loading model LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3052",
+      "error": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Loading model LiteLLM Retried: 5 times"
+    },
+    {
+      "id": "rich_3278",
+      "error": "session time budget exhausted mid-turn"
+    },
+    {
+      "id": "rich_3061",
+      "error": "time budget exhausted"
+    }
+  ],
+  "mean_elapsed_seconds": 348.55757575757576
+}
+05:04:04 $ cd /kaggle/working/results && tar -czf /kaggle/working/k31b-day3cfg.tgz k31b-day3cfg --exclude='*/test_outputs/*' && ls -la /kaggle/working/*.tgz
+05:04:04  tar: The following options were used after any non-optional arguments in archive create or update mode.  These options are positional and affect only arguments that follow them.  Please, rearrange them properly.
+tar: --exclude ‘*/test_outputs/*’ has no effect
+tar: Exiting with failure status due to previous errors
+
+05:04:04 $ free -g | head -2; nvidia-smi --query-gpu=memory.used --format=csv,noheader
+05:04:04                total        used        free      shared  buff/cache   available
+Mem:              31          27           1           0           2           2
+9793 MiB
+10333 MiB
+ 
+05:04:04 RUN_DONE
