@@ -41,3 +41,11 @@ failure that our own harness never reproduced:
 - `off-v42-holdout` task `requests_7427` failed with a Docker 404: I removed "stale" containers while the
   run was live and hit its sandbox. Treat that task as a sandbox error, not a model failure; never prune
   containers while an official-harness run is in progress (each task creates and removes its own).
+
+## Official harness, 12B proxy, holdout 33 (concurrency 1, shared GPU)
+| run | resolved | patches | read_file calls / errors | edit errors | submit calls | ended by |
+|---|---|---|---|---|---|---|
+| v4.2 (`off-v42-holdout`, 06:51 UTC) | **4/33** (requests_7309, rich_4075, rich_3052, rich_3061) | 11 | 283 / 180 | 25 | 18 in 9 logs | 14 call-budget, 5 context overflow, 3 time, 1 sandbox (my pruning), 10 clean |
+
+Even with the prompt telling it not to, the 12B kept calling read_file with ranges (64 % of those calls
+failed), which is why v4.3 removes the tool altogether. Per-task results: `off-v42-holdout.task_results.jsonl`.
