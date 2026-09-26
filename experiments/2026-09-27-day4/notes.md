@@ -48,6 +48,7 @@ failure that our own harness never reproduced:
 | v4.2 (`off-v42-holdout`, 06:51 UTC) | **4/33** (requests_7309, rich_4075, rich_3052, rich_3061) | 11 | 283 / 180 | 25 | 18 in 9 logs | 14 call-budget, 5 context overflow, 3 time, 1 sandbox (my pruning), 10 clean |
 | v4.1 (`off-v41-holdout`, 07:50 UTC) | **5/33** (requests_7309, rich_4075, rich_3942, rich_3052, rich_3061) | 5 | 497 / 381 | 5 | 18 in 9 logs | 21 call-budget, 2 overflow, 1 time, 9 clean |
 | v4.3 (`off-v43-holdout`, 08:45 UTC) | **5/33** (requests_7427, requests_7309, rich_3942, rich_3480, rich_3061) | 12 | 0 / 0 (tool removed; 917 run_command) | 23 | 34 | 9 call-budget, 3 overflow, 4 time, **17 clean** |
+| v4.3 + read-only `code_analyzer` AgentTool (`off-v43-analyzer-holdout`, 10:20 UTC) | **5/33** (requests_7427, rich_4075, rich_3942, rich_3894, rich_3061) | 8 | 0 / 0 (301 run_command, 68 analyzer calls) | 12 | 30 | 17 call-budget, 1 time, 15 clean, 0 overflow |
 | organizers' sample prompt, no adapters, thinking off (`off-sample-noadapter-holdout`, 08:51 UTC) | **2/33** (requests_7309, rich_3052) | 5 | 214 / 240 (incl. errors on other tools) | 36 | 12 | 24 call-budget, 2 time, 6 clean |
 
 Reading: on the 12B proxy the four configs are within the +/-3 noise band (2-5/33), so the read_file
