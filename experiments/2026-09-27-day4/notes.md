@@ -36,3 +36,8 @@ failure that our own harness never reproduced:
   `experiments/2026-09-26-kaggle-31b-v8/`.
 - Official harness, 12B proxy, v4.1: `off-v41-holdout-partial` (2 tasks, 0 solved, 20/24
   read_file errors); full v4.2 vs v4.1 vs sample-noadapter runs queued on the MSI.
+
+## Run hygiene note
+- `off-v42-holdout` task `requests_7427` failed with a Docker 404: I removed "stale" containers while the
+  run was live and hit its sandbox. Treat that task as a sandbox error, not a model failure; never prune
+  containers while an official-harness run is in progress (each task creates and removes its own).

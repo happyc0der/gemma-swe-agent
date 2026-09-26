@@ -21,3 +21,4 @@ ok submission compiles
 0 submissions remaining today.
 Successfully submitted to Google - The Gemma 4 Developer Agent Competition
 [Sat Sep 26 01:23:09 UTC 2026] scheduled for Sun Sep 27 00:05:00 UTC 2026 : day4: config chosen from the v4.1 MSI run and the real-31B Kaggle run (see experiments/2026-09-27-day4)
+[Sat Sep 26 05:33:55 UTC 2026] scheduled for Sun Sep 27 00:05:00 UTC 2026 : day4: prompt v4.3 (no read_file tool: ADK 1.36.1 any_of/INTEGER schema bug), thinking off, 5.5 min / 30 calls / 60 turns, timeout 180 (see experiments/2026-09-27-day4)
