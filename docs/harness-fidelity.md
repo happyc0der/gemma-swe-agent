@@ -37,3 +37,24 @@ Earlier sweep on the arm64 image without extras: gold 47/129 (pydantic v1 fallba
 - **llama.cpp works on T4x2** (2026-09-25): CUDA build for arch 75 (needs a `libcuda.so` dev symlink for CMake), official `gemma-4-31B_q4_0-it.gguf` (17.6 GB, ~8 min download), `llama-server -ngl 999 -sm layer --jinja`: structured tool calls parse correctly, **12.8 tok/s**, up in 90 s. This is the first faithful 31B signal; the quantization differs from the competition's W4A16 (same QAT weights, Q4_0 vs compressed-tensors), and the serving stack differs (llama.cpp vs vLLM tool/reasoning parsers). `kaggle/eval_31b_llamacpp/run.py` runs the holdout with it.
 - Probe v5 (eager, 16k/12k, `--max-num-batched-tokens 1024`) failed on a multimodal-config check (`max_tokens_per_mm_item 2496 > 1024`), fixable with 2560, but the vLLM-on-T4 line is parked: five probes, and llama.cpp already serves the 31B on the same hardware. Revisit only if a bit-faithful W4A16 run becomes necessary.
 - 31B holdout kernel attempts: v2 failed on the data mount path, v3 on `python -m venv` (Kaggle image lacks the venv module: virtualenv fallback added), v4 exposed a real swelite bug (subprocess-sandbox roots under `/tmp` got their own path rewritten; fixed) and then lost the llama-server ~5 min in with no message (two 32k slots on 2x15 GB; a CUDA abort loses unflushed output). v5: 16k per slot, unbuffered logs, watchdog restart. Observed 31B speed under two slots: 6-8 tok/s each, ~6 tool calls per 4-minute task.
+
+## The official harness (wheelhouse, released 2026-09-25)
+
+Kaggle dataset `metric/gemma-4-developer-agent-wheelhouse` ships `swegemma 0.2.7`,
+`adk-submission 0.2.11`, `adk-eval-core 0.1.0`, `google-adk 1.36.1`, `vllm 0.19.1`. The three
+pure-Python packages are unpacked under `harness/official/` and installed on the MSI in
+`~/offvenv` (`~/off_eval.sh` runs `swegemma eval` against the 12B proxy with a `models.yaml`
+alias). Differences from `swelite` that matter, all verified from the source:
+
+| Topic | Official behaviour | swelite | Effect on submissions |
+|---|---|---|---|
+| Tool argument types | Nothing coerces. vLLM 0.19.1's Gemma 4 parser keeps quoted values as strings and the model quotes numbers, so `read_file(start_line=...)` raises `'>' not supported between 'int' and 'str'`; `allow_multiple="false"` is truthy. | ADK 2.9.2 + the MSI vLLM delivered ints, so we never saw it. | Prompt must avoid numeric/boolean/list arguments (v4.2). |
+| Thinking | `include_thoughts: false` -> `chat_template_kwargs.enable_thinking=false`; `thinking_level` -> vLLM `reasoning_effort` only when thinking is on; `thinking_budget` is never forwarded (`adk_submission/resolvers/generation.py`). | `--llm-kwarg reasoning_effort=...` | Day 1-3 sampling files were valid; thinking was off on day 3. |
+| Generation defaults | Organizer defaults `max_output_tokens 16384`, `thinking_budget 4096`; caps 32768. | none | n/a |
+| Verification timeout | `verify_task` runs pytest with `timeout=command_timeout_seconds` (the submission's `timeout_seconds`). | separate | keep `timeout_seconds` >= 180. |
+| Task prompt | `build_agent_prompt`: repo, problem statement, hints, budget lines, environment rules, instructions 0-5, code-intelligence paragraph only when graph AND embedding files > 100 bytes exist, workspace tree (find, 3 levels, 150 lines). | same text, copied from the README | none |
+| Nudges | 3 consecutive, reset when a turn made a tool call; special texts for `<|tool_call>` truncation and MAX_TOKENS. | same | none |
+| Fallback patch | If submit_patch was never called, the working tree diff (`git add -N .`) is used as the patch. | same | none |
+| write_file outside /workspace | raises `Path traversal detected`. | wrote to /workspace/tmp | v4.2 wording updated. |
+| Compaction | The organizers' notebook uses `EventsCompactionConfig(compaction_interval=15, overlap_size=2, token_threshold=14336, event_retention_size=5)` and `ContextCacheConfig(min_tokens=2048, ttl_seconds=1800, cache_intervals=10)`; ADK compaction still runs only between invocations. | 32768 threshold | none within a task |
+| Scorer facts (organizer replies) | sequential tasks; only `timeout_seconds`, `max_tool_calls`, `max_time_minutes`, `max_turns` are read; default no limit; hitting 12 h errors the submission (fix promised). | | budgets sized for 120 x (5.5 min + setup). |
