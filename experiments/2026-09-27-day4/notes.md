@@ -82,3 +82,8 @@ mentioned on 09-26.
 Consequences: v4.3 (no read_file tool) is not a fix, only a harmless variant (5/33 on the proxy, same as
 v4.1). Next: make the proxy faithful by serving the 12B on vLLM 0.19.1, confirm read_file works there,
 and rerun v4.1 vs v4.3 before the 00:05 UTC submission.
+- 14:15 UTC: vLLM 0.19.1 cannot load the 12B W4A16 checkpoint (`ValueError: Expected hidden_size to be 3840,
+  but found: 256` in `layernorm.py`), so a faithful 12B proxy on the scorer's vLLM is not possible; the 31B on
+  0.19.1 works but runs at ~0.5 tok/s with offload, too slow for holdout runs. Back on the 0.30 proxy, I am
+  running v4.3 through swelite (ADK 2.9.2, where read_file works) to compare with the existing swelite v4.1
+  numbers before choosing the day-4 config.
