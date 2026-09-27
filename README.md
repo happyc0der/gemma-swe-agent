@@ -23,6 +23,8 @@ See `docs/competition.md` for the competition digest, `docs/HARNESS_README.md` f
 | 09-26 | MSI proxy (vLLM 0.30), **official `swegemma` harness** (wheelhouse) | prompt v4.1 | 20 of 24 `read_file` calls rejected (string line numbers); later shown to be a proxy artefact |
 | 09-26 | **Scorer replica on the MSI**: vLLM 0.19.1 + real 31B (CPU offload) + ADK 1.36.1 | tool-call probe | read_file receives integers; the string-argument failure does not occur on the scorer's stack |
 | 09-26 | Kaggle T4x2, real 31B, 32k context | prompt v4.2 | 2/33; every task hit the 5.5 min budget at ~12 tok/s, so T4 runs only bound prompts from below |
+| 09-26 | Kaggle | day 3: v4.1, thinking off, 5.5 min / task | **failed: "Notebook Exceeded Allowed Compute"** (12 h sequential cap) |
+| 09-27 | **Kaggle** | day 4: v4.3, thinking off, 3.5 min / task | **0.06** (first non-zero; rank 284/543; scored in ~7.5 h) |
 | 09-26 | Kaggle T4x2, real 31B | day-4 config: v4.3, 4.5 min | 1/33; 12.1 tool calls per task, 32/33 hit the time budget at ~12 tok/s |
 | 09-26 | MSI proxy, official harness, 33 holdout | v4.1 / v4.2 / v4.3 (no `read_file` tool) / organizers' sample prompt without adapters | 5 / 4 / 5 / 2 of 33, and v4.3 + analyzer sub-agent 5/33 (noise band +/-3; union of solved tasks 9/33); v4.3 has 0 rejected calls and 17 clean endings vs 9 for v4.1 |
 

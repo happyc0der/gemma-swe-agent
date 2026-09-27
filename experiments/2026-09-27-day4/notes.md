@@ -114,3 +114,9 @@ and rerun v4.1 vs v4.3 before the 00:05 UTC submission.
 - Budget cut to 3.5 min (120 x (3.5 + 2) = 11 h even at 2 min overhead). Prompt thresholds scaled to match: wrap up
   when 1 minute remains (was 3, which would trigger 30 s into a 3.5 min task) and plan ~15 calls (was ~20).
 - If day 4 scores, raise the budget step by step (4.0, then 4.5) while watching that the run stays under the cap.
+
+## Result (09:05 UTC 2026-09-27): day 4 = 0.06, rank 284/543
+First non-zero score. The run went from submission to score in ~7.5 h, so at 3.5 min the scorer has headroom,
+while 5.5 min (day 3) did not fit in 12 h. If runtime scales with the per-task cap, 4.5 min would take ~9.6 h
+and 5.0 min ~10.7 h. Day 5 steps to 4.5 min with nothing else changed, so the score difference isolates the
+time budget. Leaderboard: top 0.15; 48 teams at >= 0.12; 91 teams at 0.06; 119 at 0.00.
