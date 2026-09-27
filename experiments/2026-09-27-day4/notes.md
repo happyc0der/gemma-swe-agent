@@ -104,3 +104,13 @@ and rerun v4.1 vs v4.3 before the 00:05 UTC submission.
   submission. Days 1-2 (8 and 10 min) would have taken ~16-20 h. This is now the leading hypothesis for the zeros
   and for day 3 still showing no score ~16.5 h after submission.
 - Day 4 therefore uses 4.5 min (worst case ~10.4 h including model load). Everything else unchanged (v4.3).
+
+## 01:40 UTC 2026-09-27: day 3 confirmed over the compute cap; day 4 submitted late at 3.5 min
+- Kaggle's submissions page shows day 3 as **"Notebook Exceeded Allowed Compute"** (the CLI shows COMPLETE with an
+  empty score). 5.5 min per task plus per-task overhead ran past the 12 h cap, so the real overhead on the scorer is at
+  least ~0.5 min/task and could be more (sandbox setup, verification, model load).
+- The armed 00:05 timer was a child of the previous Claude Code session and died with it, so day 4 went in at ~01:35
+  UTC by hand. Future timers must be independent of the session (launchd), or submissions are made by hand.
+- Budget cut to 3.5 min (120 x (3.5 + 2) = 11 h even at 2 min overhead). Prompt thresholds scaled to match: wrap up
+  when 1 minute remains (was 3, which would trigger 30 s into a 3.5 min task) and plan ~15 calls (was ~20).
+- If day 4 scores, raise the budget step by step (4.0, then 4.5) while watching that the run stays under the cap.
