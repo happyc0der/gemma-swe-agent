@@ -81,17 +81,27 @@ def apply_thinking_config_to_model(model: Any, gen_config: Any) -> Any:
     if isinstance(thinking_cfg, dict):
         include_thoughts = thinking_cfg.get("include_thoughts")
         raw_level = thinking_cfg.get("thinking_level")
+        thinking_budget = thinking_cfg.get("thinking_budget")
     else:
         include_thoughts = getattr(thinking_cfg, "include_thoughts", None)
         raw_level = getattr(thinking_cfg, "thinking_level", None)
+        thinking_budget = getattr(thinking_cfg, "thinking_budget", None)
 
     level_str: str | None = None
     if raw_level is not None:
         level_str = str(getattr(raw_level, "value", raw_level)).lower()
 
-    if include_thoughts is False or level_str == "none":
+    if (
+        include_thoughts is False
+        or level_str == "none"
+        or (thinking_budget is not None and int(thinking_budget) <= 0)
+    ):
         enable_thinking = False
-    elif include_thoughts is True or level_str in {"minimal", "low", "medium", "high"}:
+    elif (
+        include_thoughts is True
+        or level_str in {"minimal", "low", "medium", "high"}
+        or (thinking_budget is not None and int(thinking_budget) > 0)
+    ):
         enable_thinking = True
     else:
         return model

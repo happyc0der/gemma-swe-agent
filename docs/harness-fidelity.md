@@ -58,3 +58,16 @@ alias). Differences from `swelite` that matter, all verified from the source:
 | write_file outside /workspace | raises `Path traversal detected`. | wrote to /workspace/tmp | v4.2 wording updated. |
 | Compaction | The organizers' notebook uses `EventsCompactionConfig(compaction_interval=15, overlap_size=2, token_threshold=14336, event_retention_size=5)` and `ContextCacheConfig(min_tokens=2048, ttl_seconds=1800, cache_intervals=10)`; ADK compaction still runs only between invocations. | 32768 threshold | none within a task |
 | Scorer facts (organizer replies) | sequential tasks; only `timeout_seconds`, `max_tool_calls`, `max_time_minutes`, `max_turns` are read; default no limit; hitting 12 h errors the submission (fix promised). | | budgets sized for 120 x (5.5 min + setup). |
+
+## Wheelhouse re-release (2026-09-27 11:49 UTC, same version numbers)
+The organizers re-uploaded four wheels without bumping versions (swegemma 0.2.7, adk-submission 0.2.11,
+adk-eval-core 0.1.0, vllm 0.19.1). Code diffs against the 09-25 upload:
+- `adk_submission/resolvers/generation.py`: `thinking_budget` now also toggles thinking (budget > 0 turns it on,
+  <= 0 turns it off). `include_thoughts: false` is still checked first, so configs that set it keep thinking off.
+  Note the organizer default injects `thinking_budget: 4096` into every config, so a config that sets neither
+  `include_thoughts` nor `thinking_level` now gets thinking **on**.
+- vLLM `lora/model_manager.py` and `model_executor/models/gemma4.py`: fixes for LoRA on Gemma 4 (shared decoder
+  layers and embeddings were registered twice when LoRA modules were created). This is the fix the organizer
+  promised after the official sample (which ships two LoRA adapters) failed; LoRA adapters should now load on the
+  scorer. The MSI scorer replica (`~/v019`) still has the old vLLM wheel; reinstall before using it for LoRA tests.
+Always diff wheel contents, not version numbers, when the dataset's lastUpdated changes.
