@@ -11,3 +11,7 @@ results/
 *.zip
 .pytest_cache/
 .submit_ready
+kaggle/reference/black-cat-swe-agent-pack-instinct/
+kaggle/reference/pathfinder-gemma-4-agent-eda-baseline/
+kaggle/reference/0-10-gemma-4-developer-agent-submission/
+kaggle/reference/gemma-4-walkthrough-first-submission/

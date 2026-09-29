@@ -5,10 +5,10 @@
 # Compute", so real scorer overhead is at least ~0.5 min/task and unknown above that; 3.5 min keeps 120 tasks at
 # ~11 h even with 2 min of overhead per task. Day 4 at 3.5 min scored 0.06 and finished in ~7.5 h, so day 5
 # steps up to 4.5 min (estimated ~9.6 h if runtime scales with the cap). Day 5 at 4.5 min scored 0.10, so day 6
-# tries 5.0 min (~10.7 h if runtime scales with the cap; day 3 at 5.5 min exceeded 12 h).
+# tried 5.0 min: 0.08, within noise of 0.10, and runs finish in ~6.5 h, so the cap no longer binds. Back to 4.5 min.
 # timeout_seconds also bounds the hidden-test pytest run in verification, so keep it >= 180.
 evaluation:
   timeout_seconds: 180
   max_tool_calls: 30
-  max_time_minutes: 5.0
+  max_time_minutes: 4.5
   max_turns: 60
