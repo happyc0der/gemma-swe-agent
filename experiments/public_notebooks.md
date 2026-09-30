@@ -22,3 +22,11 @@ Takeaways:
 
 Plan, one change per day on top of day 5 (0.10): day 7 temperature 0.2 + top_k 40; then a higher call cap with
 a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`.
+
+## Results so far (2026-09-30)
+- Day 7, temperature 0.2 + top_k 40: **0.10**, the same as day 5 at temperature 0.7. Neither the budget above 4.5 min
+  nor the temperature moves the score beyond the ~1-2 task noise band.
+- Day 8 (2026-10-01): agents were ending early by choice (runs finish in ~6.5-7 h), so prompt v4.4 plans ~25 calls
+  (was ~15), caps at 40 calls / 80 turns (was 30 / 60), and calls submit_patch as soon as the reproduction passes and
+  again after later edits. In the official runner a context-overflow error skips the working-tree fallback and
+  loses unsubmitted work, while submit_patch is free and does not end the session.

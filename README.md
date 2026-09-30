@@ -27,6 +27,7 @@ See `docs/competition.md` for the competition digest, `docs/HARNESS_README.md` f
 | 09-27 | **Kaggle** | day 4: v4.3, thinking off, 3.5 min / task | **0.06** (first non-zero; rank 284/543; scored in ~7.5 h) |
 | 09-28 | **Kaggle** | day 5: same, 4.5 min / task | **0.10** |
 | 09-29 | **Kaggle** | day 6: same, 5.0 min / task | **0.08** (within noise of day 5; runs finish in ~6.5 h, so the cap no longer binds) |
+| 09-30 | **Kaggle** | day 7: day 5 + temperature 0.2, top_k 40 | **0.10** (ties day 5; temperature does not move the score) |
 | 09-26 | Kaggle T4x2, real 31B | day-4 config: v4.3, 4.5 min | 1/33; 12.1 tool calls per task, 32/33 hit the time budget at ~12 tok/s |
 | 09-26 | MSI proxy, official harness, 33 holdout | v4.1 / v4.2 / v4.3 (no `read_file` tool) / organizers' sample prompt without adapters | 5 / 4 / 5 / 2 of 33, and v4.3 + analyzer sub-agent 5/33 (noise band +/-3; union of solved tasks 9/33); v4.3 has 0 rejected calls and 17 clean endings vs 9 for v4.1 |
 
