@@ -11,7 +11,14 @@ LOG=experiments/submit_daily.log
 if [ -f .submit_ready ]; then SRC=.submit_ready; KIND=staged
 elif [ -f .submit_fallback ]; then SRC=.submit_fallback; KIND=fallback
 else echo "[$(date -u)] no .submit_ready or .submit_fallback; nothing submitted" >> $LOG; exit 0; fi
-MSG=$(sed -n 1p $SRC); DIR=$(sed -n 2p $SRC); DIR=${DIR:-submission}
+MSG=$(sed -n 1p $SRC); DIR=$(sed -n 2p $SRC); DIR=${DIR:-submission}; SAFE=$(sed -n 3p $SRC)
+# Optional line 3: a more conservative directory to use when the most recent submission still has no score
+# (a blank score after ~18 h means it failed, usually by overrunning the 12 h cap).
+if [ -n "$SAFE" ]; then
+  last=$(kaggle competitions submissions gemma-4-developer-agent -v 2>/dev/null | sed -n 2p)
+  lastscore=$(echo "$last" | awk -F, '{print $(NF-1)}')
+  if [ -z "$lastscore" ]; then DIR=$SAFE; MSG="$MSG [conservative: previous run unscored]"; fi
+fi
 [ -f "$DIR/agent.yaml" ] || { echo "[$(date -u)] $KIND: $DIR/agent.yaml missing; nothing submitted" >> $LOG; exit 1; }
 if [ "${DRYRUN:-0}" = "1" ]; then echo "DRYRUN $KIND: dir=$DIR msg=$MSG"; exit 0; fi
 rm -f submission.zip && (cd "$DIR" && zip -qr "$OLDPWD/submission.zip" . -x '.*' -x 'prompts/system_v*.md')
