@@ -39,3 +39,4 @@ Successfully submitted to Google - The Gemma 4 Developer Agent Competition
 Successfully submitted to Google - The Gemma 4 Developer Agent Competition
 [Fri Oct  2 00:05:00 UTC 2026] no .submit_ready marker; nothing submitted
 [Sat Oct  3 00:05:00 UTC 2026] no .submit_ready marker; nothing submitted
+[Sat Oct  3 05:58:06 UTC 2026] manual submit: day9: prompt v4.4 (~25-call plan, submit after repro), temp 0.2 top_k 40, thinking off, 3.5 min / 40 calls / 80 turns (v4.4 at 4.5 min overran 12 h), timeout 180
