@@ -43,5 +43,6 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-faithful-eval v2 | T4x2 | 10-03 10:40 | 12:50 | 2.4 | prompt v4.6: **8/16** (v4.5 7/16), loops 3 -> 0, median first edit 33 -> 18 |
 | gemma4-faithful-eval v3 | T4x2 | 10-03 13:20 | 15:31 | 2.5 | prompt v4.7: **8/16** (ties v4.6), no-edit 3 -> 1, hangs 2 -> 0; memory fix: 1 kill (was 3-5) |
 | gemma4-faithful-eval v4 | T4x2 | 10-03 ~15:45 | 18:16 | 2.6 | prompt v4.8: **8/16** (same set as v4.7) but exact duplicate calls 77 -> 130; the empty-grep rule described the wrong output form; kept v4.7 for day 10 |
-| gemma4-faithful-eval v5 | T4x2 | 10-03 ~18:45 | | (est. 2.7) | prompt v4.9 (one-line note before every call, corrected empty-search rule) vs v4.7/v4.8 |
-| **total this week** | | | | **~10.3** (+2.7 running) | |
+| gemma4-faithful-eval v5 | T4x2 | 10-03 18:31 | 21:40 | 3.1 | prompt v4.9: **7/16**; the note made the model emit empty thought-channel markers (7 prose-only replies), 4 timeouts; dropped |
+| gemma4-faithful-eval v6 | T4x2 | 10-03 ~21:50 | | (est. 2.7) | prompt v5.0n (no note; grep not paging, behaviour first, sibling fixes, malformed-call rule) vs v4.7 |
+| **total this week** | | | | **~13.4** (+2.7 running) | after v6, pause GPU runs until the day 10-11 scores are in |

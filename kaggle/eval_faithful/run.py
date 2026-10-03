@@ -5,7 +5,7 @@
 #   the scorer's 4x L4 (so agents get a scorer-like number of tool calls); tasks run sequentially like the scorer.
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"variants": ["experiments/variants/v49"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
+CFG = {"variants": ["experiments/variants/v50n"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
        "session_budget_h": 11.0}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
