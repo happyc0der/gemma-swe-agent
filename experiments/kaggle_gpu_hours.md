@@ -33,3 +33,10 @@ The account also runs other projects' kernels (biohub-*, electric-car), which dr
 | **total so far** | | | | **~23.4** | ~6.6 h left if the quota is 30 h; hold it for calibration after the day-4 score |
 
 Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each further holdout run is ~4 h.
+
+## Week of 2026-10-03 (quota week assumed reset; check the Kaggle profile for the exact figure)
+
+| kernel / version | accelerator | start (UTC) | end (UTC) | hours | purpose / outcome |
+|---|---|---|---|---|---|
+| gemma4-env-check v1-v4 | **CPU only** | 10-03 06:17 | 07:26 | 0 GPU | validate the faithful sandbox (kaggle/faithful_sandbox.py): v4 = gold 33/33, null 0/33, ~11 s per verification |
+| gemma4-faithful-eval v1 | T4x2 | 10-03 ~07:30 | | (est. 3.4) | first faithful run: prompt v4.5, real 31B, thinking off, official Evaluator, time x3, 16 holdout tasks; purpose: realistic trajectories for prompt iteration |
