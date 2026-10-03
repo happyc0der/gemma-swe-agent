@@ -7,10 +7,11 @@
 # steps up to 4.5 min (estimated ~9.6 h if runtime scales with the cap). Day 5 at 4.5 min scored 0.10, so day 6
 # tried 5.0 min: 0.08, within noise of 0.10, and runs finish in ~6.5 h, so the cap no longer binds. Back to 4.5 min.
 # Day 8: agents were stopping early by choice (prompt planned ~15 calls); the prompt now plans ~25 and the call cap is 40.
-# Worst case if every task uses the full 4.5 min: 120 x ~5 min + load = ~10.3 h.
+# Day 8 (v4.4 at 4.5 min) failed the 12 h cap: eager agents use the full budget and scorer overhead is >= ~1.3 min
+# per task. Day 9 runs v4.4 at 3.5 min: 120 x (3.5 + 1.3..2.0) + load = ~10-11.3 h.
 # timeout_seconds also bounds the hidden-test pytest run in verification, so keep it >= 180.
 evaluation:
   timeout_seconds: 180
   max_tool_calls: 40
-  max_time_minutes: 4.5
+  max_time_minutes: 3.5
   max_turns: 80
