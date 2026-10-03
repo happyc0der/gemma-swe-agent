@@ -7,10 +7,14 @@ Kernel `dankaxon/gemma4-faithful-eval` v4, T4x2, 16:09-18:12 UTC (123 min of age
 | solved | 8 | 8 | 8 (same set as v4.7) |
 | tasks with no edit | 3 | 1 | 1 |
 | commands that hung into the 180 s timeout | 2 | 0 | 1 |
-| exact duplicate calls | 57 | 77 | **130** (27% of all calls) |
+| exact repeat calls (identical full arguments, `scripts/faithful_metrics.py`) | 33 | 61 | **76** |
+| near-repeat calls (same tool and first 120 characters) | 57 | 77 | **130** (27% of all calls) |
+| steps with any text before the tool call | 0 | 0 | 0 |
 | repeat searches for a term that already came back empty | 18 | 33 | 24 |
 | median call of first edit | 18 | 17 | 23 |
 | total calls | 441 | 498 | 488 |
+
+Metrics: `python3 scripts/faithful_metrics.py <results dirs>`.
 
 Verdict: no better than v4.7, so day 10 stays v4.7 at 4.5 min.
 

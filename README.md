@@ -30,6 +30,13 @@ See `docs/competition.md` for the competition digest, `docs/HARNESS_README.md` f
 | 09-30 | **Kaggle** | day 7: day 5 + temperature 0.2, top_k 40 | **0.10** (ties day 5; temperature does not move the score) |
 | 09-26 | Kaggle T4x2, real 31B | day-4 config: v4.3, 4.5 min | 1/33; 12.1 tool calls per task, 32/33 hit the time budget at ~12 tok/s |
 | 09-26 | MSI proxy, official harness, 33 holdout | v4.1 / v4.2 / v4.3 (no `read_file` tool) / organizers' sample prompt without adapters | 5 / 4 / 5 / 2 of 33, and v4.3 + analyzer sub-agent 5/33 (noise band +/-3; union of solved tasks 9/33); v4.3 has 0 rejected calls and 17 clean endings vs 9 for v4.1 |
+| 10-01 | **Kaggle** | day 8: prompt v4.4 (~25-call plan, submit_patch once the repro passes), temp 0.2, 4.5 min / 40 calls | **no score** (blank after 54 h; probable failure, cause unconfirmed) |
+| 10-03 | **Kaggle** | day 9: v4.4 at 3.5 min | **0.06** (finished within ~7 h); best 0.10 = rank 418/1559 on 10-03 |
+| 10-03 | CPU kernel: official harness + scorer-like sandbox (`kaggle/faithful_sandbox.py`), 33 holdout | gold patches / no patch | **33/33 / 0/33**, ~11 s per verification, 0 GPU hours |
+| 10-03 | **Faithful eval**: Kaggle T4x2, real 31B (llama.cpp, thinking off), official Evaluator, 16 holdout tasks, time x3 | prompt v4.5, temp 0.2 | 7/16 (verbatim loops of up to 23 identical calls at temp 0.2) |
+| 10-03 | faithful eval | v4.6: temp 0.7, repro cap, edit by call 10, no-repeat rule | **8/16** (looping tasks 3 -> 0, median first edit call 33 -> 18) |
+| 10-03 | faithful eval | v4.7: timeout-wrapped scripts, follow issue-described designs | 8/16 (tasks without an edit 3 -> 1, hung commands 2 -> 0) |
+| 10-03 | faithful eval | v4.8: empty grep means not found | 8/16, same tasks as v4.7; exact repeat calls 77 -> 130 (27% of calls), so day 10 = v4.7 at 4.5 min |
 
 Key findings: the organizers released the real harness on 09-25 (`harness/official/`, from the Kaggle wheelhouse dataset). Running it against my 12B proxy made every ranged `read_file` fail, which I first took for the cause of three 0.00 scores; a replica of the scorer's exact stack (vLLM 0.19.1 serving the real 31B, ADK 1.36.1) showed read_file works there, so that was a proxy artefact and the 0.00 cause is still open. Also: the competition's 31B runs on Kaggle's free T4 pair only through llama.cpp (vLLM's INT4 kernels need Ampere); ADK never compacts context inside a task, so trajectories die at the 32k window after ~20 full-size tool outputs; low temperature causes verbatim retry loops; the Ollama proxy ignores `max_tokens` and has no thinking budget, so vLLM is the only faithful local proxy.
 
