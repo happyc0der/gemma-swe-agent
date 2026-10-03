@@ -5,7 +5,7 @@
 #   the scorer's 4x L4 (so agents get a scorer-like number of tool calls); tasks run sequentially like the scorer.
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"variants": ["experiments/variants/v45"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
+CFG = {"variants": ["experiments/variants/v46"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
        "session_budget_h": 11.0}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
@@ -62,12 +62,18 @@ def start_server(tag):
     return None
 server = start_server("0")
 if server is None: sys.exit(1)
+def mem():
+    return subprocess.run("free -m | sed -n 2p; cat /sys/fs/cgroup/memory.current /sys/fs/cgroup/memory.max 2>/dev/null | tr '\\n' ' '",
+                          shell=True, capture_output=True, text=True).stdout.strip()
 def watchdog():
-    global server; n = 0
+    global server; n = 0; k = 0
     while True:
-        time.sleep(20)
+        time.sleep(20); k += 1
+        if k % 3 == 0:   # every minute: try to drop page cache (counted against the cgroup) and log memory every 10 min
+            subprocess.run("sync; echo 1 > /proc/sys/vm/drop_caches", shell=True, capture_output=True)
+            if k % 30 == 0: log("MEM", mem())
         if server.poll() is not None:
-            n += 1; log(f"WATCHDOG: llama-server exited rc={server.returncode}; restarting"); server = start_server(str(n))
+            n += 1; log(f"WATCHDOG: llama-server exited rc={server.returncode}; mem: {mem()}; restarting"); server = start_server(str(n))
             if server is None: return
 threading.Thread(target=watchdog, daemon=True).start()
 # Check that thinking is really off: a tool-free request must come back without reasoning text.

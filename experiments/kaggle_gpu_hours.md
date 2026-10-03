@@ -39,4 +39,5 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | kernel / version | accelerator | start (UTC) | end (UTC) | hours | purpose / outcome |
 |---|---|---|---|---|---|
 | gemma4-env-check v1-v4 | **CPU only** | 10-03 06:17 | 07:26 | 0 GPU | validate the faithful sandbox (kaggle/faithful_sandbox.py): v4 = gold 33/33, null 0/33, ~11 s per verification |
-| gemma4-faithful-eval v1 | T4x2 | 10-03 ~07:30 | | (est. 3.4) | first faithful run: prompt v4.5, real 31B, thinking off, official Evaluator, time x3, 16 holdout tasks; purpose: realistic trajectories for prompt iteration |
+| gemma4-faithful-eval v1 | T4x2 | 10-03 07:31 | 10:19 | 2.8 | prompt v4.5: **7/16**; found temp-0.2 verbatim loops, repro rewriting, late/no edits |
+| gemma4-faithful-eval v2 | T4x2 | 10-03 ~10:40 | | (est. 2.8) | prompt v4.6 (temp 0.7, repro cap, edit by call 10) on the same 16 tasks: does it beat v4.5? |
