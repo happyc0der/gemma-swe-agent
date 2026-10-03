@@ -48,12 +48,13 @@ from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
 helptext = subprocess.run("/tmp/llama.cpp/build/bin/llama-server --help 2>&1", shell=True, capture_output=True, text=True).stdout
 SERVER_CMD = ["stdbuf", "-oL", "-eL", "/tmp/llama.cpp/build/bin/llama-server", "-m", gguf, "-ngl", "999", "-sm", "layer", "-c", "32768", "-np", "1",
-              "--jinja", "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8"]
+              "--jinja", "--host", "127.0.0.1", "--port", "8000", "--alias", "gemma-4-31b-it-qat-w4a16-ct", "-fa", "on", "--reasoning-format", "auto", "--threads-http", "8",
+              "--cache-ram", "0"]   # the default 8 GB host prompt cache pushed RSS to ~31 of 32 GB and got the server OOM-killed
 if "--chat-template-kwargs" in helptext:
     SERVER_CMD += ["--chat-template-kwargs", '{"enable_thinking": false}']   # default; the harness also sends it per request
 log("server default thinking off:", "--chat-template-kwargs" in helptext)
 def start_server(tag):
-    srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT, env={**os.environ, "LLAMA_ARG_MMAP": "0", "LLAMA_ARG_NO_MMAP": "1"})
+    srv = subprocess.Popen(SERVER_CMD, stdout=open(f"/kaggle/working/llama-{tag}.log", "a"), stderr=subprocess.STDOUT, env=os.environ)   # default mmap: with every layer on the GPUs the host copy is reclaimable page cache (dropped each minute)
     for i in range(80):
         time.sleep(15)
         try: urllib.request.urlopen("http://127.0.0.1:8000/v1/models", timeout=5).read(); log(f"llama-server up ({tag}) after {(i+1)*15}s"); return srv
