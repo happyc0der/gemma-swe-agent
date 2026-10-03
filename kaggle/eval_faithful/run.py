@@ -20,11 +20,19 @@ def first(pattern):
 
 tasks_file = first("/kaggle/input/**/tasks.jsonl"); assert tasks_file, "competition data not attached"
 DATA = pathlib.Path(tasks_file).parent; WH = pathlib.Path(first("/kaggle/input/**/swegemma-*.whl")).parent
+def wheel(prefix):
+    """Find a wheelhouse file by normalized name prefix (Kaggle may rename uploaded files)."""
+    norm = lambda s: s.lower().replace("-", "_")
+    c = sorted(p for p in WH.glob("*.whl") if norm(p.name).startswith(norm(prefix)))
+    assert c, f"no wheel for {prefix}: {sorted(p.name for p in WH.glob('*.whl'))}"
+    return str(c[-1])
 sh("nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; python3 --version; free -g | head -2")
 
 # 1. official harness + faithful sandbox
-sh(f"python3 -m pip install -q {WH}/google_genai-2.11.0-py3-none-any.whl {WH}/google_adk-1.36.1-py3-none-any.whl 2>&1 | tail -2", timeout=1800)
-sh(f"python3 -m pip install -q --no-deps {WH}/swegemma-0.2.7-py3-none-any.whl {WH}/adk_submission-0.2.11-py3-none-any.whl {WH}/adk_eval_core-0.1.0-py3-none-any.whl", timeout=600)
+sh("ls " + str(WH) + " | head -60")
+sh(f"python3 -m pip install -q {wheel('google_genai')} {wheel('google_adk')} 2>&1 | tail -2", timeout=1800)
+sh(f"python3 -m pip install -q --no-deps {wheel('swegemma')} {wheel('adk_submission')} {wheel('adk_eval_core')}", timeout=600)
+sh("python3 -c 'import swegemma, adk_submission, google.adk; print(\"harness ok\", google.adk.__version__)'")
 sh("python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub 2>&1 | tail -2", timeout=1800)
 sh("cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1")
 REPO = pathlib.Path("/kaggle/working/gemma-swe-agent"); sys.path.insert(0, str(REPO / "kaggle"))
