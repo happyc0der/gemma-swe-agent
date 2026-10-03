@@ -41,4 +41,5 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-env-check v1-v4 | **CPU only** | 10-03 06:17 | 07:26 | 0 GPU | validate the faithful sandbox (kaggle/faithful_sandbox.py): v4 = gold 33/33, null 0/33, ~11 s per verification |
 | gemma4-faithful-eval v1 | T4x2 | 10-03 07:31 | 10:19 | 2.8 | prompt v4.5: **7/16**; found temp-0.2 verbatim loops, repro rewriting, late/no edits |
 | gemma4-faithful-eval v2 | T4x2 | 10-03 10:40 | 12:50 | 2.4 | prompt v4.6: **8/16** (v4.5 7/16), loops 3 -> 0, median first edit 33 -> 18 |
-| gemma4-faithful-eval v3 | T4x2 | 10-03 ~13:20 | | (est. 2.4) | prompt v4.7 (timeouts on scripts, issue-described designs, ported implementations, edge cases) vs v4.6; also tests the --cache-ram 0 / mmap memory fix |
+| gemma4-faithful-eval v3 | T4x2 | 10-03 13:20 | 15:31 | 2.5 | prompt v4.7: **8/16** (ties v4.6), no-edit 3 -> 1, hangs 2 -> 0; memory fix: 1 kill (was 3-5) |
+| gemma4-faithful-eval v4 | T4x2 | 10-03 ~15:45 | | (est. 2.5) | prompt v4.8 (empty grep = not found, no guessed names) vs v4.7 |

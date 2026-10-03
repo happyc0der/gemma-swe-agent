@@ -16,3 +16,4 @@ kaggle/reference/pathfinder-gemma-4-agent-eda-baseline/
 kaggle/reference/0-10-gemma-4-developer-agent-submission/
 kaggle/reference/gemma-4-walkthrough-first-submission/
 .submit_fallback
+.submit_queue/
