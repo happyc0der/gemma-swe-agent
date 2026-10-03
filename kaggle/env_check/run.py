@@ -64,7 +64,7 @@ for iid in ids:
     for kind, p in (("gold", t.patch), ("null", "")):
         s = time.time()
         try:
-            r = asyncio.run(verify_task(mgr, cfg, t, snap, agent_patch=p, start_time=s, **kw))
+            r = asyncio.run(verify_task(mgr, cfg, t, snap, agent_patch=p, start_time=time.perf_counter(), **kw))  # verify_task uses perf_counter
             out[kind] = bool(r.resolved); out[kind + "_s"] = round(time.time() - s, 1); out[kind + "_err"] = (r.error or "")[:160]
             if kind == "gold" and not r.resolved: out["gold_tail"] = (r.test_output or "")[-600:]
         except Exception as e:
