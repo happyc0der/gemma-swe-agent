@@ -42,4 +42,6 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-faithful-eval v1 | T4x2 | 10-03 07:31 | 10:19 | 2.8 | prompt v4.5: **7/16**; found temp-0.2 verbatim loops, repro rewriting, late/no edits |
 | gemma4-faithful-eval v2 | T4x2 | 10-03 10:40 | 12:50 | 2.4 | prompt v4.6: **8/16** (v4.5 7/16), loops 3 -> 0, median first edit 33 -> 18 |
 | gemma4-faithful-eval v3 | T4x2 | 10-03 13:20 | 15:31 | 2.5 | prompt v4.7: **8/16** (ties v4.6), no-edit 3 -> 1, hangs 2 -> 0; memory fix: 1 kill (was 3-5) |
-| gemma4-faithful-eval v4 | T4x2 | 10-03 ~15:45 | | (est. 2.5) | prompt v4.8 (empty grep = not found, no guessed names) vs v4.7 |
+| gemma4-faithful-eval v4 | T4x2 | 10-03 ~15:45 | 18:16 | 2.6 | prompt v4.8: **8/16** (same set as v4.7) but exact duplicate calls 77 -> 130; the empty-grep rule described the wrong output form; kept v4.7 for day 10 |
+| gemma4-faithful-eval v5 | T4x2 | 10-03 ~18:45 | | (est. 2.7) | prompt v4.9 (one-line note before every call, corrected empty-search rule) vs v4.7/v4.8 |
+| **total this week** | | | | **~10.3** (+2.7 running) | |
