@@ -66,7 +66,10 @@ for iid in ids:
         try:
             r = asyncio.run(verify_task(mgr, cfg, t, snap, agent_patch=p, start_time=time.perf_counter(), **kw))  # verify_task uses perf_counter
             out[kind] = bool(r.resolved); out[kind + "_s"] = round(time.time() - s, 1); out[kind + "_err"] = (r.error or "")[:160]
-            if kind == "gold" and not r.resolved: out["gold_tail"] = (r.test_output or "")[-600:]
+            if kind == "gold" and not r.resolved:
+                to = r.test_output or ""
+                i = max(to.find("Error"), 0)
+                out["gold_tail"] = to[-600:]; out["gold_first_error"] = to[max(i - 300, 0): i + 900]
         except Exception as e:
             out[kind] = None; out[kind + "_err"] = f"{type(e).__name__}: {e}"[:300]
     rows.append(out); log(json.dumps({k: v for k, v in out.items() if k != "gold_tail"}))

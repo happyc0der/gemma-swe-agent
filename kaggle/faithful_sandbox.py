@@ -88,14 +88,32 @@ def _uv_venv_create(env_dir, system_site_packages=False, clear=False, symlinks=F
 
 
 def _install_test_dependencies(docker, container_id, repo: str = "", *, fast_path: bool = True, config=None) -> None:
-    """Scorer-like per-task environment inside the sandbox venv (python3 resolves to the venv's 3.13)."""
+    """Scorer-like per-task environment inside the sandbox venv (python3 resolves to the venv's 3.13).
+
+    1. what the scorer image bakes in (pytest, pytest-timeout 2.1.0, typer, build backends) + test-only extras;
+    2. editable install of /workspace WITH dependencies resolved by pip from the multi-version competition wheels
+       (the dataset setup.py only reads pyproject dependencies, so setup.py-based repos such as requests got none);
+    3. the dataset setup.py fast path: workspace .pth, pytest.ini and conftest configuration.
+    """
     base = " ".join(shlex.quote(p) for p in BASE_PKGS + TEST_EXTRAS)
-    r1 = docker.exec(container_id, f'{_UV} pip install -q --python "$(command -v python3)" --no-index --find-links {MERGED} {base}', timeout=900)
+    steps = [
+        ("base", f'{_UV} pip install -q --python "$(command -v python3)" --no-index --find-links {MERGED} {base}'),
+        ("editable", f"cd /workspace && python3 -m pip install -q --no-index --find-links {MERGED} --no-build-isolation -e ."),
+    ]
+    rcs = {}
+    for name, cmd in steps:
+        r = docker.exec(container_id, cmd, timeout=900)
+        rcs[name] = getattr(r, "exit_code", 0)
+        if rcs[name] != 0 and name == "editable":
+            # fall back to the scorer's own approach: install without dependency resolution
+            r = docker.exec(container_id, f"cd /workspace && python3 -m pip install -q --no-index --find-links {MERGED} --no-build-isolation --no-deps -e .", timeout=900)
+            rcs["editable_nodeps"] = getattr(r, "exit_code", 0)
+            log.warning("editable install with deps failed for %s: %s", repo, (getattr(r, "stderr", "") or "")[-300:])
     docker.copy_to(container_id, _SETUP_PY, "/tmp/setup.py")
-    r2 = docker.exec(container_id, f"cd /workspace && python3 /tmp/setup.py --no-fast-path --workspace /workspace {repo}", timeout=900)
-    if getattr(r1, "exit_code", 0) != 0 or getattr(r2, "exit_code", 0) != 0:
-        log.warning("sandbox setup issues for %s: base rc=%s setup rc=%s %s", repo, getattr(r1, "exit_code", "?"),
-                    getattr(r2, "exit_code", "?"), (getattr(r2, "stderr", "") or "")[-400:])
+    r = docker.exec(container_id, f"cd /workspace && python3 /tmp/setup.py --fast-path --workspace /workspace {repo}", timeout=600)
+    rcs["setup_fast_path"] = getattr(r, "exit_code", 0)
+    if any(v != 0 for v in rcs.values()):
+        log.warning("sandbox setup for %s: %s", repo, rcs)
 
 
 def _noop(*a, **kw):
