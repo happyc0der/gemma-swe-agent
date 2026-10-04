@@ -1,5 +1,16 @@
 # Kaggle submissions (1/day)
 
+## Error texts (2026-10-03, from the API's `errorDescription`, which the CLI hides; `scripts/submission_errors.py`)
+- **day 3** (5.5 min / 30 calls): "Your notebook has requested more CPU, GPU or TPU resources than are available."
+  That is a resource or capacity failure, not the 12 h runtime cap, so the 5.5-min budget was **not** shown to
+  overrun. The time cuts since then (3.5 min on days 4 and 9) rested on that misreading.
+- **day 8** (v4.4, 4.5 min / 40 calls): "Your notebook hit an unhandled error while rerunning your code. Note that
+  the hidden dataset can be larger/smaller/different than the public dataset." An exception in the scoring run,
+  not a timeout message; the same bundle at 3.5 min scored 0.06 on day 9. Cause unknown (a scorer-side crash, or the
+  scorer raising when its own deadline passes); it has happened once in 9 submissions.
+- Runtime evidence stays the same: 5.0 min / 30 calls scored within ~6.5 h of submission (day 6) and 3.5 min / 40
+  calls within ~7 h (day 9), i.e. well under 12 h.
+
 | date (UTC) | config snapshot | change vs previous | public score | notes |
 |---|---|---|---|---|
 | 2026-09-24 ~07:45 | experiments/2026-09-24-day1-sample-prompt | first submission: sample prompt, no adapters, 8 min / 40 calls / 80 turns | **0.00** | mechanics work (COMPLETE); sample prompt does not submit patches. LB top 0.12 |
@@ -11,14 +22,4 @@
 | 2026-09-30 00:05 | submission/ @ 46b3f66 | day7: prompt v4.3, temperature 0.2 + top_k 40 (was 0.7), thinking off, 4.5 min / 30 calls / 60 turns, timeout 180 | **0.10** | submitted by LaunchAgent; ties day 5 (temp 0.7): temperature does not move the score either |
 | 2026-10-01 00:05 | submission/ @ ba5b80f | day8: prompt v4.4 (~25-call plan, submit_patch as soon as repro passes), temp 0.2 top_k 40, thinking off, 4.5 min / 40 calls / 80 turns, timeout 180 | **no score (probable failure)** | CLI shows COMPLETE with a blank score 54 h later, the signature of day 3's \"Notebook Exceeded Allowed Compute\" (error text only on the Kaggle page). v4.4 made agents use most of the 4.5 min, so 120 tasks plus per-task overhead ran past 12 h. With v4.3 (agents stop early) runs took ~6-6.5 h, so scorer overhead per task is >= ~1.3 min and v4.3 agents average only ~1.5 min of work |
 | 2026-10-03 05:58 | submission/ @ 5201cd5 | day9: prompt v4.4 (~25-call plan, submit after repro), temp 0.2 top_k 40, thinking off, 3.5 min / 40 calls / 80 turns (v4.4 at 4.5 min overran 12 h), timeout 180 | **0.06** | finished within ~7 h (so 3.5 min is safe for these agents). Below day 5's 0.10: temperature 0.2, which the faithful eval shows makes the 31B loop, plus less time. Since these agents finish early, day 8's blank score may not have been the time cap; only the Kaggle page shows the error | submitted by hand (no marker was staged for 10-02/10-03; 10-02 slot lost) |
-
-## Error texts (2026-10-03, from the API's `errorDescription`, which the CLI hides; `scripts/submission_errors.py`)
-- **day 3** (5.5 min / 30 calls): "Your notebook has requested more CPU, GPU or TPU resources than are available."
-  That is a resource or capacity failure, not the 12 h runtime cap, so the 5.5-min budget was **not** shown to
-  overrun. The time cuts since then (3.5 min on days 4 and 9) rested on that misreading.
-- **day 8** (v4.4, 4.5 min / 40 calls): "Your notebook hit an unhandled error while rerunning your code. Note that
-  the hidden dataset can be larger/smaller/different than the public dataset." An exception in the scoring run,
-  not a timeout message; the same bundle at 3.5 min scored 0.06 on day 9. Cause unknown (a scorer-side crash, or the
-  scorer raising when its own deadline passes); it has happened once in 9 submissions.
-- Runtime evidence stays the same: 5.0 min / 30 calls scored within ~6.5 h of submission (day 6) and 3.5 min / 40
-  calls within ~7 h (day 9), i.e. well under 12 h.
+| 2026-10-04 00:05 | experiments/variants/v47-t45 @ 7c4d9e2 | day10: prompt v4.7 (no loops at temp 0.7, repro cap, early edit, timeout-wrapped scripts; faithful 8/16, 0 hangs), thinking off, 4.5 min / 40 calls / 80 turns (3.5 min scored 0.06 twice, 4.5 min 0.10 twice) | pending | submitted by LaunchAgent (staged) |
