@@ -29,3 +29,14 @@ error means the call was malformed: never resend it, use /tmp/fix.py".
 
 Decision: day 11 (2026-10-05) = v5.0n at 4.5 min / 40 calls (same budget as day 10, so days 10-11 compare prompts);
 day 12 = v5.0n at 5.0 min / 50 calls (days 11-12 compare budgets).
+
+## Follow-up (2026-10-05)
+- Day 11 on the public LB: v5.0n at 4.5 min / 40 calls = **0.10** (6/58), +2 tasks over v4.7 (day 10) at the same budget.
+- In the 7 unsolved tasks, 179 of 248 calls (72%) are reads or searches and the first edit comes at call 25-31 (the
+  "edit by call 10" rule is ignored on hard tasks); several were mid-implementation when the 40-call cap hit, which
+  is what day 12 (5.0 min / 50 calls) tests.
+- Code-intelligence tools: the task message offered them in all 16 tasks, the model never called them. Only 69 of
+  256 snapshot commits have both a non-empty graph and embeddings (rich_3480: graph only; rich_3052: embeddings
+  only; fastapi_13713: neither), while the harness advertises the tools per repo, so encouraging them would mostly
+  produce failed calls. `search_similar_code` looks up a known symbol's precomputed embedding (it is not free-text
+  search).
