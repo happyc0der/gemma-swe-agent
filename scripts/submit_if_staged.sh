@@ -18,9 +18,19 @@ MSG=$(sed -n 1p $SRC); DIR=$(sed -n 2p $SRC); DIR=${DIR:-submission}; SAFE=$(sed
 # Optional line 3: a more conservative directory to use when the most recent submission still has no score
 # (a blank score after ~18 h means it failed, usually by overrunning the 12 h cap).
 if [ -n "$SAFE" ]; then
-  last=$(kaggle competitions submissions gemma-4-developer-agent -v 2>/dev/null | sed -n 2p)
-  lastscore=$(echo "$last" | awk -F, '{print $(NF-1)}')
-  if [ -z "$lastscore" ]; then DIR=$SAFE; MSG="$MSG [conservative: previous run unscored]"; fi
+  # Fall back to the conservative dir only when the previous run is unscored for a reason that could be ours
+  # (pending, timeout, unhandled error); Kaggle-side failures ("system error", resource/capacity) do not count.
+  state=$("$HOME/.local/share/uv/tools/kaggle/bin/python" - <<'PY' 2>/dev/null
+from kaggle.api.kaggle_api_extended import KaggleApi
+api = KaggleApi(); api.authenticate()
+d = api.competition_submissions("gemma-4-developer-agent")[0].to_dict()
+err = (d.get("errorDescription") or "").lower()
+if d.get("publicScore"): print("scored")
+elif "system error" in err or "resources than are available" in err: print("kaggle_error")
+else: print("unscored")
+PY
+)
+  if [ "$state" != "scored" ] && [ "$state" != "kaggle_error" ]; then DIR=$SAFE; MSG="$MSG [conservative: previous run ${state:-unknown}]"; fi
 fi
 [ -f "$DIR/agent.yaml" ] || { echo "[$(date -u)] $KIND: $DIR/agent.yaml missing; nothing submitted" >> $LOG; exit 1; }
 if [ "${DRYRUN:-0}" = "1" ]; then echo "DRYRUN $KIND: dir=$DIR msg=$MSG"; exit 0; fi

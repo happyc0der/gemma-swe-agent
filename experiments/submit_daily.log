@@ -40,3 +40,18 @@ Successfully submitted to Google - The Gemma 4 Developer Agent Competition
 [Fri Oct  2 00:05:00 UTC 2026] no .submit_ready marker; nothing submitted
 [Sat Oct  3 00:05:00 UTC 2026] no .submit_ready marker; nothing submitted
 [Sat Oct  3 05:58:06 UTC 2026] manual submit: day9: prompt v4.4 (~25-call plan, submit after repro), temp 0.2 top_k 40, thinking off, 3.5 min / 40 calls / 80 turns (v4.4 at 4.5 min overran 12 h), timeout 180
+[Sun Oct  4 00:05:10 UTC 2026] staged rc=0 dir=experiments/variants/v47-t45   0%|          | 0.00/5.53k [00:00<?, ?B/s]100%|██████████| 5.53k/5.53k [00:00<00:00, 28.0kB/s]100%|██████████| 5.53k/5.53k [00:00<00:00, 9.31kB/s]
+0 submissions remaining today.
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+[Mon Oct  5 00:05:06 UTC 2026] queued rc=0 dir=experiments/variants/v50n-t45   0%|          | 0.00/6.10k [00:00<?, ?B/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 56.4kB/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 15.5kB/s]
+0 submissions remaining today.
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+[Tue Oct  6 00:05:09 UTC 2026] queued rc=0 dir=experiments/variants/v50n-t50c50   0%|          | 0.00/6.25k [00:00<?, ?B/s]100%|██████████| 6.25k/6.25k [00:00<00:00, 15.3kB/s]
+0 submissions remaining today.
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+[Wed Oct  7 00:05:08 UTC 2026] queued rc=0 dir=experiments/variants/v50n-t45   0%|          | 0.00/6.10k [00:00<?, ?B/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 24.8kB/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 11.2kB/s]
+0 submissions remaining today.
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+[Thu Oct  8 00:05:09 UTC 2026] fallback rc=0 dir=experiments/variants/v50n   0%|          | 0.00/6.10k [00:00<?, ?B/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 51.7kB/s]100%|██████████| 6.10k/6.10k [00:00<00:00, 14.1kB/s]
+0 submissions remaining today.
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
