@@ -6,7 +6,7 @@
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
 CFG = {"variants": ["experiments/variants/v51"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
-       "session_budget_h": 11.0}
+       "session_budget_h": 11.0, "subset": "A"}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
@@ -106,6 +106,8 @@ subset, per = [], {}
 for iid in hold:
     r = tasks[iid].repo
     if per.get(r, 0) < CFG["n_per_repo"].get(r, 0): subset.append(iid); per[r] = per.get(r, 0) + 1
+if CFG.get("subset") == "B":   # the stable holdout tasks set A never uses (a second, independent eval set)
+    subset = [iid for iid in hold if iid not in set(subset)]
 log("subset", len(subset), per)
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.5: log("SKIP", rel, "(session budget)"); continue
