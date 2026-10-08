@@ -5,7 +5,7 @@
 #   the scorer's 4x L4 (so agents get a scorer-like number of tool calls); tasks run sequentially like the scorer.
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"variants": ["experiments/variants/v50n"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
+CFG = {"variants": ["experiments/variants/v50n-think"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
        "session_budget_h": 11.0}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
@@ -82,6 +82,11 @@ req = json.dumps({"model": "gemma-4-31b-it-qat-w4a16-ct", "max_tokens": 60, "tem
                   "messages": [{"role": "user", "content": "Reply with the single word OK."}]}).encode()
 resp = json.loads(urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:8000/v1/chat/completions", req, {"Content-Type": "application/json"}), timeout=300).read())
 m = resp["choices"][0]["message"]; log("thinking check: content=", repr(m.get("content"))[:80], "| reasoning=", repr(m.get("reasoning_content"))[:80], "| usage=", resp.get("usage"))
+# ... and that a per-request enable_thinking=true really turns it on (thinking-on variants rely on this).
+req = json.dumps({"model": "gemma-4-31b-it-qat-w4a16-ct", "max_tokens": 400, "temperature": 0, "chat_template_kwargs": {"enable_thinking": True},
+                  "messages": [{"role": "user", "content": "What is 17 * 23? Answer with the number."}]}).encode()
+resp = json.loads(urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:8000/v1/chat/completions", req, {"Content-Type": "application/json"}), timeout=600).read())
+m = resp["choices"][0]["message"]; log("thinking-on check: content=", repr(m.get("content"))[:80], "| reasoning chars=", len(m.get("reasoning_content") or ""), "| usage=", resp.get("usage"))
 
 # 3. evaluate each variant on the subset, sequentially, with its own (time-scaled) eval_config
 os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = "True"

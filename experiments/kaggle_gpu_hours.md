@@ -46,3 +46,9 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-faithful-eval v5 | T4x2 | 10-03 18:31 | 21:40 | 3.1 | prompt v4.9: **7/16**; the note made the model emit empty thought-channel markers (7 prose-only replies), 4 timeouts; dropped |
 | gemma4-faithful-eval v6 | T4x2 | 10-03 21:45 | 10-04 00:12 | 2.45 | prompt v5.0n: **9/16** (best; all earlier solves kept + fastapi_12942), fewest repeats and timeouts; day 11 |
 | **total this week** | | | | **~15.9** | GPU runs paused until the day 10-12 scores are in |
+
+## 2026-10-08 onward (Keshav: do thinking-on and LoRA, cheaper first)
+
+| kernel / version | accelerator | start (UTC) | end (UTC) | hours | purpose / outcome |
+|---|---|---|---|---|---|
+| gemma4-faithful-eval v7 | T4x2 | 10-08 | | (est. 3) | v5.0n with thinking on (max_output_tokens 8192) vs v5.0n 9/16 |
