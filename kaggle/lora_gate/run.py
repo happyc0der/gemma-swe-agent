@@ -33,12 +33,12 @@ bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_
 t = time.time()
 try:
     model = AutoModelForCausalLM.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                 max_memory={0: "9GiB", 1: "9GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                 max_memory={0: "9500MiB", 1: "10GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 except Exception:
     log("AutoModelForCausalLM failed:\n" + traceback.format_exc()[-2000:])
     from transformers import AutoModelForImageTextToText
     model = AutoModelForImageTextToText.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                        max_memory={0: "9GiB", 1: "9GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                        max_memory={0: "9500MiB", 1: "10GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 RESULT["load_s"] = round(time.time() - t); RESULT["model_class"] = type(model).__name__
 devmap = getattr(model, "hf_device_map", {}); RESULT["devices"] = sorted({str(v) for v in devmap.values()})
 log("loaded", type(model).__name__, f"in {RESULT['load_s']} s; devices", RESULT["devices"])
