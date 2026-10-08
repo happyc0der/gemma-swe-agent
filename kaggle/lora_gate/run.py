@@ -33,12 +33,12 @@ bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_
 t = time.time()
 try:
     model = AutoModelForCausalLM.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                 max_memory={0: "8GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                 max_memory={0: "9GiB", 1: "9GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 except Exception:
     log("AutoModelForCausalLM failed:\n" + traceback.format_exc()[-2000:])
     from transformers import AutoModelForImageTextToText
     model = AutoModelForImageTextToText.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                        max_memory={0: "8GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                        max_memory={0: "9GiB", 1: "9GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 RESULT["load_s"] = round(time.time() - t); RESULT["model_class"] = type(model).__name__
 devmap = getattr(model, "hf_device_map", {}); RESULT["devices"] = sorted({str(v) for v in devmap.values()})
 log("loaded", type(model).__name__, f"in {RESULT['load_s']} s; devices", RESULT["devices"])
@@ -61,12 +61,13 @@ model = get_peft_model(model, cfg)
 trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
 RESULT["trainable_params"] = trainable; log("trainable params", trainable)
 names = [n for n, _ in model.named_parameters() if "lora_A" in n][:4]; RESULT["lora_param_names_sample"] = names; log("lora names", names)
-opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=1e-4)
+import bitsandbytes as bnb_lib
+opt = bnb_lib.optim.PagedAdamW8bit([p for p in model.parameters() if p.requires_grad], lr=1e-4)   # fp32 AdamW states (~1 GB) OOMed in v2
 first_dev = next(model.parameters()).device
 vocab = model.config.get_text_config().vocab_size if hasattr(model.config, "get_text_config") else model.config.vocab_size
 LABEL_TOKENS = 1024
 model.train()
-for seq in (2048, 4096, 8192, 12288, 16384):
+for seq in (2048, 3072, 4096, 6144, 8192, 12288):
     if time.time() - T0 > BUDGET_S - 600: log("budget: skipping", seq); break
     for i in range(torch.cuda.device_count()): torch.cuda.reset_peak_memory_stats(i)
     ids = torch.randint(10, vocab - 10, (1, seq), device="cuda:0")
