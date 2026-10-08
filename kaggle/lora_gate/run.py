@@ -33,17 +33,18 @@ bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_
 t = time.time()
 try:
     model = AutoModelForCausalLM.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                 max_memory={0: "13GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                 max_memory={0: "8GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 except Exception:
     log("AutoModelForCausalLM failed:\n" + traceback.format_exc()[-2000:])
     from transformers import AutoModelForImageTextToText
     model = AutoModelForImageTextToText.from_pretrained(ckpt, quantization_config=bnb, device_map="auto", torch_dtype=torch.float16,
-                                                        max_memory={0: "13GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
+                                                        max_memory={0: "8GiB", 1: "13GiB", "cpu": "24GiB"}, low_cpu_mem_usage=True)
 RESULT["load_s"] = round(time.time() - t); RESULT["model_class"] = type(model).__name__
 devmap = getattr(model, "hf_device_map", {}); RESULT["devices"] = sorted({str(v) for v in devmap.values()})
 log("loaded", type(model).__name__, f"in {RESULT['load_s']} s; devices", RESULT["devices"])
 for i in range(torch.cuda.device_count()):
     log(f"gpu{i} allocated after load: {torch.cuda.memory_allocated(i) / 2**30:.2f} GiB")
+log("device map sample:", {k: v for k, v in list(devmap.items())[:4] + list(devmap.items())[-4:]})
 RESULT["mem_after_load_gib"] = [round(torch.cuda.memory_allocated(i) / 2**30, 2) for i in range(torch.cuda.device_count())]
 save()
 if "cpu" in RESULT["devices"] or "disk" in RESULT["devices"]:
@@ -74,10 +75,12 @@ for seq in (2048, 4096, 8192, 12288, 16384):
         for step in range(2):
             torch.cuda.synchronize(); t = time.time()
             out = model(input_ids=ids, logits_to_keep=LABEL_TOKENS + 1, use_cache=False)
-            logits = out.logits[:, :-1].float()
-            labels = ids[:, -LABEL_TOKENS:].to(logits.device)
-            loss = torch.nn.functional.cross_entropy(logits.reshape(-1, logits.shape[-1]), labels.reshape(-1))
+            logits = out.logits[0, :-1]                       # fp16 [LABEL_TOKENS, vocab]; no fp32 copy of the whole block
+            labels = ids[0, -LABEL_TOKENS:].to(logits.device)
+            loss = sum(torch.nn.functional.cross_entropy(logits[i:i + 128].float(), labels[i:i + 128], reduction="sum")
+                       for i in range(0, LABEL_TOKENS, 128)) / LABEL_TOKENS
             loss.backward(); opt.step(); opt.zero_grad(set_to_none=True)
+            del out, logits
             torch.cuda.synchronize(); rec[f"step{step}_s"] = round(time.time() - t, 1)
         rec["loss"] = round(float(loss), 3)
         rec["peak_gib"] = [round(torch.cuda.max_memory_allocated(i) / 2**30, 2) for i in range(torch.cuda.device_count())]
