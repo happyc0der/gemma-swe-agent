@@ -1,0 +1,73 @@
+07:50:13 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; free -g | head -2; df -h /tmp | tail -1; python3 --version
+07:50:13 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+overlay         8.0T  7.0T  1.1T  87% /
+Python 3.13.15
+07:50:37 $ python3 -m pip install -q -U 'transformers>=4.57' peft bitsandbytes accelerate hf_transfer 2>&1 | tail -3
+07:50:37 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 394.3/394.3 kB 9.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.6/3.6 MB 69.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 846.4/846.4 kB 28.4 MB/s eta 0:00:00
+07:51:07 versions: torch 2.11.0+cu128 transformers 5.19.0 peft 0.21.2
+07:55:40 download 272 s
+07:55:51 $ du -sh /tmp/ckpt; df -h /tmp | tail -1
+07:55:51 59G	/tmp/ckpt
+overlay         8.0T  7.0T 1012G  88% /
+08:00:05 loaded Gemma4ForConditionalGeneration in 254 s; devices ['0', '1']
+08:00:05 gpu0 allocated after load: 8.09 GiB
+08:00:05 gpu1 allocated after load: 8.96 GiB
+08:00:05 device map sample: {'model.vision_tower': 0, 'model.language_model.embed_tokens': 0, 'lm_head': 0, 'model.language_model.layers.0': 0, 'model.language_model.layers.59': 1, 'model.language_model.norm': 1, 'model.language_model.rotary_emb': 1, 'model.embed_vision': 1}
+08:00:07 trainable params 122429440
+08:00:07 lora names ['base_model.model.model.language_model.layers.0.self_attn.q_proj.lora_A.default.weight', 'base_model.model.model.language_model.layers.0.self_attn.k_proj.lora_A.default.weight', 'base_model.model.model.language_model.layers.0.self_attn.v_proj.lora_A.default.weight', 'base_model.model.model.language_model.layers.0.self_attn.o_proj.lora_A.default.weight']
+08:01:15 STEP {"seq": 2048, "step0_s": 33.3, "step1_s": 34.0, "loss": 17.502, "peak_gib": [11.6, 11.85], "ok": true}
+08:03:14 STEP {"seq": 3072, "step0_s": 59.5, "step1_s": 59.8, "loss": 13.895, "peak_gib": [11.84, 13.1], "ok": true}
+08:03:37 STEP {"seq": 4096, "ok": false, "error": "OOM: CUDA out of memory. Tried to allocate 84.00 MiB. GPU 1 has a total capacity of 14.56 GiB of which 4.81 MiB is free. Including non-PyTorch memory, this process has 14.48 GiB memory in use. Of the alloc"}
+08:03:38 $ ls -la /kaggle/working/adapter_probe; cat /kaggle/working/adapter_probe/adapter_config.json | head -40
+08:03:38 total 478384
+drwxr-xr-x 2 root root      4096 Oct  8 08:03 .
+drwxr-xr-x 3 root root      4096 Oct  8 08:03 ..
+-rw-r--r-- 1 root root      1192 Oct  8 08:03 adapter_config.json
+-rw------- 1 root root 489840816 Oct  8 08:03 adapter_model.safetensors
+-rw-r--r-- 1 root root      5172 Oct  8 08:03 README.md
+{
+  "alora_invocation_tokens": null,
+  "alpha_pattern": {},
+  "arrow_config": null,
+  "auto_mapping": null,
+  "base_model_name_or_path": "/tmp/ckpt",
+  "bias": "none",
+  "corda_config": null,
+  "ensure_weight_tying": false,
+  "eva_config": null,
+  "exclude_modules": ".*(vision|audio|multi_modal).*",
+  "fan_in_fan_out": false,
+  "inference_mode": true,
+  "init_lora_weights": true,
+  "kasa_config": null,
+  "layer_replication": null,
+  "layers_pattern": null,
+  "layers_to_transform": null,
+  "loftq_config": {},
+  "lora_alpha": 32,
+  "lora_bias": false,
+  "lora_dropout": 0.0,
+  "lora_ga_config": null,
+  "megatron_config": null,
+  "megatron_core": "megatron.core",
+  "modules_to_save": null,
+  "monteclora_config": null,
+  "peft_type": "LORA",
+  "peft_version": "0.21.2",
+  "qalora_group_size": 16,
+  "r": 16,
+  "rank_pattern": {},
+  "revision": null,
+  "target_modules": [
+    "up_proj",
+    "q_proj",
+    "v_proj",
+    "down_proj",
+    "gate_proj",
+    "o_proj",
+08:03:38 GATE VERDICT: fits up to 3072 tokens after 13 min

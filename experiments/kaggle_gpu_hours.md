@@ -52,4 +52,5 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | kernel / version | accelerator | start (UTC) | end (UTC) | hours | purpose / outcome |
 |---|---|---|---|---|---|
 | gemma4-faithful-eval v7 | T4x2 | 10-08 03:53 | 07:12 | 3.3 | v5.0n thinking on: **6/16** vs 9/16 off (9 session timeouts; fewer loops); not submitted |
-| gemma4-lora-gate v1 | T4x2 | 10-08 | | (est. 1.3) | QLoRA fit/speed of the 31B QAT checkpoint at 2k-16k tokens; adapter names |
+| gemma4-lora-gate v1-v4 | T4x2 | 10-08 07:16 | 08:05 | 0.8 | QLoRA of the 31B fits only up to 3,072 tokens (60 s/step); trajectories are 7k-17k: not viable on T4x2 |
+| **total since 10-03** | | | | **~20.0** | |

@@ -1,0 +1,64 @@
+{
+ "steps": [
+  {
+   "seq": 2048,
+   "step0_s": 33.3,
+   "step1_s": 34.0,
+   "loss": 17.502,
+   "peak_gib": [
+    11.6,
+    11.85
+   ],
+   "ok": true
+  },
+  {
+   "seq": 3072,
+   "step0_s": 59.5,
+   "step1_s": 59.8,
+   "loss": 13.895,
+   "peak_gib": [
+    11.84,
+    13.1
+   ],
+   "ok": true
+  },
+  {
+   "seq": 4096,
+   "ok": false,
+   "error": "OOM: CUDA out of memory. Tried to allocate 84.00 MiB. GPU 1 has a total capacity of 14.56 GiB of which 4.81 MiB is free. Including non-PyTorch memory, this process has 14.48 GiB memory in use. Of the alloc"
+  }
+ ],
+ "versions": {
+  "torch": "2.11.0+cu128",
+  "transformers": "5.19.0",
+  "peft": "0.21.2"
+ },
+ "download_s": 272,
+ "load_s": 254,
+ "model_class": "Gemma4ForConditionalGeneration",
+ "devices": [
+  "0",
+  "1"
+ ],
+ "mem_after_load_gib": [
+  8.09,
+  8.96
+ ],
+ "trainable_params": 122429440,
+ "lora_param_names_sample": [
+  "base_model.model.model.language_model.layers.0.self_attn.q_proj.lora_A.default.weight",
+  "base_model.model.model.language_model.layers.0.self_attn.k_proj.lora_A.default.weight",
+  "base_model.model.model.language_model.layers.0.self_attn.v_proj.lora_A.default.weight",
+  "base_model.model.model.language_model.layers.0.self_attn.o_proj.lora_A.default.weight"
+ ],
+ "adapter_keys_sample": [
+  "base_model.model.model.language_model.layers.0.mlp.down_proj.lora_A.weight",
+  "base_model.model.model.language_model.layers.0.mlp.down_proj.lora_B.weight",
+  "base_model.model.model.language_model.layers.0.mlp.gate_proj.lora_A.weight",
+  "base_model.model.model.language_model.layers.0.mlp.gate_proj.lora_B.weight",
+  "base_model.model.model.language_model.layers.0.mlp.up_proj.lora_A.weight",
+  "base_model.model.model.language_model.layers.0.mlp.up_proj.lora_B.weight"
+ ],
+ "adapter_keys": 820,
+ "verdict": "fits up to 3072 tokens"
+}
