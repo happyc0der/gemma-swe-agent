@@ -55,4 +55,5 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-lora-gate v1-v4 | T4x2 | 10-08 07:16 | 08:05 | 0.8 | QLoRA of the 31B fits only up to 3,072 tokens (60 s/step); trajectories are 7k-17k: not viable on T4x2 |
 | gemma4-faithful-eval v8 | T4x2 | 10-08 14:11 | 16:45 | 2.5 | prompt v5.1: **8/16** (sibling rule solves rich_3480; malformed-edit loop cost requests_6644) |
 | gemma4-faithful-eval v9 | T4x2 | 10-08 16:47 | 19:07 | 2.3 | prompt v5.2: **8/16**, 0 malformed-call errors (v5.1: 35); within noise of v5.0n 9 |
-| **total since 10-03** | | | | **~24.8** | next: v5.0n + v5.2 on set B (~5 h) after the weekly reset |
+| gemma4-faithful-eval v10 | T4x2 | 10-09 | | (est. 5-6) | set B (17 unused holdout tasks): v5.0n vs v5.2 (Keshav: run now) |
+| **total since 10-03** | | | | **~24.8** (+5-6 running) | |

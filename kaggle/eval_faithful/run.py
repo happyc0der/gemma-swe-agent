@@ -5,8 +5,8 @@
 #   the scorer's 4x L4 (so agents get a scorer-like number of tool calls); tasks run sequentially like the scorer.
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"variants": ["experiments/variants/v52"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
-       "session_budget_h": 11.0, "subset": "A"}
+CFG = {"variants": ["experiments/variants/v50n", "experiments/variants/v52"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
+       "session_budget_h": 11.0, "subset": "B"}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
@@ -111,7 +111,7 @@ if CFG.get("subset") == "B":   # the stable holdout tasks set A never uses (a se
 log("subset", len(subset), per)
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.5: log("SKIP", rel, "(session budget)"); continue
-    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name
+    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ("-setB" if CFG.get("subset") == "B" else "")
     ev = yaml.safe_load((sub / "eval_config.yaml").read_text()); ev = ev.get("evaluation", ev)
     adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
     models = setup_gemma_model_registry(api_base="http://127.0.0.1:8000/v1", served_model="gemma-4-31b-it-qat-w4a16-ct", adapter_manifest=adapters)
