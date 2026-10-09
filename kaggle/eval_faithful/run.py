@@ -42,7 +42,7 @@ log("prepare_host:", json.dumps(fs.prepare_host(DATA))); fs.apply()
 
 # 2. llama.cpp + weights
 sh("mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so")
-sh("cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudalib;/usr/local/cuda/lib64/stubs' -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc > /dev/null 2>&1; cmake --build build --config Release -j 4 --target llama-server 2>&1 | tail -1", timeout=3600)
+sh("mkdir -p /tmp/llama.cpp && cd /tmp/llama.cpp && git init -q && git remote add origin https://github.com/ggml-org/llama.cpp && git fetch -q --depth 1 origin 71ad0590f4808b6202f9213d166913858c73b1bc && git checkout -q FETCH_HEAD && git log --oneline -1 && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudalib;/usr/local/cuda/lib64/stubs' -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc > /dev/null 2>&1; cmake --build build --config Release -j 4 --target llama-server 2>&1 | tail -1", timeout=3600)
 os.environ["HF_HOME"] = "/tmp/hf"
 from huggingface_hub import hf_hub_download
 t = time.time(); gguf = hf_hub_download("google/gemma-4-31B-it-qat-q4_0-gguf", "gemma-4-31B_q4_0-it.gguf", local_dir="/tmp/gguf"); log(f"gguf in {time.time()-t:.0f}s")
@@ -109,6 +109,30 @@ for iid in hold:
 if CFG.get("subset") == "B":   # the stable holdout tasks set A never uses (a second, independent eval set)
     subset = [iid for iid in hold if iid not in set(subset)]
 log("subset", len(subset), per)
+def make_cfg(sub, ev, results_dir, ids):
+    adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
+    models = setup_gemma_model_registry(api_base="http://127.0.0.1:8000/v1", served_model="gemma-4-31b-it-qat-w4a16-ct", adapter_manifest=adapters)
+    limits, gen = build_submission_limits()
+    return EvalConfig(tasks_path=pathlib.Path(tasks_file), snapshots_dir=DATA / "snapshots", results_dir=results_dir,
+                      submission_dir=sub, models=models, sandbox="subprocess", timeout_seconds=ev.get("timeout_seconds"),
+                      max_time_minutes=float(ev["max_time_minutes"]) * CFG["time_scale"], max_tool_calls=ev.get("max_tool_calls"),
+                      max_turns=ev.get("max_turns"), limits=limits, generation_constraints=gen, adapter_manifest=adapters,
+                      context_cache_config=ContextCacheConfig(min_tokens=2048, ttl_seconds=1800, cache_intervals=10),
+                      events_compaction_config=EventsCompactionConfig(compaction_interval=15, overlap_size=2, token_threshold=14336, event_retention_size=5),
+                      graph_dir=str(DATA / "graphs"), embeddings_dir=str(DATA / "embeddings"), wheels_dir=DATA / "wheels",
+                      task_ids=ids, concurrency=1, display_mode="quiet")
+
+# Canary: an easy task every normal run solves in 4-7 calls with ~35 output tokens per step. A changed server build
+# once made every call ramble (~250 tokens/step) and every task time out; stop before burning hours on that.
+sub0 = REPO / CFG["variants"][0]; ev0 = yaml.safe_load((sub0 / "eval_config.yaml").read_text()); ev0 = ev0.get("evaluation", ev0)
+can = asyncio.run(Evaluator(make_cfg(sub0, ev0, pathlib.Path("/kaggle/working/results/canary"), ["fastapi_14303"])).run())
+toks = sorted((s.get("metrics") or {}).get("completion_tokens") or 0 for f in glob.glob("/kaggle/working/results/canary/traces/*.json")
+              for s in json.load(open(f))["steps"] if s.get("source") == "agent")
+med = toks[len(toks) // 2] if toks else -1
+log(f"CANARY fastapi_14303: resolved {can.resolved}/{can.total}, steps {len(toks)}, median output tokens {med}")
+if can.resolved != 1 or not (0 < med <= 120):
+    log("CANARY FAILED: server output looks abnormal; stopping before the main runs"); server.terminate(); sys.exit(1)
+
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.5: log("SKIP", rel, "(session budget)"); continue
     sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ("-setB" if CFG.get("subset") == "B" else "")

@@ -1,0 +1,130 @@
+14:29:54 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; python3 --version; free -g | head -2
+14:29:54 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+Python 3.13.15
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+14:29:54 $ ls /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse | head -60
+14:29:54 37-none-any.whl
+llguidance-1.3.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+lm_format_enforcer-0.11.3-py3-none-any.whl
+loguru-0.7.3-py3-none-any.whl
+mistral_common-1.11.7-py3-none-any.whl
+model_hosting_container_standards-0.1.16-py3-none-any.whl
+msgspec-0.21.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+nvidia_cudnn_frontend-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+openai_harmony-0.0.8-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+opentelemetry_exporter_otlp-1.44.0-py3-none-any.whl
+opentelemetry_semantic_conventions_ai-0.5.1-py3-none-any.whl
+outlines_core-0.2.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+partial_json_parser-0.2.1.1.post7-py3-none-any.whl
+prometheus_fastapi_instrumentator-8.1.0-py3-none-any.whl
+pybase64-1.5.0-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl
+pycountry-26.2.16-py3-none-any.whl
+pydantic_extra_types-2.11.2-py3-none-any.whl
+quack_kernels-0.6.4-py3-none-any.whl
+safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+setproctitle-1.3.7-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+swegemma-0.2.10-py3-none-any.whl
+tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+transformers-5.13.1-py3-none-any.whl
+vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
+xgrammar-0.2.5.post1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+14:29:54 $ python3 -m pip install -q /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_genai-2.11.0-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_adk-1.36.1-py3-none-
+14:30:45 google-ai-generativelanguage 0.6.15 requires protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<6.0.0dev,>=3.20.2, but you have protobuf 6.33.6 which is incompatible.
+python-fasthtml 0.14.12 requires starlette>=1.0.1, but you have starlette 0.52.1 which is incompatible.
+14:30:45 $ python3 -m pip install -q --no-deps /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/swegemma-0.2.10-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/adk_submission-0.2.13
+14:30:46 $ python3 -c 'import swegemma, adk_submission, google.adk; print("harness ok", google.adk.__version__)'
+14:31:11 harness ok 1.36.1
+14:31:11 $ python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub 2>&1 | tail -2
+14:31:15 $ cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1
+14:31:16 066df36 Days 13 and 14 rescored by Kaggle: 0.10 and 0.10 (v5.0n LB: 6, 4, 6, 6 tasks)
+14:32:11 prepare_host: {"uv": "/opt/uv/uv", "merged_wheels": 183, "extra_wheels": 76, "setup_py": "/kaggle/input/competitions/gemma-4-developer-agent/sandbox/setup.py", "python313": "/root/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13", "download_failed": []}
+14:32:24 $ mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so
+14:32:28 $ cd /tmp && git clone -q --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75 -DLLAMA_CURL=OFF -DCMAKE_LIBRARY_PATH='/tmp/cudalib;/usr/local/cuda/l
+14:59:58 [100%] Built target llama-server
+15:01:19 gguf in 81s
+15:01:28 server default thinking off: True
+15:02:58 llama-server up (0) after 90s
+15:02:58 thinking check: content= 'OK' | reasoning= None | usage= {'completion_tokens': 2, 'prompt_tokens': 20, 'total_tokens': 22, 'prompt_tokens_details': {'cached_tokens': 0}}
+15:03:14 thinking-on check: content= '391' | reasoning chars= 458 | usage= {'completion_tokens': 203, 'prompt_tokens': 31, 'total_tokens': 234, 'prompt_tokens_details': {'cached_tokens': 1}}
+15:03:14 subset 17 {'fastapi/fastapi': 8, 'psf/requests': 4, 'Textualize/rich': 4}
+15:03:14 RUN faithful-v50n-setB: eval={'timeout_seconds': 180, 'max_tool_calls': 40, 'max_time_minutes': 3.5, 'max_turns': 80} scaled time=10.5 min, 17 tasks
+15:12:59 MEM Mem:           32099       22999         233         266        9588        9099
+31360815104 32212254720
+15:22:59 MEM Mem:           32099       23807         811         266        8201        8291
+30914072576 32212254720
+15:33:00 MEM Mem:           32099       27776         265         266        4779        4322
+31878565888 32212254720
+15:43:00 MEM Mem:           32099       28593         335         266        3888        3506
+31926132736 32212254720
+15:53:00 MEM Mem:           32099       22988        6069         266        3754        9110
+25886273536 32212254720
+16:03:01 MEM Mem:           32099       28610         260         266        3945        3488
+32000221184 32212254720
+16:13:02 MEM Mem:           32099       24651        4440         266        3756        7447
+27621081088 32212254720
+16:23:03 MEM Mem:           32099       18196       10836         266        3781       13902
+20958498816 32212254720
+16:33:03 MEM Mem:           32099       14996       13744         266        4075       17102
+17881591808 32212254720
+16:43:04 MEM Mem:           32099       21407        7079         266        4329       10691
+24846680064 32212254720
+16:53:04 MEM Mem:           32099       13383       15231         266        4196       18715
+16301875200 32212254720
+17:03:04 MEM Mem:           32099       13388       15049         266        4373       18710
+16468430848 32212254720
+17:13:05 MEM Mem:           32099        8599       19694         266        4520       23499
+11556544512 32212254720
+17:23:06 MEM Mem:           32099        7004       20704         266        5108       25094
+10458304512 32212254720
+17:33:06 MEM Mem:           32099       27803         272         266        4741        4295
+31994466304 32212254720
+17:43:06 MEM Mem:           32099       28609         287         266        3914        3489
+32116912128 32212254720
+17:53:07 MEM Mem:           32099       28607         294         266        3908        3491
+32138465280 32212254720
+18:03:07 MEM Mem:           32099       24598        4302         266        3908        7500
+27946082304 32212254720
+18:05:19 RUN_DONE faithful-v50n-setB: resolved 0/17 in 182 min
+18:05:19 $ cd /kaggle/working/results && tar -czf /kaggle/working/faithful-v50n-setB.tgz faithful-v50n-setB
+18:05:19 RUN faithful-v52-setB: eval={'timeout_seconds': 180, 'max_tool_calls': 40, 'max_time_minutes': 3.5, 'max_turns': 80} scaled time=10.5 min, 17 tasks
+18:13:08 MEM Mem:           32099       26236        1832         266        4748        5862
+30455570432 32212254720
+18:23:08 MEM Mem:           32099       27831        1032         266        3948        4267
+31342682112 32212254720
+18:33:09 MEM Mem:           32099       28624         269         266        3920        3474
+32174563328 32212254720
+18:43:09 MEM Mem:           32099       18193       11001         266        3621       13905
+20940775424 32212254720
+18:53:10 MEM Mem:           32099       19822        9550         266        3435       12276
+22437023744 32212254720
+19:03:10 MEM Mem:           32099       15008       13801         266        4003       17090
+17945227264 32212254720
+19:13:10 MEM Mem:           32099       15003       13548         266        4261       17095
+18191884288 32212254720
+19:23:11 MEM Mem:           32099       13388       15600         266        3822       18710
+16146980864 32212254720
+19:33:11 MEM Mem:           32099       11791       16882         266        4138       20307
+14770667520 32212254720
+19:43:12 MEM Mem:           32099       13432       15007         266        4373       18666
+16674234368 32212254720
+19:53:12 MEM Mem:           32099        6982       21974         266        3851       25116
+9486098432 32212254720
+20:03:12 MEM Mem:           32099       10180       18738         266        3890       21918
+12883181568 32212254720
+20:13:12 MEM Mem:           32099       24605        4210         266        3993        7493
+28102901760 32212254720
+20:23:12 MEM Mem:           32099       26227        2471         266        4110        5871
+29888516096 32212254720
+20:33:13 MEM Mem:           32099       27862        1183         266        3768        4236
+31175790592 32212254720
+20:43:14 MEM Mem:           32099       27845        1162         266        3805        4253
+31267840000 32212254720
+20:53:15 MEM Mem:           32099       21411        7717         266        3679       10687
+24407941120 32212254720
+21:03:15 MEM Mem:           32099       19812        9170         266        3825       12286
+22865776640 32212254720
+21:07:22 RUN_DONE faithful-v52-setB: resolved 2/17 in 182 min
+21:07:22 $ cd /kaggle/working/results && tar -czf /kaggle/working/faithful-v52-setB.tgz faithful-v52-setB
+21:07:22 ALL_DONE after 6.62 h
