@@ -47,6 +47,8 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-faithful-eval v6 | T4x2 | 10-03 21:45 | 10-04 00:12 | 2.45 | prompt v5.0n: **9/16** (best; all earlier solves kept + fastapi_12942), fewest repeats and timeouts; day 11 |
 | **total this week** | | | | **~15.9** | GPU runs paused until the day 10-12 scores are in |
 
+Quota fact (observed 2026-10-10): the 30 h weekly GPU quota resets Saturday 00:00 UTC.
+
 ## 2026-10-08 onward (Keshav: do thinking-on and LoRA, cheaper first)
 
 | kernel / version | accelerator | start (UTC) | end (UTC) | hours | purpose / outcome |
@@ -56,5 +58,5 @@ Setup iterations (v1-v7) cost ~9.7 h; that one-off cost is now paid, and each fu
 | gemma4-faithful-eval v8 | T4x2 | 10-08 14:11 | 16:45 | 2.5 | prompt v5.1: **8/16** (sibling rule solves rich_3480; malformed-edit loop cost requests_6644) |
 | gemma4-faithful-eval v9 | T4x2 | 10-08 16:47 | 19:07 | 2.3 | prompt v5.2: **8/16**, 0 malformed-call errors (v5.1: 35); within noise of v5.0n 9 |
 | gemma4-faithful-eval v10 | T4x2 | 10-09 14:29 | 21:14 | 6.6 | set B v5.0n vs v5.2: **invalid** (unpinned llama.cpp HEAD made every call ramble; all tasks timed out) |
-| gemma4-faithful-eval v11 | T4x2 | (pending) | | (est. 5.5) | set B rerun with llama.cpp pinned + canary; push refused at 10-09 21:16 ("Maximum weekly GPU quota of 30.00 hours reached"); hourly auto-retry until the quota resets |
+| gemma4-faithful-eval v11 | T4x2 | 10-10 00:17 | | (est. 5.5) | set B rerun (llama.cpp pinned + canary); launched by the auto-retry right after the weekly reset |
 | **total since 10-03** | | | | **~31.4** (+5.5 running) | |
