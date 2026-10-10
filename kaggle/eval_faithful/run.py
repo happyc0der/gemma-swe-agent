@@ -95,7 +95,18 @@ litellm.drop_params = True
 from adk_submission import discover_adapters
 from swegemma.config import ALLOWED_ADAPTER_EXTENSIONS, EvalConfig, build_submission_limits
 from swegemma.evaluate import Evaluator
-from swegemma.models.registry import setup_gemma_model_registry
+try:   # swegemma <= 0.2.7
+    from swegemma.models.registry import setup_gemma_model_registry
+except ImportError:   # swegemma 0.2.11 (2026-10-09): no registry helper; register the served model and adapters directly
+    from adk_submission import ModelRegistry
+    from google.adk.models.lite_llm import LiteLlm
+    def setup_gemma_model_registry(api_base, served_model, adapter_manifest=None):
+        reg = ModelRegistry()
+        reg.register(served_model, LiteLlm(model=f"openai/{served_model}", api_base=api_base, api_key="EMPTY", num_retries=5))
+        for name in (getattr(adapter_manifest, "adapters", None) or {}):
+            reg.register(name, LiteLlm(model=f"openai/{name}", api_base=api_base, api_key="EMPTY", num_retries=5))
+        return reg
+import swegemma; log("swegemma version", getattr(swegemma, "__version__", "?"))
 from swegemma.models import load_tasks
 from google.adk.agents.context_cache_config import ContextCacheConfig
 from google.adk.apps._configs import EventsCompactionConfig
