@@ -30,3 +30,13 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   (was ~15), caps at 40 calls / 80 turns (was 30 / 60), and calls submit_patch as soon as the reproduction passes and
   again after later edits. In the official runner a context-overflow error skips the working-tree fallback and
   loses unsubmitted work, while submit_patch is free and does not end the session.
+
+## 2026-10-11 (daily routine)
+- `dmitriigluzdov/gemma-4-measure-before-you-tune` (63 votes, run 10-11): reports that the public **Budget-Fit single
+  agent** bundle (`verracodeguacas/gemma-4-agent-budget-fit-single-agent`) reproduces **0.18** on the public LB (their
+  submission 56932359), vs our 0.06-0.10. Config: one coder, **8 min / 28 tool calls / 80 turns, thinking budget 4,096
+  ON**, command timeout 240 s. Same author saw one byte-identical archive score 0.10 and 0.06 on different days (LB
+  noise ~0.06), and estimates 120 hidden tasks run sequentially in 12 h => ~282-350 s/task average, so long budgets only
+  fit if most tasks end early. Our own "thinking on loses" result (6/16 vs 9/16) was at a 3.5-min (x3) budget where
+  thinking caused session timeouts; an 8-min budget is untested here. Not adopted: needs Keshav's decision and an
+  offline AB eval under the ship rule.

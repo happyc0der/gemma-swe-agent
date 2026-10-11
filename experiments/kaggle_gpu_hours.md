@@ -61,4 +61,7 @@ Quota fact (observed 2026-10-10): the 30 h weekly GPU quota resets Saturday 00:0
 | gemma4-faithful-eval v11 | T4x2 | 10-10 00:17 | 00:52 | 0.6 | failed at import: the 10-09 wheelhouse (swegemma 0.2.11) removed swegemma.models.registry |
 | gemma4-faithful-eval v12 | T4x2 | 10-10 01:09 | 05:35 | 4.4 | set B under the new harness: v5.0n **4/17**, v5.2 2/17 (33-task totals 13 vs 10); v5.0n stays |
 | gemma4-faithful-eval v13 | T4x2 | 10-11 | | (est. 2.5) | v5.0n on set A under the new harness (completes its 33-task new-harness baseline with v12's set B) |
+| (not pushed) | | 10-11 | | 0 | v5.3 (convention rule for warnings/exceptions) staged as CFG `{"variants": [v53], "subset": "AB"}`; push deferred because v13 is still running (one kernel at a time) |
 | **total since 10-03** | | | | **~31.4** (+5.5 running) | |
+
+Quota week from Sat 10-10 00:00 UTC: v11 0.6 + v12 4.4 + v13 (est. 2.5, running) = ~7.5 h of 30.
