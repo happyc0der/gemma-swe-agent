@@ -119,6 +119,8 @@ for iid in hold:
     if per.get(r, 0) < CFG["n_per_repo"].get(r, 0): subset.append(iid); per[r] = per.get(r, 0) + 1
 if CFG.get("subset") == "B":   # the stable holdout tasks set A never uses (a second, independent eval set)
     subset = [iid for iid in hold if iid not in set(subset)]
+elif CFG.get("subset") == "AB":   # all 33 stable holdout tasks (set A first, then set B)
+    subset = subset + [iid for iid in hold if iid not in set(subset)]
 log("subset", len(subset), per)
 def make_cfg(sub, ev, results_dir, ids):
     adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
@@ -146,7 +148,7 @@ if can.resolved != 1 or not (0 < med <= 120):
 
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.5: log("SKIP", rel, "(session budget)"); continue
-    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ("-setB" if CFG.get("subset") == "B" else "")
+    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB"}.get(CFG.get("subset"), ""))
     ev = yaml.safe_load((sub / "eval_config.yaml").read_text()); ev = ev.get("evaluation", ev)
     adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
     models = setup_gemma_model_registry(api_base="http://127.0.0.1:8000/v1", served_model="gemma-4-31b-it-qat-w4a16-ct", adapter_manifest=adapters)
