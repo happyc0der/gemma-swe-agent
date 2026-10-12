@@ -1,0 +1,90 @@
+14:38:12 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; python3 --version; free -g | head -2
+14:38:12 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+Python 3.13.15
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+14:38:12 $ ls /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse | head -60
+14:38:12 37-none-any.whl
+llguidance-1.3.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+lm_format_enforcer-0.11.3-py3-none-any.whl
+loguru-0.7.3-py3-none-any.whl
+mistral_common-1.11.7-py3-none-any.whl
+model_hosting_container_standards-0.1.16-py3-none-any.whl
+msgspec-0.21.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+nvidia_cudnn_frontend-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+openai_harmony-0.0.8-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+opentelemetry_exporter_otlp-1.44.0-py3-none-any.whl
+opentelemetry_semantic_conventions_ai-0.5.1-py3-none-any.whl
+outlines_core-0.2.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+partial_json_parser-0.2.1.1.post7-py3-none-any.whl
+prometheus_fastapi_instrumentator-8.1.0-py3-none-any.whl
+pybase64-1.5.0-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl
+pycountry-26.2.16-py3-none-any.whl
+pydantic_extra_types-2.11.2-py3-none-any.whl
+quack_kernels-0.6.4-py3-none-any.whl
+safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+setproctitle-1.3.7-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+swegemma-0.2.11-py3-none-any.whl
+tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+transformers-5.13.1-py3-none-any.whl
+vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
+xgrammar-0.2.5.post1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+14:38:12 $ python3 -m pip install -q /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_genai-2.11.0-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_adk-1.36.1-py3-none-
+14:38:55 google-ai-generativelanguage 0.6.15 requires protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<6.0.0dev,>=3.20.2, but you have protobuf 6.33.6 which is incompatible.
+python-fasthtml 0.14.12 requires starlette>=1.0.1, but you have starlette 0.52.1 which is incompatible.
+14:38:56 $ python3 -m pip install -q --no-deps /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/swegemma-0.2.11-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/adk_submission-0.2.13
+14:38:57 $ python3 -c 'import swegemma, adk_submission, google.adk; print("harness ok", google.adk.__version__)'
+14:39:19 harness ok 1.36.1
+14:39:19 $ python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub 2>&1 | tail -2
+14:39:23 $ cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1
+14:39:24 8af4933 Faithful eval v13: v5.0n on set A under the new harness (baseline for the daily routine)
+14:40:16 prepare_host: {"uv": "/opt/uv/uv", "merged_wheels": 183, "extra_wheels": 76, "setup_py": "/kaggle/input/competitions/gemma-4-developer-agent/sandbox/setup.py", "python313": "/root/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13", "download_failed": []}
+14:40:29 $ mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so
+14:40:31 $ mkdir -p /tmp/llama.cpp && cd /tmp/llama.cpp && git init -q && git remote add origin https://github.com/ggml-org/llama.cpp && git fetch -q --depth 1 origin 71ad0590f4808b6202f9213d166913858c73b1bc && git checkout -q FETC
+15:07:04 71ad059 CUDA: improve top-k algorithm selection (#28713)
+[100%] Built target llama-server
+15:08:23 gguf in 79s
+15:08:34 server default thinking off: True
+15:10:04 llama-server up (0) after 90s
+15:10:05 thinking check: content= 'OK' | reasoning= None | usage= {'completion_tokens': 2, 'prompt_tokens': 20, 'total_tokens': 22, 'prompt_tokens_details': {'cached_tokens': 0}}
+15:10:21 thinking-on check: content= '391' | reasoning chars= 458 | usage= {'completion_tokens': 203, 'prompt_tokens': 31, 'total_tokens': 234, 'prompt_tokens_details': {'cached_tokens': 1}}
+15:10:21 swegemma version 0.2.11
+15:10:21 subset 16 {'fastapi/fastapi': 8, 'psf/requests': 4, 'Textualize/rich': 4}
+15:12:51 CANARY fastapi_14303: resolved 1/1, steps 11, median output tokens 36
+15:12:51 RUN faithful-v50n: eval={'timeout_seconds': 180, 'max_tool_calls': 40, 'max_time_minutes': 3.5, 'max_turns': 80} scaled time=10.5 min, 16 tasks
+15:20:07 MEM Mem:           32099       29158         270         266        3382        2940
+31921803264 32212254720
+15:30:07 MEM Mem:           32099       10745       18523         266        3543       21353
+12681048064 32212254720
+15:40:09 MEM Mem:           32099       10735       18635         266        3444       21363
+12652457984 32212254720
+15:50:11 MEM Mem:           32099       29099         341         266        3373        2999
+31373672448 32212254720
+16:00:12 MEM Mem:           32099       28387         775         266        3651        3711
+31370215424 32212254720
+16:10:13 MEM Mem:           32099       26794        2349         266        3671        5304
+29716156416 32212254720
+16:20:14 MEM Mem:           32099       21963        7540         266        3309       10135
+24430129152 32212254720
+16:30:14 MEM Mem:           32099       17139       12550         266        3122       14959
+19230994432 32212254720
+16:40:16 MEM Mem:           32099       26141        2934         266        3738        5957
+29150040064 32212254720
+16:50:17 MEM Mem:           32099       29277         555         266        2975        2821
+31871651840 32212254720
+16:51:57 WATCHDOG: llama-server exited rc=-9; mem: Mem:           32099        8957       23060           1         518       23141
+8478183424 32212254720; restarting
+16:54:27 llama-server up (1) after 150s
+16:59:26 WATCHDOG: llama-server exited rc=-9; mem: Mem:           32099       15792       16238           1         507       16306
+15673573376 32212254720; restarting
+17:00:56 llama-server up (2) after 90s
+17:05:36 MEM Mem:           32099       29957         304         266        2538        2142
+32211910656 32212254720
+17:15:38 MEM Mem:           32099       29211         245         266        3347        2887
+32212221952 32212254720
+17:25:39 MEM Mem:           32099        6768       22921         266        3114       25330
+8432717824 32212254720
+17:30:02 RUN_DONE faithful-v50n: resolved 9/16 in 137 min
+17:30:02 $ cd /kaggle/working/results && tar -czf /kaggle/working/faithful-v50n.tgz faithful-v50n
+17:30:02 ALL_DONE after 2.86 h

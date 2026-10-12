@@ -40,3 +40,12 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   fit if most tasks end early. Our own "thinking on loses" result (6/16 vs 9/16) was at a 3.5-min (x3) budget where
   thinking caused session timeouts; an 8-min budget is untested here. Not adopted: needs Keshav's decision and an
   offline AB eval under the ship rule.
+
+## 2026-10-12 (daily routine)
+- `hitarthjain0/gemma-4-apex-silver-agent-lb-0-24` credits `honghanhhh/gemma-4-baseline-lb-0-24` with a **0.24** public
+  score for a "contract-first" single agent on the Budget-Fit limits (8 min / 28 calls / 80 turns / 240 s, thinking
+  budget 4096 ON, max_output_tokens 8192, temperature 0.2). Prompt ideas: copy the issue's exact names/strings/status
+  codes before searching; one `git grep` then a <=120-line read; source edit by call 12; at most one focused check and
+  one repair; scratch files in /tmp and test paths checked out before submit_patch; graph tools not registered. The
+  notebook's own 0.24 is claimed, not shown. This is the same budget/thinking family as our pending day-17 LB test
+  (`v50n-think8`), so that score decides whether this direction is worth an offline AB eval.
