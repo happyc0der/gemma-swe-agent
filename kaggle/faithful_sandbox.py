@@ -12,6 +12,7 @@ What `apply()` changes, for both the agent sandbox and the verification sandbox:
   the test-only packages the public wheel set lacks, then runs the dataset's own `sandbox/setup.py` (full path:
   the repo's declared requirements from the competition wheels, editable install of /workspace, workspace .pth,
   pytest.ini/conftest);
+- every agent and test command runs under `ulimit -v` 4 GB (the scorer's container mem_limit), setup excepted;
 - the per-task copy of the 1.7 GB wheel directory is skipped: wheels are read from a host directory linked at /wheels.
 
 `prepare_host()` must run once first (needs internet): installs uv + Python 3.13 and builds the merged wheel dir.
@@ -39,6 +40,10 @@ TEST_EXTRAS = ["dirty-equals", "inline-snapshot", "sqlmodel", "flask", "anyio[tr
                "typing-inspection"]
 _UV = None
 _SETUP_PY: Path | None = None
+# The scorer's Docker sandbox runs each task with mem_limit 4g. Without a cap an agent repro that grows a string
+# exponentially (v14, rich_3480) took the kernel's whole 32 GB host RAM and got the eval process OOM-killed.
+MEM_LIMIT_KB = 4 * 1024 * 1024
+_UNCAPPED = False   # per-task setup (uv/pip installs) runs without the cap
 
 
 def _run(cmd: str, timeout: int = 1800) -> subprocess.CompletedProcess:
@@ -100,6 +105,15 @@ def _install_test_dependencies(docker, container_id, repo: str = "", *, fast_pat
         ("base", f'{_UV} pip install -q --python "$(command -v python3)" --no-index --find-links {MERGED} {base}'),
         ("editable", f"cd /workspace && python3 -m pip install -q --no-index --find-links {MERGED} --no-build-isolation -e ."),
     ]
+    global _UNCAPPED
+    _UNCAPPED = True
+    try:
+        _setup_steps(docker, container_id, repo, steps)
+    finally:
+        _UNCAPPED = False
+
+
+def _setup_steps(docker, container_id, repo, steps) -> None:
     rcs = {}
     for name, cmd in steps:
         r = docker.exec(container_id, cmd, timeout=900)
@@ -135,6 +149,13 @@ def apply() -> None:
         kw["system_site_packages"] = False
         orig_init(self, *a, **kw)
     sp.SubprocessManager.__init__ = init
+    orig_exec = sp.SubprocessManager.exec
+
+    def exec_capped(self, sandbox_id, command, *, timeout=None):
+        if not _UNCAPPED:
+            command = f"ulimit -v {MEM_LIMIT_KB} 2>/dev/null; {command}"
+        return orig_exec(self, sandbox_id, command, timeout=timeout)
+    sp.SubprocessManager.exec = exec_capped
     for mod in (cs, ar, vf):
         if hasattr(mod, "install_test_dependencies"):
             mod.install_test_dependencies = _install_test_dependencies

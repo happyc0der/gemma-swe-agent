@@ -1,0 +1,95 @@
+13:06:03 $ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; python3 --version; free -g | head -2
+13:06:03 Tesla T4, 15360 MiB
+Tesla T4, 15360 MiB
+Python 3.13.15
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+13:06:03 $ ls /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse | head -60
+13:06:04 37-none-any.whl
+llguidance-1.3.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+lm_format_enforcer-0.11.3-py3-none-any.whl
+loguru-0.7.3-py3-none-any.whl
+mistral_common-1.11.7-py3-none-any.whl
+model_hosting_container_standards-0.1.16-py3-none-any.whl
+msgspec-0.21.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+nvidia_cudnn_frontend-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+openai_harmony-0.0.8-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+opentelemetry_exporter_otlp-1.44.0-py3-none-any.whl
+opentelemetry_semantic_conventions_ai-0.5.1-py3-none-any.whl
+outlines_core-0.2.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+partial_json_parser-0.2.1.1.post7-py3-none-any.whl
+prometheus_fastapi_instrumentator-8.1.0-py3-none-any.whl
+pybase64-1.5.0-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl
+pycountry-26.2.16-py3-none-any.whl
+pydantic_extra_types-2.11.2-py3-none-any.whl
+quack_kernels-0.6.4-py3-none-any.whl
+safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+setproctitle-1.3.7-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+swegemma-0.2.11-py3-none-any.whl
+tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+transformers-5.13.1-py3-none-any.whl
+vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
+xgrammar-0.2.5.post1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+13:06:04 $ python3 -m pip install -q /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_genai-2.11.0-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/google_adk-1.36.1-py3-none-
+13:06:48 google-ai-generativelanguage 0.6.15 requires protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<6.0.0dev,>=3.20.2, but you have protobuf 6.33.6 which is incompatible.
+python-fasthtml 0.14.12 requires starlette>=1.0.1, but you have starlette 0.52.1 which is incompatible.
+13:06:48 $ python3 -m pip install -q --no-deps /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/swegemma-0.2.11-py3-none-any.whl /kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse/adk_submission-0.2.13
+13:06:50 $ python3 -c 'import swegemma, adk_submission, google.adk; print("harness ok", google.adk.__version__)'
+13:07:13 harness ok 1.36.1
+13:07:13 $ python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub 2>&1 | tail -2
+13:07:16 $ cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1
+13:07:17 cf8aaef Ledger: v14 (v5.3 on AB) launched 13:06 UTC
+13:08:04 prepare_host: {"uv": "/opt/uv/uv", "merged_wheels": 183, "extra_wheels": 76, "setup_py": "/kaggle/input/competitions/gemma-4-developer-agent/sandbox/setup.py", "python313": "/root/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13", "download_failed": []}
+13:08:16 $ mkdir -p /tmp/cudalib && d=$(dirname $(find /usr/lib /usr/local -name 'libcuda.so.1' 2>/dev/null | head -1)); ln -sf $d/libcuda.so.1 /tmp/cudalib/libcuda.so
+13:08:19 $ mkdir -p /tmp/llama.cpp && cd /tmp/llama.cpp && git init -q && git remote add origin https://github.com/ggml-org/llama.cpp && git fetch -q --depth 1 origin 71ad0590f4808b6202f9213d166913858c73b1bc && git checkout -q FETC
+13:34:22 71ad059 CUDA: improve top-k algorithm selection (#28713)
+[100%] Built target llama-server
+13:35:47 gguf in 85s
+13:35:56 server default thinking off: True
+13:37:26 llama-server up (0) after 90s
+13:37:26 thinking check: content= 'OK' | reasoning= None | usage= {'completion_tokens': 2, 'prompt_tokens': 20, 'total_tokens': 22, 'prompt_tokens_details': {'cached_tokens': 0}}
+13:37:42 thinking-on check: content= '391' | reasoning chars= 458 | usage= {'completion_tokens': 203, 'prompt_tokens': 31, 'total_tokens': 234, 'prompt_tokens_details': {'cached_tokens': 1}}
+13:37:42 swegemma version 0.2.11
+13:37:42 subset 33 {'fastapi/fastapi': 8, 'psf/requests': 4, 'Textualize/rich': 4}
+13:40:09 CANARY fastapi_14303: resolved 1/1, steps 10, median output tokens 36
+13:40:09 RUN faithful-v53-setAB: eval={'timeout_seconds': 180, 'max_tool_calls': 40, 'max_time_minutes': 3.5, 'max_turns': 80} scaled time=10.5 min, 33 tasks
+13:47:27 MEM Mem:           32099       13596       15454         266        3769       18502
+16014622720 32212254720
+13:57:30 MEM Mem:           32099       28867         252         266        3701        3231
+32003145728 32212254720
+14:07:31 MEM Mem:           32099       28870         279         266        3671        3228
+32027234304 32212254720
+14:17:33 MEM Mem:           32099       20882        8582         266        3354       11216
+22891630592 32212254720
+14:27:35 MEM Mem:           32099        8860       19812         266        4148       23239
+11388059648 32212254720
+14:37:36 MEM Mem:           32099       19335        9298         266        4186       12763
+22521483264 32212254720
+14:47:38 MEM Mem:           32099        6815       22498         266        3507       25283
+8483115008 32212254720
+14:57:41 MEM Mem:           32099       11384       17610         266        3825       20714
+13845569536 32212254720
+15:07:41 MEM Mem:           32099       29002         323         266        3493        3096
+32104316928 32212254720
+15:17:41 MEM Mem:           32099        4899       24333         266        3589       27200
+6949253120 32212254720
+15:27:44 MEM Mem:           32099       24967        3990         266        3862        7131
+28219330560 32212254720
+15:37:45 MEM Mem:           32099       21755        7155         266        3909       10343
+24897941504 32212254720
+15:47:46 MEM Mem:           32099       28958         277         266        3582        3140
+32154218496 32212254720
+15:57:46 MEM Mem:           32099       19775        9833         266        3210       12323
+22128590848 32212254720
+16:07:47 MEM Mem:           32099        4932       24487         266        3399       27166
+6725300224 32212254720
+16:17:49 MEM Mem:           32099       26565        2712         266        3541        5533
+29609959424 32212254720
+16:27:51 MEM Mem:           32099       28970         249         266        3599        3128
+32188764160 32212254720
+16:37:53 MEM Mem:           32099       28956         586         266        3275        3142
+31877185536 32212254720
+16:47:54 MEM Mem:           32099       20956        8615         266        3243       11142
+23437893632 32212254720
+16:57:55 MEM Mem:           32099        9740       19554         266        3520       22358
+11896012800 32212254720

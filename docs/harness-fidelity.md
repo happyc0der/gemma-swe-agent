@@ -71,3 +71,18 @@ adk-eval-core 0.1.0, vllm 0.19.1). Code diffs against the 09-25 upload:
   promised after the official sample (which ships two LoRA adapters) failed; LoRA adapters should now load on the
   scorer. The MSI scorer replica (`~/v019`) still has the old vLLM wheel; reinstall before using it for LoRA tests.
 Always diff wheel contents, not version numbers, when the dataset's lastUpdated changes.
+
+## Wheelhouse re-upload of 2026-10-12 19:51 UTC (same version numbers)
+swegemma 0.2.11 and adk_submission 0.2.13 were re-uploaded with different bytes (google_adk, google_genai unchanged).
+The only change: Phase 2 pytest verification gets its own timeout, `HarnessLimits.verification_timeout_seconds`
+(default 300 s, CLI `--verification-timeout-seconds`), instead of reusing the agent's command timeout
+(`timeout_seconds`, 180 s in our eval_config). Agent-side behaviour, prompts and limits are unchanged; slow hidden
+tests now have 300 s. The eval kernel installs from the dataset at run time, so it picks this up automatically; the
+local compile venv (~/.cache/gemma-offvenv-1009) was reinstalled from data/wheelhouse-2026-10-12 and all live
+variants recompile (thinking off). The eval_config comment "timeout_seconds also bounds the hidden-test pytest run"
+is no longer true under this harness.
+
+## Sandbox memory cap (2026-10-14)
+The scorer's Docker sandbox runs each task with `mem_limit 4g`; the subprocess sandbox had no cap, and kernel v14 was
+OOM-killed when an agent repro grew a string exponentially. `kaggle/faithful_sandbox.py` now prefixes every agent
+and verification command with `ulimit -v 4194304` (per-task setup installs excepted).
