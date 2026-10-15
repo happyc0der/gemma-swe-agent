@@ -64,7 +64,7 @@ Quota fact (observed 2026-10-10): the 30 h weekly GPU quota resets Saturday 00:0
 | (not pushed) | | 10-11 | | 0 | v5.3 (convention rule for warnings/exceptions) staged as CFG `{"variants": [v53], "subset": "AB"}`; push deferred because v13 is still running (one kernel at a time) |
 | gemma4-faithful-eval v14 | T4x2 | 10-12 13:06 | ~17:00 | 3.9 | v5.3 on subset AB: **13/29**, then OOM-killed (agent repro on rich_3480 ate the 32 GB host RAM; no memory cap in the subprocess sandbox, now fixed with ulimit -v 4 GB). Ties v5.0n on the same 29 tasks; not shipped |
 | gemma4-faithful-eval v15 | T4x2 | 10-14 13:07 | 17:22 | 4.24 | v5.4 (edit first, then one check script) on subset AB: **13/33**, ties v5.0n; 11 no-edit tasks vs 4; not shipped |
-| gemma4-faithful-eval v16 | T4x2 | 10-15 | | (est. 4.5) | v5.5 (v5.0n + read_file tool, <= 100 lines per read) on subset AB, for the ship rule vs v5.0n 13/33 |
+| gemma4-faithful-eval v16 | T4x2 | 10-15 13:04 | | (est. 4.5) | v5.5 (v5.0n + read_file tool, <= 100 lines per read) on subset AB, for the ship rule vs v5.0n 13/33 |
 | **total since 10-03** | | | | **~42.4** (+4.5 running) | |
 
 Quota week from Sat 10-10 00:00 UTC: v11 0.6 + v12 4.4 + v13 2.9 = 7.9 h used; with v14 (est. 4.5) ~12.4 h of 30.
