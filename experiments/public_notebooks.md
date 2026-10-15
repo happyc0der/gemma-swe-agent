@@ -49,3 +49,17 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   one repair; scratch files in /tmp and test paths checked out before submit_patch; graph tools not registered. The
   notebook's own 0.24 is claimed, not shown. This is the same budget/thinking family as our pending day-17 LB test
   (`v50n-think8`), so that score decides whether this direction is worth an offline AB eval.
+
+## 2026-10-15: contract-first bundle staged as a one-day LB test (Keshav's choice)
+- Source: `honghanhhh/gemma-4-baseline-lb-0-24` ("v3 (0.22 config + targeted prompt edits)", based on the public
+  `gemma-4-budget-aware-coding-agent-v2`, reported 0.22; the 0.24 title is claimed, not shown). Public Kaggle notebook,
+  no explicit license (Kaggle's default for public code is Apache 2.0); used as-is for a test, credited here.
+- Bundle copied byte-for-byte to `experiments/variants/pub-contract-first` (extracted from the notebook's embedded
+  `FILES`): temperature 0.2, top_p 0.95, max_output_tokens 8192, thinking_budget 4096 + include_thoughts true, tools
+  incl. read_file and the three graph tools (prompt forbids the graph tools), 8 min / 28 calls / 80 turns / 240 s.
+- Prompt ideas vs ours: a hard call plan (edit by call 12, nothing new after call 20), "an unedited tree always
+  scores zero", spec extraction before searching, batched git grep, at most 2 verify calls, every parallel
+  implementation (sync/async, overloads, `__all__`), FastAPI `docs_src/` executable docs, never conclude no change.
+- Compiles under the current harness (COMPILE_OK, enable_thinking true, thinking_token_budget 4096, 9 tools).
+- Judge on the LB: if it reproduces >= 0.17 (10/58) the gap to our ~0.10 is prompt + config and we build on it
+  (offline AB eval of our prompt in this style); if <= 0.12, the claim does not hold for us and v5.0n stays.
