@@ -63,3 +63,11 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - Compiles under the current harness (COMPILE_OK, enable_thinking true, thinking_token_budget 4096, 9 tools).
 - Judge on the LB: if it reproduces >= 0.17 (10/58) the gap to our ~0.10 is prompt + config and we build on it
   (offline AB eval of our prompt in this style); if <= 0.12, the claim does not hold for us and v5.0n stays.
+
+## 2026-10-17: dmitriigluzdov 'Gemma 4: Public Agent Ideas and Evidence' (updated)
+- Catalogue of 187 public notebooks; a paired local screen on 31 tasks finds no established gain among budget-fit
+  variants (9 vs 9 vs 8 vs 8 solved, sign tests p = 1.0). The same coder-analyzer archive scored 0.06-0.12 across
+  runs, which matches our view that 1-2 task LB differences are noise.
+- Its arithmetic projection puts 8-minute budget-fit configs at 11.6-13.0 h for ~120 tasks, close to or over the
+  12 h cap. Consistent with our day-21 test: pub-contract-first (8 min / thinking on) failed with "exceeded the
+  allowed runtime". No change to our plan.
