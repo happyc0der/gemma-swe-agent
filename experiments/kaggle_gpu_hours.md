@@ -67,6 +67,7 @@ Quota fact (observed 2026-10-10): the 30 h weekly GPU quota resets Saturday 00:0
 | gemma4-faithful-eval v16 | T4x2 | 10-15 13:04 | 17:34 | 4.49 | v5.5 (v5.0n + read_file tool) on subset AB: **9/33** vs v5.0n 13/33; malformed read_file/edit_file loops; not shipped |
 | gemma4-faithful-eval v17 | T4x2 | 10-16 13:06 | 17:37 | 4.52 | v5.6 (v5.0n without edit_file; all edits via a run_command fix script) on subset AB: **11/33** vs v5.0n 13/33; 0 malformed calls, but submit_patch sent to the shell in 17 tasks; not shipped |
 | gemma4-faithful-eval v18 | T4x2 | 10-17 13:14 | 17:29 | 4.25 | v5.7 (v5.6 + submit_patch is a tool, not a shell command) on subset AB: **12/33** vs v5.0n 13/33; submit_patch-in-shell down to 8 calls; not shipped |
+| gemma4-faithful-eval v19 | T4x2 | 10-18 13:15 | | (est. 4.5) | v5.8 (v5.7 + budget-warning protocol: edit on the next call once `budget_warning` appears) on subset AB, for the ship rule vs v5.0n 13/33 |
 | **total since 10-03** | | | | **~55.7** | |
 
 Quota week from Sat 10-10 00:00 UTC: v11 0.6 + v12 4.4 + v13 2.9 = 7.9 h used; with v14 (est. 4.5) ~12.4 h of 30.
