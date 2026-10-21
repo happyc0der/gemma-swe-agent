@@ -69,8 +69,8 @@ Quota fact (observed 2026-10-10): the 30 h weekly GPU quota resets Saturday 00:0
 | gemma4-faithful-eval v18 | T4x2 | 10-17 13:14 | 17:29 | 4.25 | v5.7 (v5.6 + submit_patch is a tool, not a shell command) on subset AB: **12/33** vs v5.0n 13/33; submit_patch-in-shell down to 8 calls; not shipped |
 | gemma4-faithful-eval v19 | T4x2 | 10-18 13:15 (queued; ran 17:04) | 21:28 | 4.39 | v5.8 (v5.7 + budget-warning protocol) on subset AB: **14/33** vs v5.0n 13/33, first result above the baseline; fastapi_5624 solved for the first time; **shipped** as v58-t45 |
 | gemma4-faithful-eval v20 | T4x2 | 10-19 13:09 (queued; ran 18:11) | 22:21 | 4.16 | v5.9 (v5.8 + fix-script template as an `edit()` helper call so half-written scripts fail instead of silently doing nothing) on subset AB: **12/33** vs v5.8 14/33; silent no-op scripts 29 -> 4 but 35 assert failures took their place (edit success rate unchanged at 47%); not shipped |
-| gemma4-faithful-eval v21 | T4x2 | 10-20 13:17 | | (est. 4.5) | v6.0 (v5.9 with a five-line `edit()` helper: indentation-tolerant line match, re-indents new, prints the file's real lines on a miss) on subset AB, for the ship rule vs v5.8 14/33 |
-| **total since 10-03** | | | | **~59.8** | |
+| gemma4-faithful-eval v21 | T4x2 | 10-20 13:17 | 17:44 | 4.46 | v6.0 (v5.9 with a five-line `edit()` helper: indentation-tolerant line match, re-indents new, prints the file's real lines on a miss) on subset AB, for the ship rule vs v5.8 14/33 |
+| **total since 10-03** | | | | **~64.3** | |
 
 Quota week from Sat 10-10 00:00 UTC: v11 0.6 + v12 4.4 + v13 2.9 = 7.9 h used; with v14 (est. 4.5) ~12.4 h of 30.
 
@@ -89,3 +89,5 @@ Quota week from Sat 10-17 00:00 UTC (updated 10-18): v18 4.25 h used; with v19 (
 Quota week from Sat 10-17 00:00 UTC (updated 10-19): v18 4.25 + v19 4.39 = 8.6 h used; with v20 (est. 4.5) ~13.1 h of 30. Resets Sat 10-24 00:00 UTC.
 
 Quota week from Sat 10-17 00:00 UTC (updated 10-20): v18 4.25 + v19 4.39 + v20 4.16 = 12.8 h used; with v21 (est. 4.5) ~17.3 h of 30. Resets Sat 10-24 00:00 UTC.
+
+Quota week from Sat 10-17 00:00 UTC (updated 10-21): v18 4.25 + v19 4.39 + v20 4.16 + v21 4.46 = 17.3 h used; with v22 (est. 4.5) ~21.8 h of 30. Resets Sat 10-24 00:00 UTC.
