@@ -71,3 +71,14 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - Its arithmetic projection puts 8-minute budget-fit configs at 11.6-13.0 h for ~120 tasks, close to or over the
   12 h cap. Consistent with our day-21 test: pub-contract-first (8 min / thinking on) failed with "exceeded the
   allowed runtime". No change to our plan.
+
+## 2026-10-21 (daily routine)
+- `verracodeguacas/gemma-4-agent-budget-fit-single-agent`: the embedded FILES are still byte-identical to our
+  `experiments/variants/pub-budget-fit` (checked today); no new version.
+- `dmitriigluzdov/gemma-4-public-agent-ideas-and-evidence` (updated 10-20): its own packaged release (budget-fit
+  profile + flexonafft's budget-aware prompt, Apache 2.0) scored 11/58 on 10-15 and 7/58 on 10-19 with
+  byte-identical files, a third run pending; temperature 0 and 0.4 gave 9 and 7 (inside the identical-draw range,
+  so 0.2 is kept); the 12B model on the same files exceeded the 12 h cap. Runtime arithmetic: 116 tasks at the full
+  8-min cap would need ~15.7 h, so the family fits 12 h only when most tasks stop early (local mean projects ~11.8 h).
+  This is the runtime risk our day-26 run (pub-budget-fit, pending 13 h after submission) is testing.
+- New top-dated notebooks (evgendvorkin, sadiqguru, philgear, jaikwang) show no completed LB evidence; not adopted.
