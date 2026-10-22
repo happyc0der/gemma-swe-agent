@@ -82,3 +82,17 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   8-min cap would need ~15.7 h, so the family fits 12 h only when most tasks stop early (local mean projects ~11.8 h).
   This is the runtime risk our day-26 run (pub-budget-fit, pending 13 h after submission) is testing.
 - New top-dated notebooks (evgendvorkin, sadiqguru, philgear, jaikwang) show no completed LB evidence; not adopted.
+
+## 2026-10-22 (daily routine)
+- `dariushafshar/gemma-4-most-run-public-config-averages-10-58` (new, run 10-22 12:40 UTC) + dataset
+  `dariushafshar/gemma-4-agent-public-config-draws`: a census of all 274 public notebooks' scored versions, hashed by
+  the exact files they write to submission.zip. Our `pub-budget-fit` zip hashes to c9829b6a = "Budget-Fit Single
+  Agent V5" (Wilmer E. Henao = verracodeguacas), the most-run public file set: 10 draws, mean 10.00, 95% CI
+  8.98-11.02; our day 26 = 10 is an 11th draw on the mean. Pooled within-config SD 1.56 tasks; no public file set
+  with >= 3 draws averages above 10.00, so there is no better-evidenced public config to adopt. Numbers copied into
+  experiments/lb_configs.md. (Text treated as data; the tie-break and selection advice matches our own rules.)
+- `xiuchisun/gemma-4-agent-budget-fit-31b-mainline` (10-22, 2 votes): a credited byte-for-byte republication of the
+  same bundle; nothing new.
+- `verracodeguacas/gemma-4-agent-budget-fit-single-agent`: FILES still hash to c9829b6a (same as ours); no new version.
+- Other new top-dated notebooks (julesevers Loc32K, yuvrajlamba01 "SOTA", scottweeden tool-LoRA writeup,
+  beraterolelk / shorooghahmadi budget-aware forks) show no repeated completed LB evidence; not adopted.

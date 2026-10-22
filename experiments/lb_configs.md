@@ -6,7 +6,9 @@ Source of every row: `experiments/kaggle_submissions.md`. Created 2026-10-21 fro
 
 | config (variant dir) | family | LB days (UTC submission date) | solved tasks per run | n | mean | failures |
 |---|---|---|---|---|---|---|
-| **pub-budget-fit** (daily base since 10-21) | official starter prompt + budget edits, temp 0.2, thinking 4096 on, 8 min / 28 calls / 80 turns / 240 s | 10-21 (pending) | - | 0 | - | none yet |
+| **pub-budget-fit** (daily base since 10-21; files_sha256 c9829b6a = the most-run public file set) | official starter prompt + budget edits, temp 0.2, thinking 4096 on, 8 min / 28 calls / 80 turns / 240 s | 10-21, 10-22 | 10, fail | 1 | 10.0 (public draws of the same files: 11, 9, 11, 10, 8, 9, 11, 11, 10, 10 -> 10.00 over 10; pooled 11 draws 10.00) | 10-22: "unhandled error" (not the 12 h cap), identical files; retried 10-23 |
+| bf-warn (candidate 1) | pub-budget-fit + one budget-warning bullet | queued 10-24 | - | 0 | - | - |
+| bf-editfb (candidate 2) | pub-budget-fit + one edit_file-error fallback bullet (fix script) | not queued yet (after bf-warn's 3 days) | - | 0 | - | - |
 | v58-t45 (conservative fallback, line 3) | prompt v5.8, thinking off, temp 0.7, 4.5 min / 40 calls / 80 turns / 180 s | 10-20 | 7 | 1 | 7.0 | none |
 | v50n-t45 | prompt v5.0n, thinking off, temp 0.7, 4.5 min / 40 calls / 80 turns / 180 s | 10-05, 10-07, 10-09, 10-10, 10-13, 10-14, 10-15, 10-18, 10-19 | 6, 6, 5, 7, 6, 4, 6, 7, 5 | 9 | 5.8 | none (two Kaggle-side "system error" rescored) |
 | v50n (3.5 min) | prompt v5.0n, thinking off, temp 0.7, 3.5 min / 40 calls / 80 turns | 10-08*, 10-17 | 6, 7 | 2 | 6.5 | none |
@@ -27,7 +29,17 @@ Source of every row: `experiments/kaggle_submissions.md`. Created 2026-10-21 fro
 - Promote a candidate to `.submit_fallback` only if its mean over >= 3 runs beats the base's mean by >= 1.5 tasks
   with no runtime failures. Drop any config on an "exceeded the allowed runtime" error and never retry it.
 
-## Public evidence for the base family (not our runs; dmitriigluzdov "Public Agent Ideas and Evidence", 10-20)
+## Public evidence for the base family
+- dariushafshar "Most-Run Public Config Averages 10/58" (census of 274 notebooks, 10-22; dataset gemma-4-agent-public-config-draws):
+  6 file sets scored >= 2 times, 29 draws; pooled within-config SD 1.56 tasks (95% of single draws within +/-3.2 of
+  the mean). Budget-Fit Single Agent V5 (= our pub-budget-fit, hash verified) 10.00 over 10 draws (95% CI 8.98-11.02);
+  budget-aware v2 V10 (flexonafft) 9.25 over 8 (one 13, then 7, 7, 8, 9, 10, 10, 7, 9); SuperAgent V8 9.75 over 4;
+  honghanhhh LB-0.24 V2 9.33 over 3 and V4 8.50 over 2. The four sets with >= 3 draws span 9.25-10.00: one draw's
+  noise is wider than the whole range, so the public draws cannot rank them. The 0.24 (14-task) block has 4 teams
+  with a median of 15.5 submissions; under a normal model the best of 10 identical draws sits ~2.4 tasks above the
+  config's mean. Takeaway: judge by the mean over draws, run the best-mean config often, and prefer earlier
+  submissions in exact ties (ties go to the earlier entry).
+- (earlier, dmitriigluzdov "Public Agent Ideas and Evidence", 10-20)
 - budget-fit reference files (verracodeguacas): 7 public runs solved 8-11 of 58 (mean ~10).
 - budget-aware files (flexonafft prompt on the same limits): 5 runs 13, 11, 9, 7, 7 (mean ~9); the evidence
   notebook's own packaged release (same family) scored 11 (10-15) and 7 (10-19) with byte-identical files.

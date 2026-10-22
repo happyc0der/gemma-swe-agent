@@ -1,0 +1,23 @@
+{
+  "total_tasks": 33,
+  "resolved": 9,
+  "resolution_rate": 0.2727,
+  "by_repo": {
+    "fastapi/fastapi": {
+      "total": 19,
+      "resolved": 5,
+      "rate": 0.2631578947368421
+    },
+    "psf/requests": {
+      "total": 4,
+      "resolved": 3,
+      "rate": 0.75
+    },
+    "Textualize/rich": {
+      "total": 10,
+      "resolved": 1,
+      "rate": 0.1
+    }
+  },
+  "errors": 3
+}

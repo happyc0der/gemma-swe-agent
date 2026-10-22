@@ -93,3 +93,5 @@ Quota week from Sat 10-17 00:00 UTC (updated 10-19): v18 4.25 + v19 4.39 = 8.6 h
 Quota week from Sat 10-17 00:00 UTC (updated 10-20): v18 4.25 + v19 4.39 + v20 4.16 = 12.8 h used; with v21 (est. 4.5) ~17.3 h of 30. Resets Sat 10-24 00:00 UTC.
 
 Quota week from Sat 10-17 00:00 UTC (updated 10-21): v18 4.25 + v19 4.39 + v20 4.16 + v21 4.46 = 17.3 h used; with v23 (est. 4.5) ~21.8 h of 30. Resets Sat 10-24 00:00 UTC.
+
+Quota week from Sat 10-17 00:00 UTC (updated 10-22): v18 4.25 + v19 4.39 + v20 4.16 + v21 4.46 + v23 4.28 = 21.5 h used; with v24 (bf-warn-off on AB, pushed 10-22 13:06 UTC, est. 4.5) ~26.0 of 30. Resets Sat 10-24 00:00 UTC; v25 (bf-editfb-off) goes after the reset.
