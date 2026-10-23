@@ -96,3 +96,22 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - `verracodeguacas/gemma-4-agent-budget-fit-single-agent`: FILES still hash to c9829b6a (same as ours); no new version.
 - Other new top-dated notebooks (julesevers Loc32K, yuvrajlamba01 "SOTA", scottweeden tool-LoRA writeup,
   beraterolelk / shorooghahmadi budget-aware forks) show no repeated completed LB evidence; not adopted.
+
+## 2026-10-23 (daily routine)
+- `dariushafshar/gemma-4-agent-public-config-draws` and the census notebook: unchanged since 10-22 12:38 UTC.
+- `dmitriigluzdov/gemma-4-public-agent-ideas-and-evidence`: unchanged since 10-20.
+- `verracodeguacas` bundle: no new version seen in the dateRun listing (our copy hashes c9829b6a, unchanged).
+- `leoprovorov/single-agent-anytime-patch` (17 votes, run 10-22 23:05): budget-fit lineage (verracodeguacas ->
+  contract-first -> this), prompt-only change "never end with an empty diff": first best-guess edit by the 8th call,
+  tool results kept small (read_file ranges <= 80 lines, head/tail on commands) against context overflow, short
+  thinking while searching. Its evidence is Dmitrii Gluzdov's task-level dataset of 692 local runs (CC BY 4.0,
+  `dmitriigluzdov/gemma-4-serving-and-lora-verification-kit`): 194 of 692 runs ended with no patch (75 context
+  overflows, all empty; 52 timeouts with no edit; 53 stopped without editing); thinking-on v4 resolved 37 of 71 runs
+  that used <= 14 calls vs 2 of 43 that went 15-20 calls. **No LB run yet** ("submit once the previous finishes"),
+  so not adopted; worth re-checking for completed draws. The dataset itself is a candidate source for the paper's
+  failure taxonomy (public numbers, properly credited).
+- `ryanholbrook/gemma-4-developer-agent-small-model-leaderboard` (host, 28 votes): the Small Model Prize track
+  leaderboard; we run the 31B model, so not eligible; nothing to adopt.
+- `robinamirbahar` posted ~10 "loop-breaker" notebooks today (0 votes, no LB evidence shown in the listing); not read.
+- `honghanhhh/gemma-4-baseline-lb-0-24` reran 10-23 08:11 (60 votes); that family exceeded 12 h for us on 10-16,
+  so it stays dropped regardless of new versions.

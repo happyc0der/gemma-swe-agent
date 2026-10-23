@@ -25,3 +25,11 @@ LB only (thinking on cannot be evaluated offline on T4s): >= 3 LB days interleav
 a mean >= 1.5 tasks above the base's mean with no runtime failure; drop on any "exceeded the allowed runtime".
 A thinking-off screen of the same sentence on the official starter prompt (pub-budget-fit-off vs bf-warn-off,
 kernels v22/v23) runs in parallel as supporting evidence.
+
+## Verdict (2026-10-23, kernel v24 = bf-warn-off on AB)
+10/33 vs pub-budget-fit-off 9/33 (noise). At the first `budget_warning` the next call was an edit in only 3 of 23
+tasks (base 0 of 23), and the base already called `submit_patch` after the warning in 21 of 23 tasks (bf-warn 22),
+so the bullet's intent was already met by the base. Side effect: `edit_file` calls doubled (164 -> 328, 287 without
+`old_string`), four tasks hit the 80-turn cap (base two), agent time +14 min. **Withdrawn from the LB queue before
+any LB day** (runtime is the binding risk for the 8-min family). Details:
+experiments/2026-10-22-faithful-bf-warn-off-AB/notes.md.
