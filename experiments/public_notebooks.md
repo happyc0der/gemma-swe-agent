@@ -115,3 +115,13 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - `robinamirbahar` posted ~10 "loop-breaker" notebooks today (0 votes, no LB evidence shown in the listing); not read.
 - `honghanhhh/gemma-4-baseline-lb-0-24` reran 10-23 08:11 (60 votes); that family exceeded 12 h for us on 10-16,
   so it stays dropped regardless of new versions.
+
+## 2026-10-24 (daily routine)
+- `dariushafshar/gemma-4-agent-public-config-draws`: unchanged since 10-22 12:37 UTC.
+- `lynnsakurai/gemma-4-budget-fit-agent-w-bounded-rescue` (16 votes, run 10-24 08:36): budget-fit limits and sampling
+  (8 min / 28 calls / 80 turns, temp 0.2, thinking 4096) with a different prompt ("budget-aware, tool-aligned repair
+  agent"); no LB score or repeated draws stated in the notebook. Not adopted.
+- `leoprovorov/single-agent-anytime-patch`: still states "Not measured on the leaderboard"; no completed draws. Its
+  context-overflow fix is not supported by our own traces (0 overflows in 33 base tasks), so not adopted.
+- Others in the dateRun listing (getting-started forks, haosky1 contract-first fork, robinamirbahar loop-breaker
+  series, LoRA training, A/B notebooks) show no repeated completed LB evidence; not read further.

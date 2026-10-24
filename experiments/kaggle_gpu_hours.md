@@ -97,3 +97,5 @@ Quota week from Sat 10-17 00:00 UTC (updated 10-21): v18 4.25 + v19 4.39 + v20 4
 Quota week from Sat 10-17 00:00 UTC (updated 10-22): v18 4.25 + v19 4.39 + v20 4.16 + v21 4.46 + v23 4.28 = 21.5 h used; with v24 (bf-warn-off on AB, pushed 10-22 13:06 UTC, est. 4.5) ~26.0 of 30. Resets Sat 10-24 00:00 UTC; v25 (bf-editfb-off) goes after the reset.
 
 Quota week from Sat 10-17 00:00 UTC (updated 10-23): v18 4.25 + v19 4.39 + v20 4.16 + v21 4.46 + v23 4.28 + v24 4.50 = 26.0 h used of 30 (v24 = bf-warn-off on AB, 10/33, collected 10-23 to data/faithful_results/bf-warn-off-AB). No push today (v25 needs ~4.5 h, which would exceed the week). Resets Sat 10-24 00:00 UTC; v25 = bf-editfb-off on AB (kernel CFG already set) goes from the 10-24 daily run.
+
+Quota week from Sat 10-24 00:00 UTC: v25 = bf-editfb-off on AB, pushed 10-24 13:22 UTC (est. 4.5 h) -> ~4.5 h of 30. Collect 10-25 to data/faithful_results/bf-editfb-off-AB; next: v26 = bf-nomatch-off on AB. Resets Sat 10-31 00:00 UTC.
