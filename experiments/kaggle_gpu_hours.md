@@ -101,3 +101,5 @@ Quota week from Sat 10-17 00:00 UTC (updated 10-23): v18 4.25 + v19 4.39 + v20 4
 Quota week from Sat 10-24 00:00 UTC: v25 = bf-editfb-off on AB, pushed 10-24 13:22 UTC (est. 4.5 h) -> ~4.5 h of 30. Collect 10-25 to data/faithful_results/bf-editfb-off-AB; next: v26 = bf-nomatch-off on AB. Resets Sat 10-31 00:00 UTC.
 
 Quota week from Sat 10-24 00:00 UTC (updated 10-25): v25 (bf-editfb-off on AB, 7/33) = 4.40 h, collected to data/faithful_results/bf-editfb-off-AB. v26 = bf-nomatch-off on AB, pushed 10-25 (est. 4.5 h) -> ~8.9 h of 30. Resets Sat 10-31 00:00 UTC. Collect v26 on 10-26 to data/faithful_results/bf-nomatch-off-AB.
+
+Quota week from Sat 10-24 00:00 UTC (updated 10-26): v25 4.40 + v26 (bf-nomatch-off on AB, 11/33) 3.34 = 7.74 h used; v26 collected to data/faithful_results/bf-nomatch-off-AB. v27 = bf-noedit-off on AB pushed 10-26 (est. 3.5-4.5 h) -> ~12 h of 30. Resets Sat 10-31 00:00 UTC. Collect v27 on 10-27 to data/faithful_results/bf-noedit-off-AB.

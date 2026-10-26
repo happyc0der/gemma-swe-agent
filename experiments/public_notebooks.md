@@ -125,3 +125,9 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   context-overflow fix is not supported by our own traces (0 overflows in 33 base tasks), so not adopted.
 - Others in the dateRun listing (getting-started forks, haosky1 contract-first fork, robinamirbahar loop-breaker
   series, LoRA training, A/B notebooks) show no repeated completed LB evidence; not read further.
+
+## 2026-10-26 (daily run)
+- Wheelhouse unchanged (10-12 19:51); census dataset dariushafshar/gemma-4-agent-public-config-draws unchanged (10-22).
+- New in the dateRun listing: robinamirbahar loop-breaker ADK agent, karandeepsinghsodhi SFD (state-filtered
+  deliberation) and its paired-eval shards, cosmorin V32/Idris replicas, jocelyndumlao vLLM benchmark, getting-started
+  forks. None shows repeated completed LB draws, so none adopted; not read further.
