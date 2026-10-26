@@ -86,7 +86,10 @@ obeys (it submits after the warning in 21-22 of 23 tasks), while added prompt bu
 edit on your next call after the warning" 3 of 23 times (bf-warn), "after an `edit_file` error use one Python fix
 script" after 6 of 236 errors, in 2 tasks (bf-editfb, kernel v25). Second, **a rule can move a failure instead of
 removing it**: removing `edit_file` removed malformed calls (0) but sent `submit_patch` to the shell; an edit-first
-rule turned reproduction loops into search loops (11 no-edit tasks vs 4).
+rule turned reproduction loops into search loops (11 no-edit tasks vs 4). The one bullet that helped offline stated
+a fact about the environment rather than an instruction about behaviour: "a grep with no hits comes back as `status:
+error` with empty output; the text is absent" (bf-nomatch, kernel v26) cut exact repeats of no-match searches from
+30 to 20, total agent time by 24%, and scored 11/33 against the base's 9/33 (a single paired run; its LB days follow).
 
 TODO: occurrence table per run for the main modes (v5.0n, v5.8, budget-fit-off), from the existing trace scripts;
 add the public task-level dataset of 692 runs (dmitriigluzdov, CC BY 4.0) as an external check, with credit.
@@ -127,7 +130,7 @@ highest public scores without any better config.
 **The change that mattered.** On 10-21 we adopted the public "Budget-Fit" reference bundle (verracodeguacas, Apache
 2.0, credited in `experiments/variants/pub-budget-fit.CREDIT.md`): the official starter prompt, temperature 0.2,
 thinking on with a 4096-token budget, 8 min / 28 calls / 80 turns / 240 s per task. We verified by hash that our files
-equal the most-run public file set (10 public draws, mean 10.00). Our own draws of the same files: 10, 9, 8 (mean 9.0)
+equal the most-run public file set (10 public draws, mean 10.00). Our own draws of the same files: 10, 9, 8, 9 (mean 9.0)
 plus one run-specific unhandled error; our best thinking-off configs averaged 5.8-7.0. Offline, with thinking off, the
 same bundle scored 9/33 against 14/33 for our v5.8: **the offline loop ranked the two in the opposite order to the
 leaderboard**, because the variable that matters (thinking on) is the one T4 throughput forced us to remove. An early
@@ -138,7 +141,7 @@ thinking-off runs, so the gain belongs to the bundle as a whole, not to thinking
 take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap for us on its first run and was dropped.
 
 TODO: final LB table for the base and every candidate through 11-08; whether bf-nomatch (Section 4's no-match grep
-finding) held up.
+finding; offline 11/33 vs 9/33, LB days from 10-27) held up on the leaderboard; bf-noedit (no `edit_file`) screen.
 
 ## 7. What we would do differently
 
