@@ -137,7 +137,9 @@ def make_cfg(sub, ev, results_dir, ids):
 
 # Canary: an easy task every normal run solves in 4-7 calls with ~35 output tokens per step. A changed server build
 # once made every call ramble (~250 tokens/step) and every task time out; stop before burning hours on that.
-sub0 = REPO / CFG["variants"][0]; ev0 = yaml.safe_load((sub0 / "eval_config.yaml").read_text()); ev0 = ev0.get("evaluation", ev0)
+# It always runs the fixed thinking-off base twin, so it checks the server, not the variant under test (v27: bf-noedit-off
+# writes edits as Python scripts, median 131 tokens/step, and tripped the old variants[0] canary on a healthy server).
+sub0 = REPO / "experiments/variants/pub-budget-fit-off"; ev0 = yaml.safe_load((sub0 / "eval_config.yaml").read_text()); ev0 = ev0.get("evaluation", ev0)
 can = asyncio.run(Evaluator(make_cfg(sub0, ev0, pathlib.Path("/kaggle/working/results/canary"), ["fastapi_14303"])).run())
 toks = sorted((s.get("metrics") or {}).get("completion_tokens") or 0 for f in glob.glob("/kaggle/working/results/canary/traces/*.json")
               for s in json.load(open(f))["steps"] if s.get("source") == "agent")
