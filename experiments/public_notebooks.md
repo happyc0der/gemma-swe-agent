@@ -131,3 +131,9 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - New in the dateRun listing: robinamirbahar loop-breaker ADK agent, karandeepsinghsodhi SFD (state-filtered
   deliberation) and its paired-eval shards, cosmorin V32/Idris replicas, jocelyndumlao vLLM benchmark, getting-started
   forks. None shows repeated completed LB draws, so none adopted; not read further.
+
+## 2026-10-27 (daily run)
+- Wheelhouse unchanged (10-12 19:51); census dataset unchanged (10-22 12:38).
+- New in the dateRun listing: prvsiyan explainer notebooks, alikalwar lean submission.zip builder and "shortlist-first
+  opening" measurement, jasonxusk fusion repair agent, karandeepsinghsodhi SFD shards, getting-started forks. None
+  shows repeated completed LB draws; none adopted. ryanholbrook Small Model leaderboard: 31B entries are not eligible.
