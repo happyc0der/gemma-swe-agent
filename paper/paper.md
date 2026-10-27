@@ -40,7 +40,9 @@ verification, 0 GPU hours (`experiments/2026-10-03-faithful-sandbox.md`). Sandbo
 scorer's container after an agent's reproduction script grew a string exponentially and OOM-killed the host.
 
 **Model fidelity.** The real 31B (llama.cpp Q4_0, pinned build) runs on the free T4 pair through the official
-Evaluator (`kaggle/eval_faithful/run.py`), with a canary task that must pass before a run counts. T4s generate about
+Evaluator (`kaggle/eval_faithful/run.py`), with a canary task that must pass before a run counts. The canary always runs the fixed base configuration: when it ran
+the variant under test, a variant that edits by writing Python scripts (longer outputs per step by design) tripped the
+token-per-step check on a healthy server and cost 0.6 GPU h. T4s generate about
 4-12 tokens/s, so we scale every time budget by 3 and run with **thinking off**; a 33-task run costs ~4.3-4.5 GPU h
 (`experiments/kaggle_gpu_hours.md`). This makes the loop faithful for thinking-off configurations only (Section 6).
 
@@ -91,8 +93,23 @@ a fact about the environment rather than an instruction about behaviour: "a grep
 error` with empty output; the text is absent" (bf-nomatch, kernel v26) cut exact repeats of no-match searches from
 30 to 20, total agent time by 24%, and scored 11/33 against the base's 9/33 (a single paired run; its LB days follow).
 
-TODO: occurrence table per run for the main modes (v5.0n, v5.8, budget-fit-off), from the existing trace scripts;
-add the public task-level dataset of 692 runs (dmitriigluzdov, CC BY 4.0) as an external check, with credit.
+Occurrence per run on the 33-task holdout, thinking off, one faithful run each (`scripts/taxonomy_table.py`; "exact
+repeated calls" = a tool call identical in name and arguments to an earlier call in the same task):
+
+| run | resolved | agent min | edit_file calls (missing old_string) | run_command calls | no-match greps (exact repeats) | exact repeated calls | `submit_patch` in shell | tasks at call cap | tasks at turn cap | empty patches |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v5.8 prompt (40 calls) | 14/33 | 228 | 0 (0) | 905 | 37 (1) | 128 | 6 | 3 | 0 | 6 |
+| budget-fit-off (v23) | 9/33 | 220 | 164 (128) | 396 | 81 (30) | 281 | 0 | 3 | 2 | 6 |
+| bf-warn-off (v24) | 10/33 | 234 | 328 (287) | 358 | 49 (2) | 389 | 0 | 1 | 4 | 8 |
+| bf-editfb-off (v25) | 7/33 | 228 | 259 (229) | 433 | 65 (5) | 347 | 0 | 2 | 3 | 10 |
+| bf-nomatch-off (v26) | 11/33 | 167 | 184 (149) | 401 | 85 (20) | 282 | 0 | 2 | 2 | 8 |
+
+The table shows the trade described above: the v5.8 prompt (no `edit_file`) has no malformed edits but sends
+`submit_patch` to the shell 6 times, while every budget-fit variant spends 78-88% of its `edit_file` calls on calls
+with no `old_string`. bf-nomatch keeps the no-match count (85) but repeats fewer of them and finishes in 24% less agent
+time.
+
+TODO: add the public task-level dataset of 692 runs (dmitriigluzdov, CC BY 4.0) as an external check, with credit.
 
 ## 5. Prompt iteration offline, and its resolution
 
@@ -130,7 +147,7 @@ highest public scores without any better config.
 **The change that mattered.** On 10-21 we adopted the public "Budget-Fit" reference bundle (verracodeguacas, Apache
 2.0, credited in `experiments/variants/pub-budget-fit.CREDIT.md`): the official starter prompt, temperature 0.2,
 thinking on with a 4096-token budget, 8 min / 28 calls / 80 turns / 240 s per task. We verified by hash that our files
-equal the most-run public file set (10 public draws, mean 10.00). Our own draws of the same files: 10, 9, 8, 9 (mean 9.0)
+equal the most-run public file set (10 public draws, mean 10.00). Our own draws of the same files: 10, 9, 8, 9, 11 (mean 9.4)
 plus one run-specific unhandled error; our best thinking-off configs averaged 5.8-7.0. Offline, with thinking off, the
 same bundle scored 9/33 against 14/33 for our v5.8: **the offline loop ranked the two in the opposite order to the
 leaderboard**, because the variable that matters (thinking on) is the one T4 throughput forced us to remove. An early

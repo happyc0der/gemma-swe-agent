@@ -30,7 +30,11 @@ else: print("failed")
 PY
 }
 # Kaggle allows one pending submission per team; wait for the previous one to finish (until 23:30 UTC today).
-state=$(prev_state)
+# An empty state means the API was unreachable (10-27 00:05: DNS outage lost the day); retry every 10 min for up to 2 h.
+state=$(prev_state); n=0
+while [ -z "$state" ] && [ $n -lt 12 ] && [ "${DRYRUN:-0}" != "1" ]; do
+  echo "[$(date -u)] Kaggle API unreachable; retrying in 10 min" >> $LOG; sleep 600; state=$(prev_state); n=$((n+1))
+done
 while [ "$state" = "pending" ] && [ "${DRYRUN:-0}" != "1" ] && [ "$(date -u +%H%M)" -lt 2330 ]; do
   echo "[$(date -u)] previous submission still pending; waiting 30 min" >> $LOG; sleep 1800; state=$(prev_state)
 done
@@ -40,7 +44,11 @@ if [ -n "$SAFE" ] && [ "$state" = "failed" ]; then DIR=$SAFE; MSG="$MSG [conserv
 [ -f "$DIR/agent.yaml" ] || { echo "[$(date -u)] $KIND: $DIR/agent.yaml missing; nothing submitted" >> $LOG; exit 1; }
 if [ "${DRYRUN:-0}" = "1" ]; then echo "DRYRUN $KIND: dir=$DIR msg=$MSG"; exit 0; fi
 rm -f submission.zip && (cd "$DIR" && zip -qr "$OLDPWD/submission.zip" . -x '.*' -x 'prompts/system_v*.md')
-out=$(kaggle competitions submit -c gemma-4-developer-agent -f submission.zip -m "$MSG" 2>&1); rc=$?
+for try in 1 2 3; do
+  out=$(kaggle competitions submit -c gemma-4-developer-agent -f submission.zip -m "$MSG" 2>&1); rc=$?
+  echo "$out" | grep -qE "ConnectionError|NameResolutionError|Max retries exceeded" || break
+  [ $try -lt 3 ] && { echo "[$(date -u)] submit hit a network error (try $try); retrying in 10 min" >> $LOG; sleep 600; }
+done
 echo "[$(date -u)] $KIND rc=$rc dir=$DIR $out" >> $LOG
 if [ $rc -eq 0 ] && echo "$out" | grep -q "Successfully submitted"; then
   printf '| %s | %s @ %s | %s | pending | submitted by LaunchAgent (%s) |\n' "$(date -u +%Y-%m-%d\ %H:%M)" "$DIR" "$(git rev-parse --short HEAD)" "$MSG" "$KIND" >> experiments/kaggle_submissions.md
