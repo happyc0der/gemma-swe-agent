@@ -137,3 +137,17 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - New in the dateRun listing: prvsiyan explainer notebooks, alikalwar lean submission.zip builder and "shortlist-first
   opening" measurement, jasonxusk fusion repair agent, karandeepsinghsodhi SFD shards, getting-started forks. None
   shows repeated completed LB draws; none adopted. ryanholbrook Small Model leaderboard: 31B entries are not eligible.
+
+## 2026-10-29 (daily run, 13:00 UTC)
+- Wheelhouse unchanged (10-12 19:51); census dataset dariushafshar/gemma-4-agent-public-config-draws unchanged (10-22 12:37).
+- `harshitsama/gemma-4-agent-is-0-24-vs-0-22-real-noise-check` (run 10-28): simulation only, no new LB draws; its
+  conclusion (one run of the same agent moves 1.5-3 tasks; 0.24 = 14 tasks over 6 teams; judge by repeats) matches our
+  own noise analysis (lb_configs.md, paper). Nothing to adopt.
+- `dennis6886/gemma-4-agent-0-18-exact-budget-aware-package` (run 10-27): one more completed draw of flexonafft
+  Budget-Aware v2 V10 files = 0.18 (11/58); that family's census draws were 13, 7, 7, 8, 9, 10, 10, 7, 9 (mean 9.25
+  over 8 before this). Still not above the base's public mean 10.00; not adopted.
+- `prvsiyan/gemma-4-agent-bundles-side-by-side-what-changes` (run 10-29): reads two public ZIPs (flexonafft V10,
+  cosmorin Idris v24 replica), no measurement; mentions one candidate (max_output_tokens 8192 -> 12288, score
+  "pending"). No evidence; not adopted. Idris v24 (claimed 0.24) is author-reported only.
+- Others in the dateRun listing (getting-started forks, E2B LoRA, small-model entries, trace analytics, SFD shards):
+  no repeated completed LB evidence; not read further.
