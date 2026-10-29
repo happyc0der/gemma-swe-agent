@@ -54,6 +54,10 @@ if CFG.get("subset") == "B":
     subset = [iid for iid in hold if iid not in set(subset)]
 elif CFG.get("subset") == "AB":
     subset = subset + [iid for iid in hold if iid not in set(subset)]
+elif CFG.get("subset") == "DEV":   # 33 stable dev tasks (fastapi 19, rich 12, requests 1, httpx 1): a third, unused eval set
+    quota = {"fastapi": 19, "rich": 12, "requests": 1, "httpx": 1}; subset = []
+    for iid in (t for t in splits["dev"] if t not in set(splits["env_unstable"])):
+        if quota.get(iid.split("_")[0], 0) > 0: subset.append(iid); quota[iid.split("_")[0]] -= 1
 log("subset", len(subset), per, "time_scale", CFG["time_scale"])
 
 def make_cfg(sub, results_dir, ids):
@@ -85,7 +89,7 @@ if can.resolved != 1: log("CANARY FAILED: stopping before the main runs"); sys.e
 
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.0: log("SKIP", rel, "(session budget)"); continue
-    sub = REPO / rel; name = "tpu-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB"}.get(CFG.get("subset"), ""))
+    sub = REPO / rel; name = "tpu-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB", "DEV": "-setDEV"}.get(CFG.get("subset"), ""))
     rd = pathlib.Path(f"/kaggle/working/results/{name}")
     ev, cfg = make_cfg(sub, rd, subset)
     log(f"RUN {name}: eval={ev} scaled time={cfg.budget.time_minutes} min, {len(subset)} tasks")

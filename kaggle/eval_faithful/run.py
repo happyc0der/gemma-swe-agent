@@ -5,8 +5,8 @@
 #   the scorer's 4x L4 (so agents get a scorer-like number of tool calls); tasks run sequentially like the scorer.
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"variants": ["experiments/variants/pub-budget-fit-off"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
-       "session_budget_h": 11.0, "subset": "AB"}
+CFG = {"variants": ["experiments/variants/pub-budget-fit-off", "experiments/variants/bf-nomatch-off"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
+       "session_budget_h": 11.0, "subset": "DEV"}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
@@ -121,6 +121,10 @@ if CFG.get("subset") == "B":   # the stable holdout tasks set A never uses (a se
     subset = [iid for iid in hold if iid not in set(subset)]
 elif CFG.get("subset") == "AB":   # all 33 stable holdout tasks (set A first, then set B)
     subset = subset + [iid for iid in hold if iid not in set(subset)]
+elif CFG.get("subset") == "DEV":   # 33 stable dev tasks (fastapi 19, rich 12, requests 1, httpx 1): a third, unused eval set
+    quota = {"fastapi": 19, "rich": 12, "requests": 1, "httpx": 1}; subset = []
+    for iid in (t for t in splits["dev"] if t not in set(splits["env_unstable"])):
+        if quota.get(iid.split("_")[0], 0) > 0: subset.append(iid); quota[iid.split("_")[0]] -= 1
 log("subset", len(subset), per)
 def make_cfg(sub, ev, results_dir, ids):
     adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
@@ -150,7 +154,7 @@ if can.resolved != 1 or not (0 < med <= 120):
 
 for rel in CFG["variants"]:
     if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.5: log("SKIP", rel, "(session budget)"); continue
-    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB"}.get(CFG.get("subset"), ""))
+    sub = REPO / rel; name = "faithful-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB", "DEV": "-setDEV"}.get(CFG.get("subset"), ""))
     ev = yaml.safe_load((sub / "eval_config.yaml").read_text()); ev = ev.get("evaluation", ev)
     adapters = discover_adapters(str(sub), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
     models = setup_gemma_model_registry(api_base="http://127.0.0.1:8000/v1", served_model="gemma-4-31b-it-qat-w4a16-ct", adapter_manifest=adapters)
