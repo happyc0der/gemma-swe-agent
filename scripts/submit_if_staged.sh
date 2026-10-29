@@ -44,10 +44,16 @@ if [ -n "$SAFE" ] && [ "$state" = "failed" ]; then DIR=$SAFE; MSG="$MSG [conserv
 [ -f "$DIR/agent.yaml" ] || { echo "[$(date -u)] $KIND: $DIR/agent.yaml missing; nothing submitted" >> $LOG; exit 1; }
 if [ "${DRYRUN:-0}" = "1" ]; then echo "DRYRUN $KIND: dir=$DIR msg=$MSG"; exit 0; fi
 rm -f submission.zip && (cd "$DIR" && zip -qr "$OLDPWD/submission.zip" . -x '.*' -x 'prompts/system_v*.md')
-for try in 1 2 3; do
-  out=$(kaggle competitions submit -c gemma-4-developer-agent -f submission.zip -m "$MSG" 2>&1); rc=$?
-  echo "$out" | grep -qE "ConnectionError|NameResolutionError|Max retries exceeded" || break
-  [ $try -lt 3 ] && { echo "[$(date -u)] submit hit a network error (try $try); retrying in 10 min" >> $LOG; sleep 600; }
+# Network errors: retry 3 times, 10 min apart. HTTP errors (10-28 00:05: a bare "400 Bad Request" from the CLI lost the
+# day): log Kaggle's error text and retry every 30 min until 23:30 UTC, since the 400s seen so far were transient.
+try=1
+while :; do
+  out=$("$HOME/.local/share/uv/tools/kaggle/bin/python" scripts/kaggle_submit.py submission.zip "$MSG" 2>&1); rc=$?
+  if echo "$out" | grep -qE "ConnectionError|NameResolutionError|Max retries exceeded" && [ $try -lt 3 ]; then
+    echo "[$(date -u)] submit hit a network error (try $try); retrying in 10 min" >> $LOG; sleep 600; try=$((try+1))
+  elif [ $rc -eq 2 ] && [ "$(date -u +%H%M)" -lt 2330 ]; then
+    echo "[$(date -u)] submit refused: $(echo "$out" | tail -1); retrying in 30 min" >> $LOG; sleep 1800
+  else break; fi
 done
 echo "[$(date -u)] $KIND rc=$rc dir=$DIR $out" >> $LOG
 if [ $rc -eq 0 ] && echo "$out" | grep -q "Successfully submitted"; then
