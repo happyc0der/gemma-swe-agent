@@ -1,0 +1,7 @@
+temperature: 1.0
+top_p: 0.95
+top_k: 64
+max_output_tokens: 8192
+thinking_config:
+  include_thoughts: false
+  thinking_level: none   # thinking-off screen of bf-t10 (Gemma's recommended sampling) for the T4 faithful eval; bf-t10 itself keeps thinking_budget 4096
