@@ -18,7 +18,9 @@ MSG=$(sed -n 1p $SRC); DIR=$(sed -n 2p $SRC); DIR=${DIR:-submission}; SAFE=$(sed
 # State of our most recent submission, from the API (the CLI hides errorDescription):
 #   scored | pending (no score, no error) | kaggle_error (system error, capacity) | failed (any other error)
 prev_state() {
-  "$HOME/.local/share/uv/tools/kaggle/bin/python" - <<'PY' 2>/dev/null
+  # Keep only the state word: the kaggle client prints an "outdated version" warning on stdout before the state (10-28 and 10-30: with it
+  # in front, "pending" never matched, the wait was skipped and Kaggle refused the upload with 400 "already has 1 pending").
+  "$HOME/.local/share/uv/tools/kaggle/bin/python" - <<'PY' 2>/dev/null | grep -xE 'scored|pending|kaggle_error|failed' | tail -1
 from kaggle.api.kaggle_api_extended import KaggleApi
 api = KaggleApi(); api.authenticate()
 d = api.competition_submissions("gemma-4-developer-agent")[0].to_dict()
