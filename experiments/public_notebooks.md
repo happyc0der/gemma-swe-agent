@@ -151,3 +151,22 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   "pending"). No evidence; not adopted. Idris v24 (claimed 0.24) is author-reported only.
 - Others in the dateRun listing (getting-started forks, E2B LoRA, small-model entries, trace analytics, SFD shards):
   no repeated completed LB evidence; not read further.
+
+## 2026-10-30 (daily run, 13:00 UTC)
+- Wheelhouse unchanged (10-12 19:51); census dataset dariushafshar/gemma-4-agent-public-config-draws unchanged (10-22 12:38).
+- `cosmorin/gemma-4-timeout300-tools6-lb-0-18-reproduction` (run 10-29): honghanhhh v6 prompt + two settings taken
+  from davis0178's package (team DVS, board 0.22 over 24 submissions): `timeout_seconds` 240 -> 300 and the three graph
+  tools dropped from agent.yaml (6 tools). One completed draw = 0.18 (11/58); the author's previous draws of the same
+  prompt were <= 0.13. Checked against our own base traces (pub-budget-fit-off, 99 tasks over AB, AB rerun and DEV):
+  **0 graph-tool calls and 0 command timeouts**, although the "Code Intelligence Tools" section was present in all 33
+  logs per run. Neither setting has a mechanism in our traces (the only effect of dropping the tools would be three
+  fewer function declarations per step, which vLLM prefix caching already absorbs), so not adopted; one draw at 11 is
+  inside the base's noise band anyway.
+- `victorzhong0110/same-bytes-two-scores` (run 10-30): flexonafft upstream-v8 pack, one archive (sha256 205a677f...)
+  submitted twice: 0.13 and 0.17 (8 vs 10 tasks). Board snapshot 10-28 02:34 UTC: 0.24 x5, 0.22 x48, 0.20 x214,
+  0.18 x562 (ranks 268-829; bronze = top 397, so 0.20 = 12/58 clears it), 0.17 x678. Confirms our noise analysis;
+  useful for the paper's LB-noise section (credit when cited). Nothing to adopt.
+- `victorzhong0110/config-regression-on-a-public-eval-set`, `one-submission-a-day-sampling`: method notebooks on a
+  synthetic benchmark; no LB draws. Others new in the dateRun listing (shipship forks of lb024/baseline, boristown E2B
+  LoRA, denpugovkin before/after check, hl54378 three-tool baseline, dheerajkr1a1a Idris replica): no repeated completed
+  LB evidence; not read further.
