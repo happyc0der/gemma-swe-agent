@@ -1,6 +1,6 @@
 # Kernel v30: pub-budget-fit-off 9/33 vs bf-nomatch-off 10/33 on 33 stable dev tasks (subset DEV)
 
-Pushed 2026-10-29 11:40 UTC, ran 11:0x-19:08 UTC (7.97 GPU h). Subset DEV = the first stable dev tasks by repo
+Pushed and started 2026-10-29 11:10 UTC, finished 19:08 UTC (7.97 GPU h). Subset DEV = the first stable dev tasks by repo
 quota (fastapi 19, rich 12, requests 1, httpx 1), unused since the switch to the public base, so a third independent
 paired set after holdout A and B. Archive: data/faithful_results/bf-pair-DEV (results/, run.log, kernel log).
 
