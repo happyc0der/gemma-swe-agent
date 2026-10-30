@@ -24,36 +24,70 @@ RESULT = {"cfg": CFG}
 def save():
     json.dump(RESULT, open("/kaggle/working/result.json", "w"), indent=1)
 
-# 0. what machine is this
-sh("python3 --version; nproc; free -g | head -2; df -h 2>/dev/null | grep -vE 'tmpfs|overlay /proc' | head -12; ls /dev/accel* /dev/vfio 2>&1 | head; env | grep -iE 'tpu|accel' | head -20")
-disk = max(["/tmp", "/kaggle/tmp", "/kaggle/working", "/root", "/"], key=lambda p: shutil.disk_usage(p).free if os.path.isdir(p) else 0)
-RESULT["disk"] = {"path": disk, "free_gb": round(shutil.disk_usage(disk).free / 1e9)}; log("largest disk", RESULT["disk"]); save()
+# 0. what machine is this. v1 (10-30) died after 1.25 TPU h with no output and no log at all, i.e. the VM itself went
+# down; the likeliest causes are host RAM (62 GB of weights in a RAM-backed /tmp, then loaded again by vLLM) or the
+# 20 GB /kaggle/working output limit. So: record the machine first, keep weights and venvs on a real disk outside
+# /kaggle/working, and watch memory, stopping vLLM before the host runs out so the logs survive.
+r = sh("python3 --version; nproc; free -g; df -hT 2>/dev/null | head -30; grep -E ' (/|/tmp|/kaggle[^ ]*|/root|/mnt[^ ]*) ' /proc/mounts; ls /dev/accel* /dev/vfio 2>&1 | head; env | grep -iE 'tpu|accel' | head -20")
+RESULT["machine"] = r.stdout[-3000:]
+def fstype(path):
+    best, fs = "", "?"
+    for line in open("/proc/mounts"):
+        mnt, typ = line.split()[1:3]
+        if (path == mnt or path.startswith(mnt.rstrip("/") + "/")) and len(mnt) > len(best): best, fs = mnt, typ
+    return fs
+cands = [p for p in ["/kaggle/tmp", "/tmp", "/root", "/mnt", "/"] if os.path.isdir(p)]
+RESULT["disks"] = {p: {"fs": fstype(p), "free_gb": round(shutil.disk_usage(p).free / 1e9)} for p in cands + ["/kaggle/working"] if os.path.isdir(p)}
+big = lambda ps: [p for p in ps if RESULT["disks"][p]["free_gb"] >= 75]   # weights 62.6 GB
+real = [p for p in cands if RESULT["disks"][p]["fs"] not in ("tmpfs", "ramfs")]
+disk = max(big(real) or big(cands) or cands, key=lambda p: RESULT["disks"][p]["free_gb"])   # a RAM disk only if no real one fits
+W = os.path.join(disk, "gemma-work"); os.makedirs(W, exist_ok=True); VV, HV = f"{W}/vv", f"{W}/hv"
+RESULT["disk"] = {"path": W, **RESULT["disks"][disk]}; log("disks", RESULT["disks"], "-> using", RESULT["disk"]); save()
+
+server, cmd, STOP = None, None, {"oom": False}
+def resources():   # every 30 s to res.log (every 5 min also to stdout); kill vLLM if the host is about to run out of RAM
+    global server; i = 0
+    while True:
+        try:
+            m = {l.split(":")[0]: int(l.split()[1]) // 1048576 for l in open("/proc/meminfo") if l.startswith(("MemTotal", "MemAvailable"))}
+            line = f"RES mem avail {m['MemAvailable']}/{m['MemTotal']} GB | {W} free {shutil.disk_usage(W).free // 10**9} GB"
+            if i % 10 == 0: line += " | /kaggle/working " + subprocess.run("du -sm /kaggle/working | cut -f1", shell=True, capture_output=True, text=True, timeout=60).stdout.strip() + " MB"
+            open("/kaggle/working/res.log", "a").write(time.strftime("%H:%M:%S ") + line + "\n")
+            if i % 10 == 0 or m["MemAvailable"] < 24: log(line)
+            if m["MemAvailable"] < 6 and server is not None and server.poll() is None:
+                STOP["oom"] = True; server.kill(); log("LOW MEMORY: killed vLLM to keep the VM (and these logs) alive")
+                RESULT["verdict"] = f"host RAM exhausted ({m['MemAvailable']} of {m['MemTotal']} GB free)"; save()
+        except Exception as e: log("RES error", repr(e)[:200])
+        i += 1; time.sleep(30)
+threading.Thread(target=resources, daemon=True).start()
 
 # 1. venvs: vllm-tpu (server) and the official harness (eval stage)
 sh("python3 -m pip install -q uv 2>&1 | tail -1")
 UV = shutil.which("uv") or os.path.expanduser("~/.local/bin/uv")
-sh(f"{UV} venv -q -p 3.12 --seed /tmp/vv && {UV} pip install -q --python /tmp/vv/bin/python '{CFG['vllm']}' 2>&1 | tail -3", timeout=3600)
-r = sh("/tmp/vv/bin/python -c 'import vllm, jax; print(\"vllm\", vllm.__version__, \"jax\", jax.__version__, jax.devices())' 2>&1 | tail -3", timeout=900)
+sh(f"{UV} venv -q -p 3.12 --seed {VV} && {UV} pip install -q --python {VV}/bin/python '{CFG['vllm']}' 2>&1 | tail -3", timeout=3600)
+r = sh(f"{VV}/bin/python -c 'import vllm, jax; print(\"vllm\", vllm.__version__, \"jax\", jax.__version__, jax.devices())' 2>&1 | tail -3", timeout=900)
 RESULT["vllm_import"] = r.stdout[-600:]; save()
 sh("cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.com/happyc0der/gemma-swe-agent.git && cd gemma-swe-agent && git log --oneline | head -1")
 REPO = "/kaggle/working/gemma-swe-agent"
 
 # 2. weights
-os.environ["HF_HOME"] = f"{disk}/hf"; os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
+if shutil.disk_usage(W).free < 75e9: log("GATE: < 75 GB free for the weights"); RESULT["verdict"] = "no disk"; save(); sys.exit(0)
+os.environ["HF_HOME"] = f"{W}/hf"; os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 t = time.time()
-sh(f"/tmp/vv/bin/python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('google/gemma-4-31B-it-qat-q4_0-unquantized', local_dir='{disk}/gemma31'))\"", timeout=5400)
-RESULT["download_s"] = round(time.time() - t); sh(f"du -sh {disk}/gemma31; df -h {disk} | tail -1"); save()
+sh(f"{VV}/bin/python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('google/gemma-4-31B-it-qat-q4_0-unquantized', local_dir='{W}/gemma31'))\"", timeout=5400)
+RESULT["download_s"] = round(time.time() - t); sh(f"du -sh {W}/gemma31; df -h {W} | tail -1; free -g | head -2"); save()
 
 # 3. vLLM server, scorer flags (max_model_len 32768, gemma4 tool + reasoning parsers); TP over all chips
 NAME = "gemma-4-31b-it-qat-w4a16-ct"; URL = "http://127.0.0.1:8000/v1"
 def server_cmd(tp, limit_mm):
-    c = ["/tmp/vv/bin/vllm", "serve", f"{disk}/gemma31", "--served-model-name", NAME, "--tensor-parallel-size", str(tp),
+    c = [f"{VV}/bin/vllm", "serve", f"{W}/gemma31", "--served-model-name", NAME, "--tensor-parallel-size", str(tp),
          "--max-model-len", "32768", "--enable-auto-tool-choice", "--tool-call-parser", "gemma4", "--reasoning-parser", "gemma4",
          "--host", "127.0.0.1", "--port", "8000", "--max-num-seqs", "4", "--enable-prefix-caching"]
     return c + (["--limit-mm-per-prompt", '{"image": 0, "audio": 0, "video": 0}'] if limit_mm else [])
 def start_server(cmd, tag, wait_s=5400):
     log("starting:", " ".join(cmd))
-    srv = subprocess.Popen(cmd, stdout=open(f"/kaggle/working/vllm-{tag}.log", "a"), stderr=subprocess.STDOUT, env=os.environ)
+    global server
+    srv = server = subprocess.Popen(cmd, stdout=open(f"/kaggle/working/vllm-{tag}.log", "a"), stderr=subprocess.STDOUT, env=os.environ)
     for i in range(wait_s // 15):
         time.sleep(15)
         try: urllib.request.urlopen(URL + "/models", timeout=5).read(); log(f"vLLM up ({tag}) after {(i+1)*15}s"); return srv
@@ -61,16 +95,16 @@ def start_server(cmd, tag, wait_s=5400):
             if srv.poll() is not None:
                 log(f"vLLM died ({tag}):", open(f"/kaggle/working/vllm-{tag}.log").read()[-3000:]); return None
     srv.terminate(); log(f"vLLM not up after {wait_s}s ({tag})"); return None
-r = sh("/tmp/vv/bin/python -c 'import jax; print(len(jax.devices()), jax.devices()[0].device_kind)'", timeout=600)
+r = sh(f"{VV}/bin/python -c 'import jax; print(len(jax.devices()), jax.devices()[0].device_kind)'", timeout=600)
 try: n_chips, kind = int(r.stdout.split()[0]), " ".join(r.stdout.split()[1:])
 except Exception: n_chips, kind = 8, "?"
 RESULT["tpu"] = {"chips": n_chips, "kind": kind}; save()
-server, cmd = None, None
 for tp, mm in [(n_chips, True), (n_chips, False), (max(4, n_chips // 2), True)]:
+    if STOP["oom"]: break
     cmd = server_cmd(tp, mm); t = time.time(); server = start_server(cmd, f"tp{tp}{'-mm0' if mm else ''}")
     if server: RESULT["server"] = {"cmd": cmd, "startup_s": round(time.time() - t)}; break
 save()
-if server is None: log("GATE: vLLM did not start on this TPU"); RESULT["verdict"] = "server failed"; save(); sys.exit(0)
+if server is None: log("GATE: vLLM did not start on this TPU"); RESULT["verdict"] = RESULT.get("verdict") or "server failed"; save(); sys.exit(0)
 sh("tail -5 /kaggle/working/vllm-*.log")
 
 # 4. checks and benchmark
@@ -132,13 +166,14 @@ def watchdog():
     global server; n = 0
     while True:
         time.sleep(30)
+        if STOP["oom"]: return
         if server.poll() is not None:
             n += 1; log(f"WATCHDOG: vLLM exited rc={server.returncode}; restarting"); server = start_server(cmd, f"restart{n}")
             if server is None: return
 threading.Thread(target=watchdog, daemon=True).start()
-sh(f"{UV} venv -q -p 3.12 --seed /tmp/hv", timeout=600)
-env = dict(os.environ, PATH="/tmp/hv/bin:" + os.environ["PATH"], VIRTUAL_ENV="/tmp/hv")
+sh(f"{UV} venv -q -p 3.12 --seed {HV}", timeout=600)
+env = dict(os.environ, PATH=f"{HV}/bin:" + os.environ["PATH"], VIRTUAL_ENV=HV)
 stage = {**CFG, "time_scale": scale, "t0": T0}
-p = subprocess.run(["/tmp/hv/bin/python", f"{REPO}/kaggle/eval_tpu/eval_stage.py", json.dumps(stage)], env=env, cwd="/kaggle/working")
+p = subprocess.run([f"{HV}/bin/python", f"{REPO}/kaggle/eval_tpu/eval_stage.py", json.dumps(stage)], env=env, cwd="/kaggle/working")
 log(f"stage 2 exited rc={p.returncode}"); RESULT["verdict"] = f"stage 2 rc={p.returncode}"; save()
 server.terminate(); log(f"ALL_DONE after {(time.time()-T0)/3600:.2f} h")
