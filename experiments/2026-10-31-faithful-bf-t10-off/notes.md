@@ -13,8 +13,8 @@ Proxy for bf-t10 (the same change on the thinking-on base). Data: data/faithful_
 
 - Score: level with the base (9 and 12; one run moves by ~3).
 - Mechanism: a large, clear change. Verbatim repeated calls fall from ~30% to 13%, no task runs into the 80-turn cap,
-  first edits come earlier and the run is ~19% faster. Of the base's 5 solved-in-both tasks it lost fastapi_15589 and
-  gained fastapi_12942; it solved fastapi_14360 (base 1 of 2) and missed fastapi_5624 and requests_7427 (base 1 of 2).
+  first edits come earlier and the run is ~19% faster. Of the 9 tasks the base solved in both runs it lost only fastapi_15589, and it
+  gained fastapi_12942 (base 0 of 2); it solved fastapi_14360 (base 1 of 2) and missed fastapi_5624 and requests_7427 (base 1 of 2).
 - Neither llama-server's log nor the traces record the sampling parameters, so whether top_k 64 reached the model is
   unverified (litellm.drop_params can drop it on the OpenAI-compatible route); the repeat drop shows temperature did.
 
