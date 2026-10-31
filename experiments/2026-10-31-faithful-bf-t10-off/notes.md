@@ -20,3 +20,19 @@ Proxy for bf-t10 (the same change on the thinking-on base). Data: data/faithful_
 
 Not a regression (> 7/33), so v33 runs it on subset DEV (33 stable dev tasks; base-off DEV = 9/33, 242 min), pushed
 10-31 ~03:40 UTC.
+
+## v33: subset DEV (33 stable dev tasks), ran 04:08-07:50 UTC 10-31 (~3.7 GPU h)
+
+| run | solved | exact repeated calls | dead-term repeats | no-edit | median first edit | agent time |
+|---|---|---|---|---|---|---|
+| base-off DEV (v30) | 9/33 | 516/1058 (49%) | 3 | 7 | 19 | 242 min |
+| bf-nomatch-off DEV (v30) | 10/33 | 308/862 (36%) | 4 | 11 | 19 | 200 min |
+| **bf-t10-off DEV (v33)** | **7/33** | 275/944 (29%) | 32 | 2 | 15 | 221 min |
+
+It lost three tasks that both other runs solved (fastapi_14349, httpx_3672, rich_3043) and gained only rich_2725
+(bf-nomatch also solved it). Pooled over the 66 tasks: 17 vs ~19.5 for the base (AB mean 10.5 + DEV 9).
+
+## Decision
+
+**Withdrawn** under the rule set before v33 (DEV <= 7/33 -> withdraw). Higher temperature breaks verbatim loops and
+gets edits in earlier, but it also loses precision on tasks the base solves reliably. bf-t10 (thinking on) gets no LB days.
