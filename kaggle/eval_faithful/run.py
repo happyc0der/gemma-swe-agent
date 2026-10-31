@@ -6,7 +6,7 @@
 import asyncio, glob, json, os, pathlib, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
 CFG = {"variants": ["experiments/variants/bf-t10-off"], "time_scale": 3.0, "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
-       "session_budget_h": 11.0, "subset": "AB"}
+       "session_budget_h": 11.0, "subset": "DEV"}
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
     s = time.strftime("%H:%M:%S ") + " ".join(str(x) for x in a); print(s, flush=True); LOG.write(s + "\n")
