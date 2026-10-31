@@ -10,7 +10,8 @@ import json, os, shutil, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
 CFG = {"variants": ["experiments/variants/pub-budget-fit", "experiments/variants/bf-nomatch"], "subset": "AB",
        "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
-       "scorer_decode_tps": 33.0, "session_budget_h": 8.5, "probe_only": False, "vllm": "vllm-tpu==0.32.0"}
+       "scorer_decode_tps": 33.0, "session_budget_h": 8.5, "probe_only": False, "vllm": "vllm-tpu==0.32.0",
+       "diag_exit_min": 45}   # > 0: stop everything and exit cleanly after this many minutes (see the note at step 0)
 os.makedirs("/kaggle/working", exist_ok=True)
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
@@ -28,7 +29,13 @@ def save():
 # down; the likeliest causes are host RAM (62 GB of weights in a RAM-backed /tmp, then loaded again by vLLM) or the
 # 20 GB /kaggle/working output limit. So: record the machine first, keep weights and venvs on a real disk outside
 # /kaggle/working, and watch memory, stopping vLLM before the host runs out so the logs survive.
-r = sh("python3 --version; nproc; free -g; df -hT 2>/dev/null | head -30; grep -E ' (/|/tmp|/kaggle[^ ]*|/root|/mnt[^ ]*) ' /proc/mounts; ls /dev/accel* /dev/vfio 2>&1 | head; env | grep -iE 'tpu|accel' | head -20")
+# v2 (10-31) died the same way after 1.30 TPU h (v1: 1.25 h), again with no files and an empty log, so the RAM guard
+# never fired or its logs died with the session. /proc/meminfo shows the host, but a container is killed at its own
+# cgroup limit, so the guard now also watches the cgroup's non-reclaimable memory (anon + shmem). And while the cause is
+# unknown, diag_exit_min makes the run leave on its own well before the ~75 min mark, so Kaggle saves run.log, res.log
+# and result.json and we learn how far it got (venvs, download, vLLM load) and what memory looked like.
+r = sh("python3 --version; nproc; free -g; df -hT 2>/dev/null | head -30; grep -E ' (/|/tmp|/kaggle[^ ]*|/root|/mnt[^ ]*) ' /proc/mounts; ls /dev/accel* /dev/vfio 2>&1 | head; env | grep -iE 'tpu|accel' | head -20; "
+       "cat /proc/self/cgroup; for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/pids.max; do echo $f $(cat $f 2>&1); done; ulimit -a | head -20")
 RESULT["machine"] = r.stdout[-3000:]
 def fstype(path):
     best, fs = "", "?"
@@ -45,21 +52,54 @@ W = os.path.join(disk, "gemma-work"); os.makedirs(W, exist_ok=True); VV, HV = f"
 RESULT["disk"] = {"path": W, **RESULT["disks"][disk]}; log("disks", RESULT["disks"], "-> using", RESULT["disk"]); save()
 
 server, cmd, STOP = None, None, {"oom": False}
-def resources():   # every 30 s to res.log (every 5 min also to stdout); kill vLLM if the host is about to run out of RAM
+def cgroup():   # (limit GB or None, non-reclaimable GB = anon + shmem, all charged GB incl. page cache) for cgroup v2 or v1
+    for d, v2 in [("/sys/fs/cgroup", True), ("/sys/fs/cgroup/memory", False)]:
+        try:
+            st = {l.split()[0]: int(l.split()[1]) for l in open(f"{d}/memory.stat")}
+            lim = open(f"{d}/memory.max" if v2 else f"{d}/memory.limit_in_bytes").read().strip()
+            lim = None if lim == "max" or int(lim) > 1 << 60 else int(lim) / 2**30
+            hard = st.get("anon", 0) + st.get("shmem", 0) if v2 else st.get("total_rss", st.get("rss", 0)) + st.get("total_shmem", st.get("shmem", 0))
+            cur = int(open(f"{d}/memory.current" if v2 else f"{d}/memory.usage_in_bytes").read())
+            return lim, hard / 2**30, cur / 2**30
+        except Exception: pass
+    return None, None, None
+def resources():   # every 15 s to res.log (every 5 min also to stdout); kill vLLM before the host or the container runs out
     global server; i = 0
     while True:
         try:
             m = {l.split(":")[0]: int(l.split()[1]) // 1048576 for l in open("/proc/meminfo") if l.startswith(("MemTotal", "MemAvailable"))}
-            line = f"RES mem avail {m['MemAvailable']}/{m['MemTotal']} GB | {W} free {shutil.disk_usage(W).free // 10**9} GB"
-            if i % 10 == 0: line += " | /kaggle/working " + subprocess.run("du -sm /kaggle/working | cut -f1", shell=True, capture_output=True, text=True, timeout=60).stdout.strip() + " MB"
+            lim, hard, cur = cgroup()
+            room = min(m["MemAvailable"], lim - hard if lim else 1e9)
+            line = (f"RES host avail {m['MemAvailable']}/{m['MemTotal']} GB | cgroup limit {lim and round(lim)} anon+shmem {hard and round(hard, 1)} "
+                    f"charged {cur and round(cur, 1)} GB | room {round(room, 1)} GB | {W} free {shutil.disk_usage(W).free // 10**9} GB")
+            if i % 4 == 0: line += " | du " + subprocess.run(f"du -sm {W}/gemma31 /kaggle/working 2>/dev/null | cut -f1 | tr '\\n' ' '", shell=True, capture_output=True, text=True, timeout=60).stdout.strip() + " MB"
             open("/kaggle/working/res.log", "a").write(time.strftime("%H:%M:%S ") + line + "\n")
-            if i % 10 == 0 or m["MemAvailable"] < 24: log(line)
-            if m["MemAvailable"] < 6 and server is not None and server.poll() is None:
+            if i % 20 == 0 or room < 24: log(line)
+            if room < 8 and server is not None and server.poll() is None:
                 STOP["oom"] = True; server.kill(); log("LOW MEMORY: killed vLLM to keep the VM (and these logs) alive")
-                RESULT["verdict"] = f"host RAM exhausted ({m['MemAvailable']} of {m['MemTotal']} GB free)"; save()
+                RESULT["verdict"] = f"memory exhausted ({line})"; save()
         except Exception as e: log("RES error", repr(e)[:200])
-        i += 1; time.sleep(30)
+        i += 1; time.sleep(15)
 threading.Thread(target=resources, daemon=True).start()
+def diag_exit():   # leave cleanly before the point where v1 and v2 died, so Kaggle saves this session's files
+    time.sleep(CFG["diag_exit_min"] * 60)
+    log(f"DIAG EXIT after {CFG['diag_exit_min']} min: stopping everything so the outputs are saved")
+    try: sh(f"du -sm {W}/* 2>/dev/null; df -h {W} /kaggle/working | tail -2; free -g | head -2; ps aux --sort=-rss | head -8 | cut -c1-200", timeout=120)
+    except Exception as e: log("diag report error", repr(e)[:200])
+    RESULT["verdict"] = RESULT.get("verdict") or f"diag exit after {CFG['diag_exit_min']} min"; save()
+    kids, doomed, todo = {}, set(), [os.getpid()]   # kill our whole process tree (pip/uv, the download, vLLM and its workers)
+    for p in filter(str.isdigit, os.listdir("/proc")):   # plus anything else still running from W (e.g. reparented workers)
+        try:
+            kids.setdefault(int(open(f"/proc/{p}/stat").read().rsplit(")", 1)[1].split()[1]), []).append(int(p))
+            if W in open(f"/proc/{p}/cmdline", "rb").read().decode(errors="ignore"): doomed.add(int(p))
+        except Exception: pass
+    while todo:
+        for c in kids.get(todo.pop(), []): doomed.add(c); todo.append(c)
+    for pid in doomed - {os.getpid()}:
+        try: os.kill(pid, 9)
+        except Exception: pass
+    LOG.flush(); os._exit(0)
+if CFG.get("diag_exit_min"): threading.Thread(target=diag_exit, daemon=True).start()
 
 # 1. venvs: vllm-tpu (server) and the official harness (eval stage)
 sh("python3 -m pip install -q uv 2>&1 | tail -1")
