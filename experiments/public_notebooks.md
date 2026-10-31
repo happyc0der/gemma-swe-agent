@@ -170,3 +170,28 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   synthetic benchmark; no LB draws. Others new in the dateRun listing (shipship forks of lb024/baseline, boristown E2B
   LoRA, denpugovkin before/after check, hl54378 three-tool baseline, dheerajkr1a1a Idris replica): no repeated completed
   LB evidence; not read further.
+
+## 2026-10-31 (daily run, 13:00 UTC)
+- Wheelhouse unchanged (both pages of `kaggle datasets files`, newest 10-12 19:51 UTC).
+- `navyadevadiga/gemma4-swe-agent-t8-static` (run 10-31, Apache 2.0): a static bundle with 3 tools (run_command,
+  read_file, submit_patch), temp 0.3 / top_p 0.95 / top_k 64, **thinking_budget 256** + include_thoughts, 8 min / 25
+  calls / 40 turns / 240 s, edits via Python scripts in run_command. Author-reported **0.20 (10-23) and 0.15 (10-28)
+  with identical files** (12 and 9 of 58; mean 10.5 over 2, within noise of the base's 10.0 over 10). Two completed
+  draws is not enough to adopt the bundle, but it is independent evidence that a very short thinking budget does not
+  hurt, which supports bf-think2k (queued for 11-01, 11-05, 11-09). Credited in lb_configs.md.
+- `fabrianivan/gemma-4-swe-agents-three-paradoxes-ca-hgr` (paper-track notebook, run 10-31): claims (data, not
+  reproduced by us) (a) v19 vs v24 archives with byte-identical agent.yaml / eval_config / prompt, differing only in
+  sampling (temp 0.2 vs 1.0 / top_p 0.95 / top_k 64): LB 0.18 vs 0.24, one draw each; mechanism given: repetition
+  loops inside the thought channel at low temperature; (b) a compaction cliff (resolution 48% -> 26% -> 13% at 0/1/2
+  history compactions over 487 trajectories; threshold 14,336 tokens) and a first-edit window (steps 5-12: 43-48%
+  resolved vs 24% later); (c) LoRA r=16 SFT on SWE-smith/SWE-rebench trajectories lowered loss but cut paired 46-task
+  resolution from 39% to 28% and 20%. (a) is the reason bf-t10 is reinstated for LB days (its notes.md); (b) goes
+  into the paper's external-check paragraph with credit; (c) agrees with our decision to leave LoRA alone.
+- `alepacheco/graphread-reproduce` (run 10-31): CPU reproduction of a paper on whether Gemma 4 can read the harness's
+  graph tools; counts graph-tool calls in three public trace sets. Consistent with our 0 graph-tool calls in 2683
+  calls; nothing to adopt.
+- `victorzhong0110/pricing-your-change-offline-to-leaderboard`, `kaggle-medal-cutoff-and-expert-tier-tracker` (run
+  10-31): method notebooks (offline-to-LB transfer ratio on a synthetic benchmark; medal cut-off arithmetic: bronze =
+  top 100 for 250-999 teams, top 10% above 1000; ties go to the earlier submission). No LB draws; nothing to adopt.
+- Others new in the listing (shipship v3, emmanuelmirekumensah honghanhhh config, GemmaLoc, E4B taxonomy, graph
+  benchmark): no repeated completed LB evidence; not read further.

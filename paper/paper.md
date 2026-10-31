@@ -3,7 +3,7 @@
 Keshav Rajput (Kaggle `dankaxon`, GitHub `happyc0der`). Solo entry, Google - The Gemma 4 Developer Agent Competition.
 Code and every run: https://github.com/happyc0der/gemma-swe-agent
 
-**Status: first draft, 2026-10-25** (written by the daily routine from `paper/outline.md` and `experiments/`; numbers
+**Status: draft, 2026-10-25, external check added 2026-10-31** (written by the daily routine from `paper/outline.md` and `experiments/`; numbers
 are final up to that date; sections marked TODO are filled in before 2026-11-09).
 
 ## Abstract
@@ -109,7 +109,18 @@ The table shows the trade described above: the v5.8 prompt (no `edit_file`) has 
 with no `old_string`. bf-nomatch keeps the no-match count (85) but repeats fewer of them and finishes in 24% less agent
 time.
 
-TODO: add the public task-level dataset of 692 runs (dmitriigluzdov, CC BY 4.0) as an external check, with credit.
+**External check against public data.** Two public analyses from other harness setups show the same shape (both
+author-reported; we did not re-run them). Dmitrii Gluzdov's task-level dataset of 692 local 31B runs (CC BY 4.0,
+`dmitriigluzdov/gemma-4-serving-and-lora-verification-kit`), as summarised in Aleksei Provorov's notebook
+`leoprovorov/single-agent-anytime-patch`: 194 of 692 runs (28%) ended with no patch, of which 75 were context
+overflows (all empty patches), 52 timeouts without an edit and 53 runs that stopped without editing; and the
+thinking-on prompt there resolved 37 of 71 runs that used at most 14 calls against 2 of 43 that used 15-20. Fabrian
+Ivan Prasetya's paper-track notebook `fabrianivan/gemma-4-swe-agents-three-paradoxes-ca-hgr`: over 487 instrumented
+trajectories, resolution fell from 48% with no history compaction to 26% after one and 13% after two (the harness
+compacts the history above 14,336 context tokens, which drops the verbatim issue text), and runs whose first edit
+landed in steps 5-12 resolved 43-48% against 24% later. Both agree with our no-edit tasks (4-11 of 33 per run) and
+with the `budget_warning` finding: a run that has not edited by mid-budget rarely recovers, and long tool outputs
+cost twice, once in time and again when the compacted history loses the task.
 
 ## 5. Prompt iteration offline, and its resolution
 
