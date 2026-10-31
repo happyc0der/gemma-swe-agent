@@ -123,3 +123,5 @@ Quota week from Sat 10-24 00:00 UTC (updated 10-30 13:05 UTC, `kaggle quota`: GP
 Quota week from Sat 10-31 00:00 UTC (`kaggle quota` 00:03 UTC: GPU 0 of 30, TPU 0 of 20; the TPU v1 1.25 h counted last week): v32 = bf-t10-off on AB (est. ~4 h) pushed 10-31 00:03 UTC, QUEUED. TPU v2 still QUEUED (pushed 10-30 01:50 UTC). Collect v32 to data/faithful_results/bf-t10-off-AB.
 
 Week from 10-31 (updated 10-31 03:40 UTC, `kaggle quota`: GPU 3.45 h used of 30): v32 (bf-t10-off AB) = 3.45 h, **10/33**, repeats 13% vs ~30% for the base, agent time 173 vs 216 min (experiments/2026-10-31-faithful-bf-t10-off), collected to data/faithful_results/bf-t10-off-AB. v33 = bf-t10-off on DEV pushed 10-31 ~03:40 UTC (est. 3.5-4 h). Collect v33 to data/faithful_results/bf-t10-off-DEV.
+
+TPU (updated 10-31 07:30 UTC, `kaggle quota`: TPU 1.30 h used of 20 this week, GPU 7.13 of 30): TPU v2 queued ~28 h, ran ~05:50-07:10 UTC 10-31 and died like v1 (ERROR, no files, empty log) after 1.30 TPU h. v3 (diagnostic exit at 45 min, cgroup memory guard; experiments/2026-10-30-tpu-v1/v2-v3.md) pushed 10-31 07:25 UTC, QUEUED. GPU: v33 (bf-t10-off DEV) RUNNING.
