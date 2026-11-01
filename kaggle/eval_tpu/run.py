@@ -11,7 +11,7 @@ T0 = time.time()
 CFG = {"variants": ["experiments/variants/pub-budget-fit", "experiments/variants/bf-nomatch"], "subset": "AB",
        "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
        "scorer_decode_tps": 33.0, "session_budget_h": 8.5, "probe_only": False, "vllm": "vllm-tpu==0.32.0",
-       "diag_exit_min": 45}   # > 0: stop everything and exit cleanly after this many minutes (see the note at step 0)
+       "diag_exit_min": 120}   # > 0: if vLLM is not serving after this many minutes, stop everything and exit cleanly
 os.makedirs("/kaggle/working", exist_ok=True)
 LOG = open("/kaggle/working/run.log", "a", buffering=1)
 def log(*a):
@@ -34,9 +34,15 @@ def save():
 # cgroup limit, so the guard now also watches the cgroup's non-reclaimable memory (anon + shmem). And while the cause is
 # unknown, diag_exit_min makes the run leave on its own well before the ~75 min mark, so Kaggle saves run.log, res.log
 # and result.json and we learn how far it got (venvs, download, vLLM load) and what memory looked like.
+# v3 (11-01) exited at 45 min as planned and its files came back: 377 GB RAM (cgroup limit 330 GB), 1.09 TB free on the
+# overlay disk, so neither RAM nor disk space is the problem. The disk is: the download put ~47 GB into the page cache
+# within a minute, then grew at ~25 MB/s as writeback throttled it, never returned after the last byte (15:21-15:51) and
+# a plain `du` there hung > 120 s. A ~60 GB dirty backlog on a slow disk stalls all I/O, which would also stop Kaggle
+# from saving outputs. So the weights now go to RAM (/dev/shm, else a tmpfs mount), or failing both, to disk one file
+# at a time with a sync after each so the backlog stays at one shard; res.log records Dirty/Writeback.
 r = sh("python3 --version; nproc; free -g; df -hT 2>/dev/null | head -30; grep -E ' (/|/tmp|/kaggle[^ ]*|/root|/mnt[^ ]*) ' /proc/mounts; ls /dev/accel* /dev/vfio 2>&1 | head; env | grep -iE 'tpu|accel' | head -20; "
-       "cat /proc/self/cgroup; for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/pids.max; do echo $f $(cat $f 2>&1); done; ulimit -a | head -20")
-RESULT["machine"] = r.stdout[-3000:]
+       "cat /proc/self/cgroup; for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/pids.max; do echo $f $(cat $f 2>&1); done; ulimit -a | head -20; df -h /dev/shm")
+RESULT["machine"] = r.stdout[:2000] + "\n...\n" + r.stdout[-3000:]
 def fstype(path):
     best, fs = "", "?"
     for line in open("/proc/mounts"):
@@ -49,6 +55,7 @@ big = lambda ps: [p for p in ps if RESULT["disks"][p]["free_gb"] >= 75]   # weig
 real = [p for p in cands if RESULT["disks"][p]["fs"] not in ("tmpfs", "ramfs")]
 disk = max(big(real) or big(cands) or cands, key=lambda p: RESULT["disks"][p]["free_gb"])   # a RAM disk only if no real one fits
 W = os.path.join(disk, "gemma-work"); os.makedirs(W, exist_ok=True); VV, HV = f"{W}/vv", f"{W}/hv"
+WD = f"{W}/gemma31"   # the weights dir; step 2 moves it to RAM when it can
 RESULT["disk"] = {"path": W, **RESULT["disks"][disk]}; log("disks", RESULT["disks"], "-> using", RESULT["disk"]); save()
 
 server, cmd, STOP = None, None, {"oom": False}
@@ -67,12 +74,12 @@ def resources():   # every 15 s to res.log (every 5 min also to stdout); kill vL
     global server; i = 0
     while True:
         try:
-            m = {l.split(":")[0]: int(l.split()[1]) // 1048576 for l in open("/proc/meminfo") if l.startswith(("MemTotal", "MemAvailable"))}
+            m = {l.split(":")[0]: int(l.split()[1]) // 1048576 for l in open("/proc/meminfo") if l.startswith(("MemTotal", "MemAvailable", "Dirty", "Writeback:"))}
             lim, hard, cur = cgroup()
             room = min(m["MemAvailable"], lim - hard if lim else 1e9)
             line = (f"RES host avail {m['MemAvailable']}/{m['MemTotal']} GB | cgroup limit {lim and round(lim)} anon+shmem {hard and round(hard, 1)} "
-                    f"charged {cur and round(cur, 1)} GB | room {round(room, 1)} GB | {W} free {shutil.disk_usage(W).free // 10**9} GB")
-            if i % 4 == 0: line += " | du " + subprocess.run(f"du -sm {W}/gemma31 /kaggle/working 2>/dev/null | cut -f1 | tr '\\n' ' '", shell=True, capture_output=True, text=True, timeout=60).stdout.strip() + " MB"
+                    f"charged {cur and round(cur, 1)} GB | room {round(room, 1)} GB | dirty {m.get('Dirty')} writeback {m.get('Writeback')} GB | {W} free {shutil.disk_usage(W).free // 10**9} GB")
+            if i % 4 == 0: line += " | du " + subprocess.run(f"du -sm {WD} /kaggle/working 2>/dev/null | cut -f1 | tr '\\n' ' '", shell=True, capture_output=True, text=True, timeout=60).stdout.strip() + " MB"
             open("/kaggle/working/res.log", "a").write(time.strftime("%H:%M:%S ") + line + "\n")
             if i % 20 == 0 or room < 24: log(line)
             if room < 8 and server is not None and server.poll() is None:
@@ -81,8 +88,9 @@ def resources():   # every 15 s to res.log (every 5 min also to stdout); kill vL
         except Exception as e: log("RES error", repr(e)[:200])
         i += 1; time.sleep(15)
 threading.Thread(target=resources, daemon=True).start()
-def diag_exit():   # leave cleanly before the point where v1 and v2 died, so Kaggle saves this session's files
+def diag_exit():   # leave cleanly if vLLM is not serving by then (a hang before that point loses every file otherwise)
     time.sleep(CFG["diag_exit_min"] * 60)
+    if "server" in RESULT: return
     log(f"DIAG EXIT after {CFG['diag_exit_min']} min: stopping everything so the outputs are saved")
     try: sh(f"du -sm {W}/* 2>/dev/null; df -h {W} /kaggle/working | tail -2; free -g | head -2; ps aux --sort=-rss | head -8 | cut -c1-200", timeout=120)
     except Exception as e: log("diag report error", repr(e)[:200])
@@ -111,16 +119,32 @@ sh("cd /kaggle/working && rm -rf gemma-swe-agent && git clone -q https://github.
 REPO = "/kaggle/working/gemma-swe-agent"
 
 # 2. weights
-if shutil.disk_usage(W).free < 75e9: log("GATE: < 75 GB free for the weights"); RESULT["verdict"] = "no disk"; save(); sys.exit(0)
-os.environ["HF_HOME"] = f"{W}/hf"; os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
-t = time.time()
-sh(f"{VV}/bin/python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('google/gemma-4-31B-it-qat-q4_0-unquantized', local_dir='{W}/gemma31'))\"", timeout=5400)
-RESULT["download_s"] = round(time.time() - t); sh(f"du -sh {W}/gemma31; df -h {W} | tail -1; free -g | head -2"); save()
+def ram_dir():   # weights in RAM: /dev/shm if it is big enough, else our own tmpfs (needs mount rights), else None
+    if os.path.isdir("/dev/shm") and shutil.disk_usage("/dev/shm").free >= 75e9: return "/dev/shm/gemma31"
+    os.makedirs("/kaggle/ram", exist_ok=True)
+    if sh("mount -t tmpfs -o size=80g tmpfs /kaggle/ram && df -h /kaggle/ram | tail -1").returncode == 0 and shutil.disk_usage("/kaggle/ram").free >= 75e9:
+        return "/kaggle/ram/gemma31"
+WD = ram_dir() or f"{W}/gemma31"; RESULT["weights_dir"] = WD; log("weights ->", WD); save()
+if not WD.startswith(("/dev/shm", "/kaggle/ram")) and shutil.disk_usage(W).free < 75e9: log("GATE: < 75 GB free for the weights"); RESULT["verdict"] = "no disk"; save(); sys.exit(0)
+os.environ["HF_HOME"] = f"{W}/hf"; os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"; os.environ["HF_XET_CHUNK_CACHE_SIZE_BYTES"] = "0"
+t = time.time()   # one file at a time, synced, with its size and time logged (on a RAM dir the sync is free)
+dl = f"""import os, sys, time
+from huggingface_hub import HfApi, hf_hub_download
+repo, wd = "google/gemma-4-31B-it-qat-q4_0-unquantized", {WD!r}
+files = sorted(HfApi().list_repo_files(repo), key=lambda f: f.endswith(".safetensors"))
+for f in files:
+    t = time.time(); p = hf_hub_download(repo, f, local_dir=wd); os.sync()
+    print(f"{{f}} {{os.path.getsize(p) / 1e9:.2f}} GB {{time.time() - t:.0f}} s", flush=True)
+"""
+open(f"{W}/dl.py", "w").write(dl)
+r = sh(f"{VV}/bin/python {W}/dl.py 2>&1 | grep -v Warning | tail -40", timeout=5400)
+RESULT["download_s"] = round(time.time() - t); RESULT["download_log"] = r.stdout[-2500:]
+sh(f"du -sh {WD}; df -h {WD} | tail -1; free -g | head -2", timeout=300); save()
 
 # 3. vLLM server, scorer flags (max_model_len 32768, gemma4 tool + reasoning parsers); TP over all chips
 NAME = "gemma-4-31b-it-qat-w4a16-ct"; URL = "http://127.0.0.1:8000/v1"
 def server_cmd(tp, limit_mm):
-    c = [f"{VV}/bin/vllm", "serve", f"{W}/gemma31", "--served-model-name", NAME, "--tensor-parallel-size", str(tp),
+    c = [f"{VV}/bin/vllm", "serve", WD, "--served-model-name", NAME, "--tensor-parallel-size", str(tp),
          "--max-model-len", "32768", "--enable-auto-tool-choice", "--tool-call-parser", "gemma4", "--reasoning-parser", "gemma4",
          "--host", "127.0.0.1", "--port", "8000", "--max-num-seqs", "4", "--enable-prefix-caching"]
     return c + (["--limit-mm-per-prompt", '{"image": 0, "audio": 0, "video": 0}'] if limit_mm else [])
