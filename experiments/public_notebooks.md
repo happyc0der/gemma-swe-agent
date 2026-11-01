@@ -195,3 +195,18 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   top 100 for 250-999 teams, top 10% above 1000; ties go to the earlier submission). No LB draws; nothing to adopt.
 - Others new in the listing (shipship v3, emmanuelmirekumensah honghanhhh config, GemmaLoc, E4B taxonomy, graph
   benchmark): no repeated completed LB evidence; not read further.
+
+## 2026-11-01 (daily run, 14:00 UTC)
+- Wheelhouse unchanged (newest file 10-12 19:51 UTC).
+- `prvsiyan/gemma-4-agent-bundles-side-by-side-what-changes` and `what-s-in-the-bundle` (run 11-01): static
+  bundle-anatomy notebooks on the flexonafft lineage. Their own lane: best completed 0.18, latest 0.12 (an
+  "output-cap" candidate, one draw); seven one-setting candidates (top_p 0.96, timeout 150, temperature 0.18, call cap
+  44, turn cap 104, 12B with 1.5x thinking) all unscored. Board-top snapshot 0.29 on 10-31 23:36 UTC (data). Nothing
+  to adopt.
+- `victorzhong0110/config-regression-on-a-public-eval-set` (run 10-31): method notebook (paired comparison on a
+  scoreable set, "same code, different score"); no LB draws; agrees with our noise analysis. Nothing to adopt.
+- Others new in the listing (boristown E2B LoRA baseline, trnvnhin 31B LoRA SFT v1, krishnakumarbhat, zfayfay,
+  abhaychaudhary01, mohammadalrashed, alepacheco testsel): no repeated completed LB evidence; not read further.
+- Checked whether the ADK history compaction that fabrianivan links to failures (48% -> 26% -> 13% resolved at 0/1/2
+  compactions) is a bundle setting: `grep -ri compaction` over adk_submission and adk_eval_core finds it only in the
+  trace/viewer code, so a bundle cannot change the compaction threshold; no candidate from it.
