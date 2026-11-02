@@ -133,3 +133,5 @@ Week from 10-31 (updated 10-31 13:05 UTC, `kaggle quota`: GPU 7.70 h used of 30,
 Week from 10-31 (updated 11-01 14:00 UTC, `kaggle quota`: GPU 7.70 h used of 30, TPU 1.30 of 20): no kernel pushed. faithful-eval COMPLETE (nothing new to collect). TPU v3 (diagnostic exit at 45 min) still QUEUED since 10-31 07:25 UTC (~31 h; v1 and v2 each queued 21-28 h); collect to data/tpu_results/v3 when it ends.
 
 TPU (updated 11-01 16:55 UTC, `kaggle quota`: TPU 2.61 h used of 20, GPU 7.70 of 30): v3 (diagnostic) queued ~31 h, ran 15:06-15:53 UTC 11-01 = 1.31 h and exited at 45 min as designed, files saved: RAM 377 GB and disk 1.09 TB are fine; the disk writes at ~25 MB/s and a 60 GB dirty backlog stalls all I/O (experiments/2026-10-30-tpu-v1/v2-v3.md). v4 (weights in /dev/shm or tmpfs, else synced per file; full run) pushed 11-01 16:50 UTC, QUEUED.
+
+Week from 10-31 (updated 11-02 14:00 UTC, `kaggle quota`: GPU 7.70 h used of 30, TPU 2.61 of 20): no kernel pushed. faithful-eval COMPLETE (nothing to collect). TPU v4 (full run, weights in /dev/shm) QUEUED since 11-01 16:50 UTC (~21 h); collect to data/tpu_results/v4 when it ends.

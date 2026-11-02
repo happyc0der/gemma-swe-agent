@@ -210,3 +210,22 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - Checked whether the ADK history compaction that fabrianivan links to failures (48% -> 26% -> 13% resolved at 0/1/2
   compactions) is a bundle setting: `grep -ri compaction` over adk_submission and adk_eval_core finds it only in the
   trace/viewer code, so a bundle cannot change the compaction threshold; no candidate from it.
+
+## 2026-11-02 (daily run, 14:00 UTC)
+- Wheelhouse unchanged (newest file 10-12 19:51 UTC).
+- `leoprovorov/single-agent-anytime-patch` (run 11-01, 17 votes): budget-fit lineage (via a contract-first fork), prompt-only
+  edits: first best-guess edit by the 8th call (was 12th), "keep every tool result small" (read_file <= 80 lines, head/tail),
+  "think in one or two sentences while reading". Not measured on the LB (the notebook says so). Its evidence is Gluzdov's
+  692 local runs: 28% no patch; thinking-on v4 resolved 52% when done within 14 calls, 5% at 15-20 calls. We checked
+  the same split on our 99 base-off tasks (experiments/2026-11-02-first-edit-analysis): first edit by call 12 -> 24/37
+  solved, later -> 6/45, never -> 0/17; the base prompt's own "edit by call 12" rule is not obeyed (median first edit
+  17-20), so a prompt-number change is not adopted. Credit if any later candidate uses the idea.
+- `leoprovorov/score-to-gemma-4` (48 votes): writes the budget-fit file set unchanged (sha c9829b6a, = our base),
+  expects ~0.17 (0.13-0.20) from the census; also notes a one-line contract check on a neighbouring base scored 0.15
+  once and that a 0.22 was the best of eight draws averaging 0.156. Agrees with our noise analysis; nothing to adopt.
+- `emmanuelmirekumensah/gemma-flexonafft-budget-v2`: SuperAgent adaptation 0.18 once; this candidate unscored. Nothing to adopt.
+- `designmasterdms/where-the-fix-lives`, `jagadish2740/anchor-propagate-pack-reproducing-the-paper` (E4B localisation
+  and graph-ranking studies), `ryanholbrook/...small-model-leaderboard` (official, small-model board): no bundle
+  config evidence; not adopted.
+- Others new in the listing (anhtunnguyen, alfira17, ziadsamer, visuartestudio, zikangzhou, harigov63, tersoouganden,
+  smitbailwal, rishikeshbharatkoli, hariom28, krishnakumarbhat, aryasumant): no repeated completed LB evidence.

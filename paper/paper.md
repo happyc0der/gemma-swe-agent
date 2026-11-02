@@ -122,6 +122,15 @@ landed in steps 5-12 resolved 43-48% against 24% later. Both agree with our no-e
 with the `budget_warning` finding: a run that has not edited by mid-budget rarely recovers, and long tool outputs
 cost twice, once in time and again when the compacted history loses the task.
 
+**Our own measurement of the same split** (2026-11-02, `experiments/2026-11-02-first-edit-analysis`): over the 99
+official-harness tasks of the budget-fit prompt with thinking off (three 33-task runs: 9, 12 and 9 resolved), tasks
+whose first source edit came by call 12 resolved 24 of 37 (65%), tasks that edited later 6 of 45 (13%), and the 17
+tasks that never edited 0. By total calls: 14 of 18 tasks that finished within 14 calls resolved (78%), 16 of 63 at
+15-28 calls (25%), 0 of 18 that ran to the 80-turn cap. The prompt in those runs already says "by your 12th tool
+call you must have edited a source file", yet the median first edit is call 17-20: the rule is stated and not obeyed,
+which is the compliance point above measured on a different instruction. Part of the correlation is selection (easy
+tasks are edited early), so this is a map of where the misses are, not proof that an earlier edit would convert them.
+
 ## 5. Prompt iteration offline, and its resolution
 
 Thinking-off variants on the 33-task holdout (set AB), each a single faithful run:
@@ -196,4 +205,5 @@ a per-config tally in `experiments/lb_configs.md`. Kaggle kernel: `dankaxon/gemm
 ## Credits
 
 Budget-fit reference bundle: verracodeguacas (Apache 2.0). Public config census: dariushafshar. Task-level run dataset
-cited in Section 4: dmitriigluzdov (CC BY 4.0). Harness and data: the competition organizers.
+cited in Section 4: dmitriigluzdov (CC BY 4.0), as summarised by leoprovorov; compaction and first-edit
+analysis: fabrianivan. Harness and data: the competition organizers.
