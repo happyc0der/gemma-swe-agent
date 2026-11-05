@@ -24,7 +24,8 @@ def wheel(prefix):
     return str(c[-1])
 sh(f"python3 -m pip install -q {wheel('google_genai')} {wheel('google_adk')} 2>&1 | tail -2", timeout=1800)
 sh(f"python3 -m pip install -q --no-deps {wheel('swegemma')} {wheel('adk_submission')} {wheel('adk_eval_core')}", timeout=600)
-sh("python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub pyyaml 2>&1 | tail -2", timeout=1800)
+# rich, numpy, pandas: the T4 image has them preinstalled, this fresh venv does not (v4 died on `import rich`); --no-deps above skips them.
+sh("python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub pyyaml rich numpy pandas 2>&1 | tail -2", timeout=1800)
 REPO = pathlib.Path("/kaggle/working/gemma-swe-agent"); sys.path.insert(0, str(REPO / "kaggle"))
 import logging; logging.basicConfig(level=logging.WARNING)
 import faithful_sandbox as fs
@@ -46,19 +47,21 @@ NAME = "gemma-4-31b-it-qat-w4a16-ct"; API = "http://127.0.0.1:8000/v1"
 splits = json.loads((REPO / "experiments/splits.json").read_text())
 hold = [t for t in splits["holdout"] if t not in set(splits["env_unstable"])]
 tasks = {t.instance_id: t for t in load_tasks(pathlib.Path(tasks_file))}
-subset, per = [], {}
-for iid in hold:
-    r = tasks[iid].repo
-    if per.get(r, 0) < CFG["n_per_repo"].get(r, 0): subset.append(iid); per[r] = per.get(r, 0) + 1
-if CFG.get("subset") == "B":
-    subset = [iid for iid in hold if iid not in set(subset)]
-elif CFG.get("subset") == "AB":
-    subset = subset + [iid for iid in hold if iid not in set(subset)]
-elif CFG.get("subset") == "DEV":   # 33 stable dev tasks (fastapi 19, rich 12, requests 1, httpx 1): a third, unused eval set
-    quota = {"fastapi": 19, "rich": 12, "requests": 1, "httpx": 1}; subset = []
-    for iid in (t for t in splits["dev"] if t not in set(splits["env_unstable"])):
-        if quota.get(iid.split("_")[0], 0) > 0: subset.append(iid); quota[iid.split("_")[0]] -= 1
-log("subset", len(subset), per, "time_scale", CFG["time_scale"])
+def subset_ids(which):
+    subset, per = [], {}
+    for iid in hold:
+        r = tasks[iid].repo
+        if per.get(r, 0) < CFG["n_per_repo"].get(r, 0): subset.append(iid); per[r] = per.get(r, 0) + 1
+    if which == "B":
+        subset = [iid for iid in hold if iid not in set(subset)]
+    elif which == "AB":
+        subset = subset + [iid for iid in hold if iid not in set(subset)]
+    elif which == "DEV":   # 33 stable dev tasks (fastapi 19, rich 12, requests 1, httpx 1): a third, unused eval set
+        quota = {"fastapi": 19, "rich": 12, "requests": 1, "httpx": 1}; subset = []
+        for iid in (t for t in splits["dev"] if t not in set(splits["env_unstable"])):
+            if quota.get(iid.split("_")[0], 0) > 0: subset.append(iid); quota[iid.split("_")[0]] -= 1
+    return subset
+log("runs", CFG["runs"], "time_scale", CFG["time_scale"])
 
 def make_cfg(sub, results_dir, ids):
     ev = yaml.safe_load((sub / "eval_config.yaml").read_text()); ev = ev.get("evaluation", ev)
@@ -85,11 +88,13 @@ sub0 = REPO / "experiments/variants/pub-budget-fit"
 _, c0 = make_cfg(sub0, pathlib.Path("/kaggle/working/results/canary"), ["fastapi_14303"])
 t = time.time(); can = asyncio.run(Evaluator(c0).run())
 log(f"CANARY fastapi_14303 (thinking on): resolved {can.resolved}/{can.total} in {time.time()-t:.0f}s", step_stats("/kaggle/working/results/canary"))
-if can.resolved != 1: log("CANARY FAILED: stopping before the main runs"); sys.exit(1)
+if can.resolved != 1:
+    log("CANARY FAILED: stopping before the main runs"); sh("cd /kaggle/working/results && tar -czf /kaggle/working/canary.tgz canary"); sys.exit(1)
 
-for rel in CFG["variants"]:
-    if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.0: log("SKIP", rel, "(session budget)"); continue
-    sub = REPO / rel; name = "tpu-" + pathlib.Path(rel).name + ({"B": "-setB", "AB": "-setAB", "DEV": "-setDEV"}.get(CFG.get("subset"), ""))
+for rel, which in CFG["runs"]:   # each run is [variant dir, subset]; a pair's second half is skipped only if the session runs out
+    if (time.time() - T0) / 3600 > CFG["session_budget_h"] - 3.0: log("SKIP", rel, which, "(session budget)"); continue
+    subset = subset_ids(which)
+    sub = REPO / rel; name = "tpu-" + pathlib.Path(rel).name + {"B": "-setB", "AB": "-setAB", "DEV": "-setDEV"}.get(which, "")
     rd = pathlib.Path(f"/kaggle/working/results/{name}")
     ev, cfg = make_cfg(sub, rd, subset)
     log(f"RUN {name}: eval={ev} scaled time={cfg.budget.time_minutes} min, {len(subset)} tasks")
