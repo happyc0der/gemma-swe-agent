@@ -234,7 +234,7 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 
 - `pablodiegoo/gemma-4-paper-l4-decode-law-12-call-cliff`: paper-track notebook citing the 692-run census. Its "leftover
   reproducer scripts contaminate `git diff`" trap (also honghanhhh's v6 edit 3 and alexust's scratch-file line) checked on
-  our 66 base-off tasks (bf-off-AB + bf-pair-DEV, 18 resolved): 21 of 48 task patches carry a new repro script, and those
+  our 66 base-off tasks (bf-off-AB + bf-pair-DEV, 18 resolved): 21 of 47 non-empty patches carry a new repro script, and those
   solve **more** often (11/21 vs 7/26 clean), so stray scripts are not sinking tasks here. Not a candidate.
 - `alexust/one-bundle-three-outcomes-0-24-0-17-no-score`: the honghanhhh bundle byte for byte drew 0.24, 0.17 and "exceeded
   the allowed runtime"; its 7-minute variant finished at 0.15. Their 101 timed local runs put the 8-minute cap at about 12 h

@@ -181,7 +181,7 @@ take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap f
 
 | Config | Draws | n | Mean |
 |---|---|---|---|
-| v5.0n (our best prompt, tuned on the thinking-off eval) | 6, 4, 6, 6, 5, 7, 6, 4, 6, 7, 5, 7, 7 | 13 | 5.85 |
+| v5.0n (our own prompt, tuned on the thinking-off eval) | 6, 4, 6, 6, 5, 7, 6, 4, 6, 7, 5, 7, 7 | 13 | 5.85 |
 | v5.8 | 7 | 1 | 7.0 |
 | pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, plus one run-specific "unhandled error" | 8 | 9.63 |
 | bf-nomatch (base + no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
@@ -194,8 +194,8 @@ withdrawn after one screen (8/33 vs 9/33).
 
 **A thinking-on eval on a TPU v5e-8.** The last gap in our loop was the scorer's thinking-on configuration. Kaggle's free
 TPU v5e-8 can serve the 31B through vLLM (vllm-tpu 0.32.0): 64 tok/s decode on an 11.7k-token prompt, thinking and tool
-parsing correct. Three runs died with no output before we found why: writing 62.6 GB of weights to a disk that sustains
-~25 MB/s leaves a ~60 GB dirty-page backlog that stalls all I/O, and the session's output saving with it. Holding the
+parsing correct. Two runs died with no output before a diagnostic run that exits early showed why: writing 62.6 GB of weights to a disk
+that sustains ~25 MB/s leaves a ~60 GB dirty-page backlog that stalls all I/O, most likely the session's output saving too. Holding the
 weights in /dev/shm fixed that (download 51 s). The backend does not enforce `thinking_token_budget` (a budget of 64
 returned 542 reasoning tokens), so this lane can compare sampling and prompt changes but not thinking budgets.
 
