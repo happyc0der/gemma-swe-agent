@@ -229,3 +229,18 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   config evidence; not adopted.
 - Others new in the listing (anhtunnguyen, alfira17, ziadsamer, visuartestudio, zikangzhou, harigov63, tersoouganden,
   smitbailwal, rishikeshbharatkoli, hariom28, krishnakumarbhat, aryasumant): no repeated completed LB evidence.
+
+## 2026-11-05 (daily run; notebook text read as data)
+
+- `pablodiegoo/gemma-4-paper-l4-decode-law-12-call-cliff`: paper-track notebook citing the 692-run census. Its "leftover
+  reproducer scripts contaminate `git diff`" trap (also honghanhhh's v6 edit 3 and alexust's scratch-file line) checked on
+  our 66 base-off tasks (bf-off-AB + bf-pair-DEV, 18 resolved): 21 of 48 task patches carry a new repro script, and those
+  solve **more** often (11/21 vs 7/26 clean), so stray scripts are not sinking tasks here. Not a candidate.
+- `alexust/one-bundle-three-outcomes-0-24-0-17-no-score`: the honghanhhh bundle byte for byte drew 0.24, 0.17 and "exceeded
+  the allowed runtime"; its 7-minute variant finished at 0.15. Their 101 timed local runs put the 8-minute cap at about 12 h
+  for 120 tasks. Same caps as our base, which has never hit the cap in 9 LB runs; keep watching for that error.
+- `dennis6886/gemma-budget-evidence-fusion-1105` (one more decision rule on the flexonafft lineage; says itself that it is
+  unverified), `tomaszszyrowski/gemma4-zero-bloat-repo-agent` (local workflow plus a bundle; no repeated LB draws): not adopted.
+- Board 11-05 (4788 teams): top 0.29 once, then nine at 0.24 with a median of 21 submissions, five of them dated 11-04; we are
+  rank 888 at 0.18 with 38 submissions. Best-of-many-draws explains most of this; no public config with repeated draws
+  above our base has appeared. Nothing to adopt.

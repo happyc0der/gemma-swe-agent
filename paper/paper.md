@@ -3,7 +3,7 @@
 Keshav Rajput (Kaggle `dankaxon`, GitHub `happyc0der`). Solo entry, Google - The Gemma 4 Developer Agent Competition.
 Code and every run: https://github.com/happyc0der/gemma-swe-agent
 
-**Status: draft, 2026-10-25, external check added 2026-10-31** (written by the daily routine from `paper/outline.md` and `experiments/`; numbers
+**Status: draft, 2026-10-25, external check added 2026-10-31, leaderboard table added 2026-11-05** (written by the daily routine from `paper/outline.md` and `experiments/`; numbers
 are final up to that date; sections marked TODO are filled in before 2026-11-09).
 
 ## Abstract
@@ -177,8 +177,27 @@ thinking-off runs, so the gain belongs to the bundle as a whole, not to thinking
 **Runtime.** The 8-minute family fits the 12 h cap only because most tasks stop early: 116 tasks at the full cap would
 take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap for us on its first run and was dropped.
 
-TODO: final LB table for the base and every candidate through 11-08; whether bf-nomatch (Section 4's no-match grep
-finding; offline 11/33 vs 9/33, LB days from 10-27) held up on the leaderboard; bf-noedit (no `edit_file`) screen.
+**Leaderboard by config, through 2026-11-05** (solved of 58 public tasks per completed run; refreshed before submission):
+
+| Config | Draws | n | Mean |
+|---|---|---|---|
+| v5.0n (our best prompt, tuned on the thinking-off eval) | 6, 4, 6, 6, 5, 7, 6, 4, 6, 7, 5, 7, 7 | 13 | 5.85 |
+| v5.8 | 7 | 1 | 7.0 |
+| pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, plus one run-specific "unhandled error" | 8 | 9.63 |
+| bf-nomatch (base + no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
+| bf-think2k (base, thinking budget 2048) | 10; two more due | 1 | 10.0 |
+| bf-t10 (base, temperature 1.0 / top_p 0.95 / top_k 64) | 8; two more due | 1 | 8.0 |
+
+bf-nomatch is the clearest case against our thinking-off proxy: level offline (31/99 vs 30/99 for the base's thinking-off
+twin, with 12% less agent time), yet both its leaderboard draws fell below the base's mean. bf-noedit (no `edit_file`) was
+withdrawn after one screen (8/33 vs 9/33).
+
+**A thinking-on eval on a TPU v5e-8.** The last gap in our loop was the scorer's thinking-on configuration. Kaggle's free
+TPU v5e-8 can serve the 31B through vLLM (vllm-tpu 0.32.0): 64 tok/s decode on an 11.7k-token prompt, thinking and tool
+parsing correct. Three runs died with no output before we found why: writing 62.6 GB of weights to a disk that sustains
+~25 MB/s leaves a ~60 GB dirty-page backlog that stalls all I/O, and the session's output saving with it. Holding the
+weights in /dev/shm fixed that (download 51 s). The backend does not enforce `thinking_token_budget` (a budget of 64
+returned 542 reasoning tokens), so this lane can compare sampling and prompt changes but not thinking budgets.
 
 ## 7. What we would do differently
 
