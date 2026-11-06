@@ -177,7 +177,7 @@ thinking-off runs, so the gain belongs to the bundle as a whole, not to thinking
 **Runtime.** The 8-minute family fits the 12 h cap only because most tasks stop early: 116 tasks at the full cap would
 take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap for us on its first run and was dropped.
 
-**Leaderboard by config, through 2026-11-05** (solved of 58 public tasks per completed run; refreshed before submission):
+**Leaderboard by config, through 2026-11-06** (solved of 58 public tasks per completed run; refreshed before submission):
 
 | Config | Draws | n | Mean |
 |---|---|---|---|
@@ -185,7 +185,7 @@ take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap f
 | v5.8 | 7 | 1 | 7.0 |
 | pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, plus one run-specific "unhandled error" | 8 | 9.63 |
 | bf-nomatch (base + no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
-| bf-think2k (base, thinking budget 2048) | 10; two more due | 1 | 10.0 |
+| bf-think2k (base, thinking budget 2048) | 10, 10; one more due | 2 | 10.0 |
 | bf-t10 (base, temperature 1.0 / top_p 0.95 / top_k 64) | 8; two more due | 1 | 8.0 |
 
 bf-nomatch is the clearest case against our thinking-off proxy: level offline (31/99 vs 30/99 for the base's thinking-off

@@ -244,3 +244,14 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - Board 11-05 (4788 teams): top 0.29 once, then nine at 0.24 with a median of 21 submissions, five of them dated 11-04; we are
   rank 888 at 0.18 with 38 submissions. Best-of-many-draws explains most of this; no public config with repeated draws
   above our base has appeared. Nothing to adopt.
+
+## 2026-11-06 (daily run; notebook text read as data)
+
+- `robinamirbahar/optimizing-w4a16-thinking-budgets-under-time-caps` (paper track): a "240-run" thinking-budget sweep loaded
+  from CSV files the notebook ships; no bundle, no LB draws, nothing reproducible against the scorer. Not adopted. Its
+  topic matches our bf-think2k / bf-think1k line, whose evidence stays our own LB draws plus navyadevadiga T8.
+- `robinamirbahar/gemma-4-loop-breaker-adk-agent` (17 votes) and its CCR/Trap-25 companions: loop-breaker agent; no
+  repeated completed LB draws shown. Not adopted.
+- Others new (engziadsamer, michaelflorida, pablodiegoo paper starter, hinam74, vianneykakooza, tomaszszyrowski AST
+  ensemble, nooktablet E4B SFT/eval set, pikler, primalhost, kawh1111, quangleealex, krisshah123): no repeated
+  completed LB evidence for a 31B bundle config. Nothing adopted.
