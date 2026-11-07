@@ -25,7 +25,7 @@ def wheel(prefix):
 sh(f"python3 -m pip install -q {wheel('google_genai')} {wheel('google_adk')} 2>&1 | tail -2", timeout=1800)
 sh(f"python3 -m pip install -q --no-deps {wheel('swegemma')} {wheel('adk_submission')} {wheel('adk_eval_core')}", timeout=600)
 # rich, numpy, pandas: the T4 image has them preinstalled, this fresh venv does not (v4 died on `import rich`); --no-deps above skips them.
-sh("python3 -m pip install -q litellm docker networkx cachetools python-dotenv huggingface_hub pyyaml rich numpy pandas 2>&1 | tail -2", timeout=1800)
+sh("python3 -m pip install -q litellm==1.104.2 docker networkx cachetools python-dotenv huggingface_hub pyyaml rich numpy pandas 2>&1 | tail -2", timeout=1800)
 REPO = pathlib.Path("/kaggle/working/gemma-swe-agent"); sys.path.insert(0, str(REPO / "kaggle"))
 import logging; logging.basicConfig(level=logging.WARNING)
 import faithful_sandbox as fs
