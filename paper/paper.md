@@ -177,16 +177,16 @@ thinking-off runs, so the gain belongs to the bundle as a whole, not to thinking
 **Runtime.** The 8-minute family fits the 12 h cap only because most tasks stop early: 116 tasks at the full cap would
 take ~15.7 h. A related public bundle ("contract-first") exceeded the 12 h cap for us on its first run and was dropped.
 
-**Leaderboard by config, through 2026-11-06** (solved of 58 public tasks per completed run; refreshed before submission):
+**Leaderboard by config, through 2026-11-07** (solved of 58 public tasks per completed run; refreshed before submission):
 
 | Config | Draws | n | Mean |
 |---|---|---|---|
 | v5.0n (our own prompt, tuned on the thinking-off eval) | 6, 4, 6, 6, 5, 7, 6, 4, 6, 7, 5, 7, 7 | 13 | 5.85 |
 | v5.8 | 7 | 1 | 7.0 |
-| pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, plus one run-specific "unhandled error" | 8 | 9.63 |
+| pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, 10, plus one run-specific "unhandled error" | 9 | 9.67 |
 | bf-nomatch (base + no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
 | bf-think2k (base, thinking budget 2048) | 10, 10; one more due | 2 | 10.0 |
-| bf-t10 (base, temperature 1.0 / top_p 0.95 / top_k 64) | 8; two more due | 1 | 8.0 |
+| bf-t10 (base, temperature 1.0 / top_p 0.95 / top_k 64) | 8; day 2 scoring, one more due | 1 | 8.0 |
 
 bf-nomatch is the clearest case against our thinking-off proxy: level offline (31/99 vs 30/99 for the base's thinking-off
 twin, with 12% less agent time), yet both its leaderboard draws fell below the base's mean. bf-noedit (no `edit_file`) was
@@ -197,7 +197,11 @@ TPU v5e-8 can serve the 31B through vLLM (vllm-tpu 0.32.0): 64 tok/s decode on a
 parsing correct. Two runs died with no output before a diagnostic run that exits early showed why: writing 62.6 GB of weights to a disk
 that sustains ~25 MB/s leaves a ~60 GB dirty-page backlog that stalls all I/O, most likely the session's output saving too. Holding the
 weights in /dev/shm fixed that (download 51 s). The backend does not enforce `thinking_token_budget` (a budget of 64
-returned 542 reasoning tokens), so this lane can compare sampling and prompt changes but not thinking budgets.
+returned 542 reasoning tokens), so this lane can compare sampling and prompt changes but not thinking budgets. A further
+run failed at its canary for a reason worth recording for anyone rebuilding the harness outside the scorer image: an
+unpinned `pip install litellm` pulled a release that imports `mcp.types.CacheableResult` (mcp >= 2.2), while the
+wheelhouse's google-adk requires mcp < 2, so every model call failed before reaching the server; pinning litellm to the
+version we compile with fixed it.
 
 ## 7. What we would do differently
 

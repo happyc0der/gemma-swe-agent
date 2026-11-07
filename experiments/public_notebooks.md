@@ -255,3 +255,13 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
 - Others new (engziadsamer, michaelflorida, pablodiegoo paper starter, hinam74, vianneykakooza, tomaszszyrowski AST
   ensemble, nooktablet E4B SFT/eval set, pikler, primalhost, kawh1111, quangleealex, krisshah123): no repeated
   completed LB evidence for a 31B bundle config. Nothing adopted.
+
+## 2026-11-07 (daily run; notebook text read as data)
+
+- `haroldcooper2/gemma-4-exp5-output8192-budgetfit`: budget-fit-style bundle with a longer graph-first, context-guard
+  prompt and a larger output budget; no LB draws shown. Not adopted.
+- Others new (janholoubek paper-repro a/b, madhanmohankumar lexical anchors, giuseppecastelluccio GemmaLoc,
+  niraberman commit anatomy / find-early-commit-late, grandmastashake edit gate, liuchun1232325 localization,
+  alepacheco graphread, munirghanem, namng74, starksource, spiritofvishwakarma, itsailos, apihpih E4B, ryanholbrook
+  small-model board): paper-track write-ups or unscored bundles; no repeated completed LB evidence for a 31B bundle
+  config. Nothing adopted.
