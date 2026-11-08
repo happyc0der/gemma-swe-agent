@@ -163,10 +163,11 @@ tasks at the full 8 min would take ~15.7 h); a related public bundle exceeded th
 | bf-nomatch (no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
 | bf-think2k (thinking budget 2048) | 10, 10 | 2 | 10.0 |
 | bf-t10 (temperature 1.0 / top_p 0.95 / top_k 64) | 8, 10 | 2 | 9.0 |
+| bf-think1k (thinking budget 1024) | 12 | 1 | 12.0 |
 
 bf-nomatch is the clearest case against the thinking-off proxy: level offline (31/99 vs 30/99 for the base's
 thinking-off twin, with 12% less agent time), yet both its draws fell below the base mean. Further runs of bf-think2k,
-bf-t10 and a 1024-token budget are scoring as this is written.
+bf-t10 and bf-think1k are scoring as this is written.
 
 **A thinking-on lane on a free TPU v5e-8.** To close the gap we served the 31B with vllm-tpu 0.32.0 (bf16 QAT
 weights): 64 tok/s decode on an 11.7k-token prompt, thinking and tool parsing correct, so time budgets need scaling by
