@@ -152,7 +152,7 @@ us to remove. Our own prompt with thinking on scored 7/58, within noise of its t
 to the bundle as a whole, not to thinking alone. The bundle fits the 12 h cap only because most tasks stop early (116
 tasks at the full 8 min would take ~15.7 h); a related public bundle exceeded the cap on its first run.
 
-**Leaderboard by config, through 2026-11-08** (solved of 58 public tasks per completed run; full log in
+**Leaderboard by config, through 2026-11-09** (solved of 58 public tasks per completed run; full log in
 `experiments/kaggle_submissions.md`):
 
 | config | draws | n | mean |
@@ -161,13 +161,13 @@ tasks at the full 8 min would take ~15.7 h); a related public bundle exceeded th
 | v5.8 | 7 | 1 | 7.0 |
 | pub-budget-fit (base) | 10, 9, 8, 9, 11, 10, 11, 9, 10, plus one run-specific error | 9 | 9.67 |
 | bf-nomatch (no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
-| bf-think2k (thinking budget 2048) | 10, 10 | 2 | 10.0 |
+| bf-think2k (thinking budget 2048) | 10, 10, 9 | 3 | 9.67 |
 | bf-t10 (temperature 1.0 / top_p 0.95 / top_k 64) | 8, 10 | 2 | 9.0 |
 | bf-think1k (thinking budget 1024) | 12 | 1 | 12.0 |
 
 bf-nomatch is the clearest case against the thinking-off proxy: level offline (31/99 vs 30/99 for the base's
-thinking-off twin, with 12% less agent time), yet both its draws fell below the base mean. Further runs of bf-think2k,
-bf-t10 and bf-think1k are scoring as this is written.
+thinking-off twin, with 12% less agent time), yet both its draws fell below the base mean. bf-think2k ended level with the base;
+further runs of bf-t10 and bf-think1k are scoring as this is written.
 
 **A thinking-on lane on a free TPU v5e-8.** To close the gap we served the 31B with vllm-tpu 0.32.0 (bf16 QAT
 weights): 64 tok/s decode on an 11.7k-token prompt, thinking and tool parsing correct, so time budgets need scaling by
