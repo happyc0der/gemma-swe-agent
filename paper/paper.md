@@ -152,7 +152,7 @@ us to remove. Our own prompt with thinking on scored 7/58, within noise of its t
 to the bundle as a whole, not to thinking alone. The bundle fits the 12 h cap only because most tasks stop early (116
 tasks at the full 8 min would take ~15.7 h); a related public bundle exceeded the cap on its first run.
 
-**Leaderboard by config, through 2026-11-09** (solved of 58 public tasks per completed run; full log in
+**Leaderboard by config, through 2026-11-10** (solved of 58 public tasks per completed run; full log in
 `experiments/kaggle_submissions.md`):
 
 | config | draws | n | mean |
@@ -163,7 +163,7 @@ tasks at the full 8 min would take ~15.7 h); a related public bundle exceeded th
 | bf-nomatch (no-match grep bullet) | 8, 7; dropped | 2 | 7.5 |
 | bf-think2k (thinking budget 2048) | 10, 10, 9 | 3 | 9.67 |
 | bf-t10 (temperature 1.0 / top_p 0.95 / top_k 64) | 8, 10 | 2 | 9.0 |
-| bf-think1k (thinking budget 1024) | 12 | 1 | 12.0 |
+| bf-think1k (thinking budget 1024) | 12, 9 | 2 | 10.5 |
 
 bf-nomatch is the clearest case against the thinking-off proxy: level offline (31/99 vs 30/99 for the base's
 thinking-off twin, with 12% less agent time), yet both its draws fell below the base mean. bf-think2k ended level with the base;

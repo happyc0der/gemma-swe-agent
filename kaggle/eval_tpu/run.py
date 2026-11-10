@@ -8,8 +8,8 @@
 #   official Evaluator, max_time_minutes scaled by scorer_decode_tps / measured decode tok/s.
 import json, os, shutil, subprocess, sys, threading, time, urllib.request
 T0 = time.time()
-CFG = {"runs": [["experiments/variants/pub-budget-fit", "AB"], ["experiments/variants/bf-t10", "AB"],
-                ["experiments/variants/pub-budget-fit", "DEV"], ["experiments/variants/bf-t10", "DEV"]],
+CFG = {"runs": [["experiments/variants/bf-lean", "AB"], ["experiments/variants/bf-lean", "DEV"],   # v7; three runs fit a session
+                ["experiments/variants/bf-t10", "DEV"], ["experiments/variants/pub-budget-fit", "AB"]],
        "n_per_repo": {"fastapi/fastapi": 8, "psf/requests": 4, "Textualize/rich": 4},
        "scorer_decode_tps": 33.0, "session_budget_h": 8.5, "probe_only": False, "vllm": "vllm-tpu==0.32.0",
        "diag_exit_min": 120}   # > 0: if vLLM is not serving after this many minutes, stop everything and exit cleanly
