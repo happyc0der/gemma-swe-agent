@@ -265,3 +265,5 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   alepacheco graphread, munirghanem, namng74, starksource, spiritofvishwakarma, itsailos, apihpih E4B, ryanholbrook
   small-model board): paper-track write-ups or unscored bundles; no repeated completed LB evidence for a 31B bundle
   config. Nothing adopted.
+
+- 2026-11-10: ccuuuuy "LB 0.22 | 4 config files, no training" writes the budget-fit bundle with digest c9829b6ac709, i.e. byte-identical to our base (pub-budget-fit). Its title claims one 0.22 draw (13/58), inside the base's known spread (8-11 in our 9 draws, one public 13 in the family). Nothing to adopt. Other new titles (code-graph toolkit audit, Evidence-per-Token reproduction, Repair Lab, RepoMem) carry no repeated LB draws.
