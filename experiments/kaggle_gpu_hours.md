@@ -141,3 +141,5 @@ TPU (updated 11-05 14:10 UTC, `kaggle quota`: TPU 2.94 h used of 20, GPU 7.70 of
 TPU (updated 11-07 14:10 UTC, `kaggle quota`: week from 11-07 TPU 0.51 h used of 20, GPU 0.00 of 30): v5 queued ~36 h, ran ~02:00-02:34 UTC 11-07 = 0.51 h; vLLM fine, canary died on a litellm/mcp import clash (unpinned litellm 1.108.2 vs ADK's mcp 1.30; experiments/2026-11-07-tpu-v5/notes.md). v6 (litellm==1.104.2 pinned, same plan: base and bf-t10 thinking on, AB and DEV) pushed 11-07 ~14:15 UTC. No T4 kernel pushed.
 
 TPU (updated 11-10 14:20 UTC, `kaggle quota`: week from 11-07 TPU 7.02 h used of 20, GPU 0.00 of 30): v6 queued ~63 h, ran ~05:25-11:57 UTC 11-10 = 6.51 h, first complete run: thinking-on base AB 13/33, bf-t10 AB 14/33, base DEV 13/33 (experiments/2026-11-10-tpu-v6/notes.md). v7 (bf-lean AB, bf-lean DEV, bf-t10 DEV; est. 6.5 TPU h) pushed 11-10 ~14:20 UTC, QUEUED; collect to data/tpu_results/v7. No T4 kernel pushed.
+
+11-11 14:00 UTC: no pushes. TPU v7 still QUEUED since 11-10 ~14:20 (~24 h). `kaggle quota`: TPU 7.02/20, GPU 0.00/30 (reset 11-14).

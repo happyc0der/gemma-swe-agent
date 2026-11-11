@@ -267,3 +267,5 @@ a relaxed call plan; then an analyzer sub-agent with `skip_summarization: false`
   config. Nothing adopted.
 
 - 2026-11-10: ccuuuuy "LB 0.22 | 4 config files, no training" writes the budget-fit bundle with digest c9829b6ac709, i.e. byte-identical to our base (pub-budget-fit). Its title claims one 0.22 draw (13/58), inside the base's known spread (8-11 in our 9 draws, one public 13 in the family). Nothing to adopt. Other new titles (code-graph toolkit audit, Evidence-per-Token reproduction, Repair Lab, RepoMem) carry no repeated LB draws.
+
+- 2026-11-11: titles skimmed (30 most recently run): mostly paper-track notebooks (noise/MDE, graph benchmarks, harness calibration, loop-breaker telemetry) plus flexonafft "Budget Experimental" and aminebrahimzadeh68 "Before Best-of-N code release"; none shows repeated completed LB draws. Nothing adopted. Board: top 0.29, then a 0.24 block.
