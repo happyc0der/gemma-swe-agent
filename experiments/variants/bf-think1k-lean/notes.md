@@ -12,3 +12,10 @@ Decision rule: queue its LB days only if bf-think1k's mean over its 3 days (11-0
 >= 1.0 task; then it replaces bf-lean's day 2/3 slots (or follows bf-lean day 1). Candidate freeze 11-26.
 
 Compile (2026-11-08): COMPILE_OK; thinking {"enable_thinking": true, "thinking_token_budget": 1024}; tools 5; 8 min / 28 calls / 80 turns / 240 s.
+
+## 2026-11-13: queued for LB days 11-15, 11-19, 11-23
+bf-lean's thinking-on screen came back 17/33 (AB) and 14/33 (DEV) against the base's 13 and 13
+(experiments/2026-11-13-tpu-v7). bf-think1k finished at 10.33 over 3 LB days (base 9.67), short of the
++ 1.0 rule written on 11-08. Queued anyway on the new lean evidence: both changes point up, both cut
+tokens (no runtime risk), and the base slots it takes add little to a mean already pooled over 19 draws.
+Usual verdict rule: promote only at a 3-day mean >= base + 1.5; drop on any runtime error.

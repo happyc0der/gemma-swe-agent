@@ -143,3 +143,5 @@ TPU (updated 11-07 14:10 UTC, `kaggle quota`: week from 11-07 TPU 0.51 h used of
 TPU (updated 11-10 14:20 UTC, `kaggle quota`: week from 11-07 TPU 7.02 h used of 20, GPU 0.00 of 30): v6 queued ~63 h, ran ~05:25-11:57 UTC 11-10 = 6.51 h, first complete run: thinking-on base AB 13/33, bf-t10 AB 14/33, base DEV 13/33 (experiments/2026-11-10-tpu-v6/notes.md). v7 (bf-lean AB, bf-lean DEV, bf-t10 DEV; est. 6.5 TPU h) pushed 11-10 ~14:20 UTC, QUEUED; collect to data/tpu_results/v7. No T4 kernel pushed.
 
 11-11 14:00 UTC: no pushes. TPU v7 still QUEUED since 11-10 ~14:20 (~24 h). `kaggle quota`: TPU 7.02/20, GPU 0.00/30 (reset 11-14).
+
+TPU (updated 11-13 14:05 UTC, `kaggle quota`: week from 11-07 TPU 13.64 h used of 20, GPU 0.00 of 30; reset 11-14 00:00 UTC): v7 queued ~55 h, ran ~21:30 UTC 11-12 to 04:01 UTC 11-13 = 6.62 h: thinking-on bf-lean AB 17/33, bf-lean DEV 14/33, bf-t10 DEV 15/33 (base 13 and 13; experiments/2026-11-13-tpu-v7/notes.md), collected to data/tpu_results/v7. v8 (base AB, bf-lean AB, base DEV reruns; est. 6.6 TPU h, will most likely run in the next quota week) pushed 11-13 14:03 UTC, QUEUED; collect to data/tpu_results/v8. No T4 kernel pushed.
