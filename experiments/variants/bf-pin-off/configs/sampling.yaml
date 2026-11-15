@@ -1,0 +1,6 @@
+temperature: 0.2
+top_p: 0.95
+max_output_tokens: 8192
+thinking_config:
+  include_thoughts: false
+  thinking_level: none   # thinking-off screen of the budget-fit prompt for the T4 faithful eval; the LB variant has thinking_budget 4096
