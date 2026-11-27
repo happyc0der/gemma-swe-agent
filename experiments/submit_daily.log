@@ -723,3 +723,32 @@ HTTP 400: {"error":{"code":400,"message":"Submission not allowed:  Your team alr
 Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
 Successfully submitted to Google - The Gemma 4 Developer Agent Competition
 Successfully submitted
+[Fri Nov 27 01:05:06 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 01:35:08 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 02:05:09 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 02:35:10 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 03:05:11 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 03:35:13 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 04:05:14 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 04:35:15 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 05:05:16 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 05:35:17 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 06:05:18 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 06:35:20 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 07:05:21 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 07:35:22 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 08:05:23 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 08:35:23 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 09:05:24 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 09:35:25 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 10:05:27 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 10:35:28 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 11:05:29 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 11:35:30 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 12:05:31 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 12:35:32 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 13:05:33 UTC 2026] previous submission still pending; waiting 30 min
+[Fri Nov 27 13:35:37 UTC 2026] fallback rc=0 dir=experiments/variants/pub-budget-fit Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
+Successfully submitted to Google - The Gemma 4 Developer Agent Competition
+Successfully submitted
